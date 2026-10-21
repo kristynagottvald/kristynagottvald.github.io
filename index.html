@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kristyna Gottvald • Art Direction, Design, Brand Systems</title>
+  <meta name="description" content="Portfolio of Kristyna Gottvald: art direction, design and brand systems.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header class="title">
+      <div class="title-text">
+        <h1><a class="text" href="#">Kristyna Gottvald</a></h1>
+        <h3>Brand Design</h3>
+      </div>
+      <nav class="left-panel-footer" aria-label="Main">
+        <div class="footer-links-grid">
+          <a class="text" href="#" data-nav="work">Featured Work</a>
+          <a class="text" href="#about" data-nav="about">About</a>
+          <a class="text" href="https://www.linkedin.com/in/kgottvald/" target="_blank" rel="noopener noreferrer">LinkedIn<span aria-hidden="true">⇲</span></a>
+          <a class="text" href="https://dribbble.com/gottbot/" target="_blank" rel="noopener noreferrer">Dribbble<span aria-hidden="true">⇲</span></a>
+          <a class="text" href="https://vimeo.com/gottvald" target="_blank" rel="noopener noreferrer">Vimeo<span aria-hidden="true">⇲</span></a>
+          <a class="text" href="https://openprocessing.org/user/500421/#sketches" target="_blank" rel="noopener noreferrer">Creative Coding<span aria-hidden="true">⇲</span></a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="right-panel" id="main">
+      <!-- Home: project grid, filled from projects.json -->
+      <section id="view-grid" aria-label="Featured work">
+        <div class="posts-container" id="cards"></div>
+      </section>
+
+      <!-- Case studies: current project plus the next ones, appended on scroll -->
+      <section id="view-case" aria-label="Case study" hidden>
+        <div id="case-stack"></div>
+        <div id="case-sentinel" aria-hidden="true"></div>
+      </section>
+
+      <!-- About -->
+      <section id="view-about" class="about" aria-labelledby="about-title" hidden>
+        <div class="about-inner">
+          <div class="post-title" aria-hidden="true">About</div>
+          <h2 id="about-title">Brand systems that hold up at every size.</h2>
+          <p>I am a brand designer working across identity, art direction and motion. I like building the rules behind a brand as much as the first logo sketch.</p>
+          <p>Currently open to select freelance projects. Replace this text with your own bio.</p>
+        </div>
+      </section>
+
+      <footer class="site-footer">© Kristyna Gottvald • <a href="#">Featured Work</a></footer>
+    </main>
+  </div>
+
+</body>
+</html>
