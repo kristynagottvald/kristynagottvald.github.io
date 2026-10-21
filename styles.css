@@ -220,8 +220,9 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 #case-sentinel { height: 1px; }
 
 /* ---------- About ---------- */
-.about-inner { padding: 34px var(--pad-wide) 100px; display: flex; flex-direction: column; gap: 16px; }
-.about-inner .post-title { margin: 0; }
+.about-inner { padding: 100px var(--pad-wide) 100px; display: flex; flex-direction: column; gap: 16px; }
+.about h2 { margin-bottom: 28px; }
+.about h3 { margin: 48px 0 0; font-size: 16px; line-height: 22px; font-weight: 600; letter-spacing: -0.2px; color: var(--ink); }
 .about h2 { font-size: 48px; line-height: 52px; font-weight: 600; letter-spacing: -1.8px; max-width: 16ch; text-wrap: balance; }
 
 /* ---------- Footer ---------- */
@@ -248,7 +249,7 @@ figcaption { padding: 12px var(--pad-wide) 0; }
   .case-head, .block-text { padding-inline: var(--pad); }
   .about h2 { font-size: 38px; line-height: 40px; }
   figcaption { padding-inline: var(--pad); }
-  .about-inner { padding: 28px var(--pad) 80px; }
+  .about-inner { padding: 56px var(--pad) 80px; }
 }
 
 @media (max-width: 480px) {
