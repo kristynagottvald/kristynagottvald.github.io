@@ -283,7 +283,7 @@
     const img = e.target;
     if (img.tagName !== 'IMG' || img.dataset.fallback) return;
     img.dataset.fallback = '1';
-    img.src = 'images/placeholder.svg';
+    img.src = 'placeholder.svg';
   }, true);
 
   window.addEventListener('hashchange', route);

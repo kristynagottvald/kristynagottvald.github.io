@@ -5,13 +5,13 @@
     "client": "",
     "category": "Campaign",
     "year": 2026,
-    "thumbnail": "images/postal-fix.png",
+    "thumbnail": "postal-fix.png",
     "mediaType": "image",
     "summary": "",
     "caseStudyContent": [
       {
         "type": "image",
-        "src": "images/postal-fix.png",
+        "src": "postal-fix.png",
         "alt": "Postal Fix"
       },
       {
@@ -21,7 +21,7 @@
       },
       {
         "type": "image",
-        "src": "images/postal-fix-02.png",
+        "src": "postal-fix-02.png",
         "alt": "Postal Fix"
       },
       {
@@ -31,17 +31,17 @@
       },
       {
         "type": "image",
-        "src": "images/postal-fix-03.png",
+        "src": "postal-fix-03.png",
         "alt": "Postal Fix"
       },
       {
         "type": "image",
-        "src": "images/postal-fix-04.png",
+        "src": "postal-fix-04.png",
         "alt": "Postal Fix"
       },
       {
         "type": "image",
-        "src": "images/postal-fix-05.png",
+        "src": "postal-fix-05.png",
         "alt": "Postal Fix"
       },
       {
@@ -51,12 +51,12 @@
       },
       {
         "type": "image",
-        "src": "images/postal-fix-06.png",
+        "src": "postal-fix-06.png",
         "alt": "Postal Fix"
       },
       {
         "type": "image",
-        "src": "images/postal-fix-07.png",
+        "src": "postal-fix-07.png",
         "alt": "Postal Fix"
       },
       {
@@ -81,24 +81,24 @@
     "client": "Clearco",
     "category": "Art direction",
     "year": 2021,
-    "thumbnail": "images/modern-marketing-guides-for-the-digital-entrepreneur.png",
+    "thumbnail": "modern-marketing-guides-for-the-digital-entrepreneur.png",
     "mediaType": "image",
     "summary": "The CCO marketing guides are the comprehensive manuals for digital entrepreneurs seeking to ascend the ranks of the e-commerce world. By positioning ourselves as disruptors in the space, I created a dark modern aesthetic that feels timeless yet fresh appealing to Clearco’s self-starter audience.",
     "caseStudyContent": [
       {
         "type": "image",
-        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur.png",
+        "src": "modern-marketing-guides-for-the-digital-entrepreneur.png",
         "alt": "Modern marketing guides for the digital entrepreneur"
       },
       {
         "type": "text",
         "heading": "The Attribution Guide",
         "body": [],
-        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur-02.png"
+        "src": "modern-marketing-guides-for-the-digital-entrepreneur-02.png"
       },
       {
         "type": "image",
-        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur-02.png",
+        "src": "modern-marketing-guides-for-the-digital-entrepreneur-02.png",
         "alt": "Modern marketing guides for the digital entrepreneur"
       },
       {
@@ -108,7 +108,7 @@
       },
       {
         "type": "image",
-        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur-03.png",
+        "src": "modern-marketing-guides-for-the-digital-entrepreneur-03.png",
         "alt": "Modern marketing guides for the digital entrepreneur"
       },
       {
@@ -175,7 +175,7 @@
     "client": "",
     "category": "Campaign",
     "year": 2021,
-    "thumbnail": "images/clearco-australia-launch.png",
+    "thumbnail": "clearco-australia-launch.png",
     "mediaType": "image",
     "summary": "",
     "caseStudyContent": [
@@ -186,7 +186,7 @@
       },
       {
         "type": "image",
-        "src": "images/clearco-australia-launch.png",
+        "src": "clearco-australia-launch.png",
         "alt": "Clearco Australia Launch"
       },
       {
