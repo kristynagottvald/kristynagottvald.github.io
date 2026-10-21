@@ -65,8 +65,7 @@
         <a class="post-link" href="#${esc(p.id)}" aria-label="${esc(p.title)}">
           <div class="post-media-container">${mediaHTML(p)}</div>
           <div class="post-metadata">
-            <div class="post-title">${[p.category, p.year].filter(Boolean).map(esc).join(' · ')}</div>
-            ${p.client ? `<div class="post-client">${esc(p.client)}</div>` : ''}
+            <div class="post-title">${[p.category, p.year, p.client].filter(Boolean).map(esc).join(' · ')}</div>
             <h3 class="post-heading">${esc(p.title)}</h3>
           </div>
         </a>
@@ -86,12 +85,37 @@
 
   /* ---------- Case study ---------- */
 
+  // "Role: a, b, c" and "Key results ..." become a label on the left and one item per line on the right.
+  const SMALL = new Set(['and', 'of', 'the', 'for', 'to', 'in', '&']);
+  const titleCase = (r) =>
+    r.replace(/\S+/g, (w, i) => (i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1)));
+  const LABELED = /^\s*(role:|key results:?\s)/i;
+  const CREDIT = /^\s*(creative direction|art direction|design(ed)? by|production|producer|animation|motion|photography|copy(writing)?|illustration|agency|credits?|team|studio)\b[^:]{0,40}:/i;
+
+  function roleRow(text, noLine) {
+    const kr = /^\s*key results:?\s*/i.test(text);
+    const items = kr
+      ? text.replace(/^\s*key results:?\s*/i, '').split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean)
+      : text.replace(/^\s*role:\s*/i, '').split(',').map((x) => x.trim()).filter(Boolean).map(titleCase);
+    return `<div class="role-row${noLine ? ' no-line' : ''}"><div class="role-label">${kr ? 'Key results' : 'Role'}</div><ul class="role-list${kr ? ' body' : ''}">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
+  }
+
+  // Heading on the left, body on the right under a divider line; credits go last.
+  function textBlock(b) {
+    const paras = [].concat(b.body || []);
+    const labeled = paras.filter((t) => LABELED.test(t));
+    const rest = paras.filter((t) => !LABELED.test(t)).sort((x, y) => CREDIT.test(x) - CREDIT.test(y));
+    const row = b.heading || rest.length
+      ? `<div class="text-row${b.noLine ? ' no-line' : ''}"><div class="text-left">${b.heading ? `<h3>${esc(b.heading)}</h3>` : ''}</div><div class="text-right">${rest.map((t) => `<p>${esc(t)}</p>`).join('')}</div></div>`
+      : '';
+    if (!row && !labeled.length) return '';
+    return `<div class="block-text">${row}${labeled.map((t) => roleRow(t, b.noLine)).join('')}</div>`;
+  }
+
   function blockHTML(b) {
     switch (b.type) {
-      case 'text': {
-        const paras = [].concat(b.body || []).map((t) => `<p>${esc(t)}</p>`).join('');
-        return `<div class="block-text">${b.heading ? `<h3>${esc(b.heading)}</h3>` : ''}${paras}</div>`;
-      }
+      case 'text':
+        return textBlock(b);
       case 'image':
         return `<figure class="block-media"><img src="${esc(b.src)}" alt="${esc(b.alt)}" loading="lazy" referrerpolicy="no-referrer">${
           b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''
@@ -111,18 +135,24 @@
     }
   }
 
-  function caseHTML(p, isNext) {
+  const pageTitle = (p) => p.pageTitle || p.title;
+
+  // First image or video, then the title row (title left, description right), then the rest.
+  function caseHTML(p) {
+    const content = p.caseStudyContent || [];
+    const blocks = content.map(blockHTML);
+    const heroAt = content.findIndex((b) => b.type === 'image' || b.type === 'vimeo');
+    const hero = heroAt >= 0 ? blocks.splice(heroAt, 1)[0] : '';
+    const hasDesc = !!(p.summary && p.summary.trim());
+    const head = p.hideTitle && !hasDesc
+      ? ''
+      : `<header class="case-head"><div class="case-inner${p.noLine ? ' no-line' : ''}">
+          <div class="case-left">${p.hideTitle ? '' : `<h2 id="t-${esc(p.id)}">${esc(pageTitle(p))}</h2>`}</div>
+          <div class="case-right">${hasDesc ? `<p class="lede">${esc(p.summary)}</p>` : ''}</div>
+        </div></header>`;
     return `
-      <article class="case${isNext ? ' is-next' : ''}" data-id="${esc(p.id)}" aria-labelledby="t-${esc(p.id)}">
-        <header class="case-head">
-          <div class="meta-row">
-            ${isNext ? '<span class="next-label">Next project</span>' : ''}
-            ${[p.category, p.year, p.client].filter(Boolean).map((v) => `<span>${esc(v)}</span>`).join('')}
-          </div>
-          <h2 id="t-${esc(p.id)}">${esc(p.title)}</h2>
-          ${p.summary ? `<p class="lede">${esc(p.summary)}</p>` : ''}
-        </header>
-        ${(p.caseStudyContent || []).map(blockHTML).join('')}
+      <article class="case" data-id="${esc(p.id)}" aria-label="${esc(pageTitle(p))}">
+        ${hero}${head}${blocks.join('')}
       </article>`;
   }
 
@@ -157,7 +187,7 @@
     if (order.length >= projects.length) return false;
     const p = projects[(startIndex + order.length) % projects.length];
     order.push(p.id);
-    stackEl.insertAdjacentHTML('beforeend', caseHTML(p, order.length > 1));
+    stackEl.insertAdjacentHTML('beforeend', caseHTML(p));
     activeObserver.observe(stackEl.lastElementChild);
     watchEmbeds(stackEl.lastElementChild);
     return order.length < projects.length;
@@ -168,7 +198,7 @@
     activeId = id;
     const p = projects.find((x) => x.id === id);
     history.replaceState(null, '', `#${id}`);
-    if (p) document.title = `${p.title} • ${SITE}`;
+    if (p) document.title = `${pageTitle(p)} • ${SITE}`;
   }
 
   function showCase(id) {
@@ -196,7 +226,7 @@
     }, { rootMargin: '0px 0px 400px 0px' });
 
     appendNext();
-    document.title = `${projects[idx].title} • ${SITE}`;
+    document.title = `${pageTitle(projects[idx])} • ${SITE}`;
     window.scrollTo(0, 0);
     sentinelObserver.observe(sentinelEl);
   }
@@ -247,6 +277,14 @@
       window.scrollTo(0, returning ? gridScroll : 0);
     }
   }
+
+  // Any image that fails to load (for example a removed Tumblr URL) falls back to a grey 16:9 placeholder.
+  document.addEventListener('error', (e) => {
+    const img = e.target;
+    if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+    img.dataset.fallback = '1';
+    img.src = 'images/placeholder.svg';
+  }, true);
 
   window.addEventListener('hashchange', route);
   load();

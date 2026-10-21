@@ -5,13 +5,13 @@
     "client": "",
     "category": "Campaign",
     "year": 2026,
-    "thumbnail": "https://64.media.tumblr.com/a90291ac118f2375aa63ef935aad471b/d4eb6cbf14fcd736-a1/s640x960/b71d5cc4e27243016d439284e52e1cfcbd37413c.png",
+    "thumbnail": "images/postal-fix.png",
     "mediaType": "image",
     "summary": "",
     "caseStudyContent": [
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/a90291ac118f2375aa63ef935aad471b/d4eb6cbf14fcd736-a1/s640x960/b71d5cc4e27243016d439284e52e1cfcbd37413c.png",
+        "src": "images/postal-fix.png",
         "alt": "Postal Fix"
       },
       {
@@ -21,7 +21,7 @@
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/797f3b193ecacb3c39799bce71a8f1ec/d4eb6cbf14fcd736-a8/s640x960/d31bcf8d8089c1d7b65113fb7d586c2de9906cda.png",
+        "src": "images/postal-fix-02.png",
         "alt": "Postal Fix"
       },
       {
@@ -31,17 +31,17 @@
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/3371e03fe305f28b96644465d85ed749/d4eb6cbf14fcd736-a1/s640x960/e18755b1384f3046a013fb828483239254f0226e.png",
+        "src": "images/postal-fix-03.png",
         "alt": "Postal Fix"
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/5e7c76024a23c0b98702263d40343c4d/d4eb6cbf14fcd736-d9/s640x960/a38425a22cb7bab8d6edf2d621dbc22759ed47ff.png",
+        "src": "images/postal-fix-04.png",
         "alt": "Postal Fix"
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/276b7eb6c6bff64fbe853e367e7e75d5/d4eb6cbf14fcd736-5e/s640x960/23eb4bc0f9f8443739600f958576abeeec8bde75.png",
+        "src": "images/postal-fix-05.png",
         "alt": "Postal Fix"
       },
       {
@@ -51,12 +51,12 @@
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/58bf1e8678c1f6708b5c45e484408aa1/d4eb6cbf14fcd736-a7/s640x960/fd925da7c60c1f3ce0059427d330ef37c57729cb.png",
+        "src": "images/postal-fix-06.png",
         "alt": "Postal Fix"
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/585da0d248667e410a849ffb5a252865/d4eb6cbf14fcd736-96/s640x960/18e5e7f6f618663a9baadac721f8b19dc1a8b566.png",
+        "src": "images/postal-fix-07.png",
         "alt": "Postal Fix"
       },
       {
@@ -78,32 +78,27 @@
   {
     "id": "805233402662060032",
     "title": "Modern marketing guides for the digital entrepreneur",
-    "client": "",
+    "client": "Clearco",
     "category": "Art direction",
     "year": 2021,
-    "thumbnail": "https://64.media.tumblr.com/a892ad230b4c0ab3aaaff0e4799ace18/1ee6005b3605f520-f9/s640x960/dda5d2f35afe0ce64c3730ee304353bb187cdf7c.png",
+    "thumbnail": "images/modern-marketing-guides-for-the-digital-entrepreneur.png",
     "mediaType": "image",
-    "summary": "",
+    "summary": "The CCO marketing guides are the comprehensive manuals for digital entrepreneurs seeking to ascend the ranks of the e-commerce world. By positioning ourselves as disruptors in the space, I created a dark modern aesthetic that feels timeless yet fresh appealing to Clearco’s self-starter audience.",
     "caseStudyContent": [
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/a892ad230b4c0ab3aaaff0e4799ace18/1ee6005b3605f520-f9/s640x960/dda5d2f35afe0ce64c3730ee304353bb187cdf7c.png",
+        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur.png",
         "alt": "Modern marketing guides for the digital entrepreneur"
       },
       {
         "type": "text",
-        "body": [
-          "The CCO marketing guides are the comprehensive manuals for digital entrepreneurs seeking to ascend the ranks of the e-commerce world. By positioning ourselves as disruptors in the space, I created a dark modern aesthetic that feels timeless yet fresh appealing to Clearco’s self-starter audience."
-        ]
-      },
-      {
-        "type": "text",
         "heading": "The Attribution Guide",
-        "body": []
+        "body": [],
+        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur-02.png"
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/14d90a9d4de3b59bd5bcf24e36fb4e88/1ee6005b3605f520-2d/s640x960/ff0f87838b2887a76252b7b1f9f8c8844d0a8e79.png",
+        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur-02.png",
         "alt": "Modern marketing guides for the digital entrepreneur"
       },
       {
@@ -113,7 +108,7 @@
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/4a7d45bce21541ce4ec43ef4524b9292/1ee6005b3605f520-7c/s640x960/e9765038a122a133b4f0b14ffed588fa74d3cdcb.png",
+        "src": "images/modern-marketing-guides-for-the-digital-entrepreneur-03.png",
         "alt": "Modern marketing guides for the digital entrepreneur"
       },
       {
@@ -180,7 +175,7 @@
     "client": "",
     "category": "Campaign",
     "year": 2021,
-    "thumbnail": "https://64.media.tumblr.com/077a676739401df908abcdf0e641f46a/05c3c810d69ec96f-21/s640x960/5a966e172210bbde24fda1b3ac60efcf575e2165.png",
+    "thumbnail": "images/clearco-australia-launch.png",
     "mediaType": "image",
     "summary": "",
     "caseStudyContent": [
@@ -191,7 +186,7 @@
       },
       {
         "type": "image",
-        "src": "https://64.media.tumblr.com/077a676739401df908abcdf0e641f46a/05c3c810d69ec96f-21/s640x960/5a966e172210bbde24fda1b3ac60efcf575e2165.png",
+        "src": "images/clearco-australia-launch.png",
         "alt": "Clearco Australia Launch"
       },
       {

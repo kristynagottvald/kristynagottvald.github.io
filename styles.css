@@ -133,22 +133,8 @@ header a.text[aria-current="page"] { color: var(--bg); background: var(--ink); }
 .load-error { padding: 40px var(--pad); }
 
 /* ---------- Case study ---------- */
-.case { padding-bottom: 120px; }
+.case { padding-bottom: 50px; }
 .case + .case { border-top: 0.5px solid var(--line); }
-.case.is-next { margin-top: 0; }
-
-.case-head { padding: 34px var(--pad-wide) 30px; display: flex; flex-direction: column; gap: 14px; }
-.meta-row { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-.case-head h2 {
-  font-size: 48px;
-  line-height: 52px;
-  font-weight: 600;
-  letter-spacing: -1.8px;
-  max-width: 18ch;
-  text-wrap: balance;
-}
-.case-head .lede { margin-top: 6px; }
-.next-label { color: var(--ink); }
 
 .block-media { margin: 0; }
 .block-media img, .block-media video, .embed {
@@ -157,10 +143,54 @@ header a.text[aria-current="page"] { color: var(--bg); background: var(--ink); }
   border-bottom: 0.5px solid var(--line);
 }
 .block-media + .block-media { margin-top: 4px; }
+.case > .block-media:first-child img, .case > .block-media:first-child .embed { border-top: 0; }
 figcaption { padding: 12px var(--pad-wide) 0; }
 
-.block-text { padding: 50px var(--pad-wide); display: flex; flex-direction: column; gap: 14px; }
-.block-text h3 { font-size: 25px; line-height: 28px; font-weight: 600; letter-spacing: -1px; }
+/* Divider rows: the line sits 24px below the content above it. */
+.case-head, .block-text { padding: 24px var(--pad-wide) 0; }
+.case-inner, .text-row, .role-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 40px;
+  align-items: start;
+  border-top: 0.5px solid var(--line);
+  padding-top: 20px;
+}
+.no-line { border-top-color: transparent; }
+.case-left, .case-right, .text-left, .text-right { min-width: 0; }
+.case-right, .text-right { padding-top: 4px; }
+.text-right { display: flex; flex-direction: column; gap: 14px; }
+.case-head h2, .text-left h3 {
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -1px;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+.text-right p, .case-head .lede { margin: 0; max-width: 56ch; font-size: 16px; line-height: 22px; }
+.case-head + .block-media, .block-text + .block-media { margin-top: 40px; }
+
+.text-row + .role-row, .role-row + .role-row { margin-top: 24px; }
+.role-label { font-size: 11px; line-height: 16px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding-top: 5px; }
+.role-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 20px;
+  line-height: 26px;
+  letter-spacing: -0.4px;
+  color: var(--ink);
+}
+.role-list.body { gap: 14px; font-size: 16px; line-height: 22px; letter-spacing: -0.2px; color: var(--muted); max-width: 56ch; }
+@media (max-width: 700px) {
+  .case-head, .block-text { padding: 20px var(--pad) 0; }
+  .case-inner, .text-row, .role-row { grid-template-columns: 1fr; gap: 14px; }
+  .case-head + .block-media, .block-text + .block-media { margin-top: 36px; }
+}
 
 .embed { position: relative; aspect-ratio: 16 / 9; background: var(--media-bg); overflow: hidden; }
 .embed iframe, .embed > img, .embed-play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -215,17 +245,15 @@ figcaption { padding: 12px var(--pad-wide) 0; }
   .posts-container { display: block; }
   .post { border-right: 0; }
 
-  .case { padding-bottom: 80px; }
-  .case-head { padding: 28px var(--pad) 24px; }
-  .case-head h2, .about h2 { font-size: 38px; line-height: 40px; }
-  .block-text { padding: 36px var(--pad); }
+  .case-head, .block-text { padding-inline: var(--pad); }
+  .about h2 { font-size: 38px; line-height: 40px; }
   figcaption { padding-inline: var(--pad); }
   .about-inner { padding: 28px var(--pad) 80px; }
-  .post-title { width: 80%; }
 }
 
 @media (max-width: 480px) {
-  .case-head h2, .about h2 { font-size: 32px; line-height: 35px; letter-spacing: -1.4px; }
+  .about h2 { font-size: 32px; line-height: 35px; letter-spacing: -1.4px; }
+  .case-head h2, .text-left h3 { font-size: 24px; line-height: 28px; letter-spacing: -0.8px; }
   .post-heading { font-size: 22px; line-height: 24px; }
 }
 
