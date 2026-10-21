@@ -189,7 +189,7 @@
     const items = kr
       ? text.replace(/^\s*key results:?\s*/i, '').split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean)
       : text.replace(/^\s*role:\s*/i, '').split(',').map((x) => x.trim()).filter(Boolean).map(titleCase);
-    return `<div class="role-row${noLine ? ' no-line' : ''}"><div class="role-label">${kr ? 'Key results' : 'Role'}</div><ul class="role-list${kr ? ' body' : ''}">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
+    return `<div class="role-row${kr ? ' key-results' : ''}${noLine ? ' no-line' : ''}"><div class="role-label">${kr ? 'Key results' : 'Role'}</div><ul class="role-list${kr ? ' body' : ''}">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
   }
 
   // Heading on the left, body on the right under a divider line; credits go last.
