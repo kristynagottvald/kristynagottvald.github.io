@@ -133,7 +133,9 @@ header a.text:hover { color: var(--bg); background: var(--ink); }
 .load-error { padding: 40px var(--pad); }
 
 /* ---------- Case study ---------- */
-.case { padding-bottom: 50px; }
+/* 300px below each project, closed by a full-width line; the growing preview has neither. */
+.case { padding-bottom: 300px; border-bottom: 0.5px solid var(--line); }
+.case.preview { padding-bottom: 0; border-bottom: 0; }
 .case + .case { border-top: 0.5px solid var(--line); }
 
 .block-media { margin: 0; }
@@ -219,6 +221,8 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 
 #case-sentinel { height: 1px; }
 
+
+
 /* ---------- About ---------- */
 .about-inner { padding: 100px var(--pad-wide) 100px; display: flex; flex-direction: column; gap: 16px; }
 .about h2 { margin-bottom: 28px; }
@@ -261,4 +265,33 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 @media (prefers-reduced-motion: reduce) {
   .post-bg, .embed-play span { transition: none; }
   .post-link:hover .post-bg { transform: scale(1.01); }
+}
+
+/* ---------- Next up: reserved under the current project; a copy grows out of the bottom-right corner ---------- */
+.case.is-next { border-top: 0; }
+.next-up-text { padding: 24px var(--pad-wide); }
+.next-up-label { font-size: 11px; line-height: 16px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.next-up-title { margin-top: 8px; font-size: 44px; line-height: 48px; font-weight: 600; letter-spacing: -1.6px; color: var(--ink); text-wrap: balance; }
+.next-up-media img, .next-up-media .embed { border: 0; }
+.case.preview .next-up { cursor: pointer; }
+.case.preview .next-up-text { margin-left: auto; }
+.case.preview .next-up-media { transform-origin: 100% 0; }
+.case.preview .case-rest { display: none; }
+@media (max-width: 700px) {
+  .next-up-text { padding-inline: var(--pad); }
+  .next-up-title { font-size: 32px; line-height: 36px; letter-spacing: -1.2px; }
+}
+
+/* Dark mode for the "Next up" pop-out (text and first image); the rest of the project is light again. */
+.case.is-next .next-up { background: #0c0c0c; color: #fbfaf7; }
+.case.is-next .next-up-label { color: #9b988f; }
+.case.is-next .next-up-title { color: #fbfaf7; }
+
+/* The home grid, shown once after the last project. */
+.stack-end-label { padding: 24px 22px; font-size: 11px; line-height: 16px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); border-bottom: 0.5px solid var(--line); }
+/* Always the two-column tile view, even where the home page stacks to one column. */
+.stack-end .posts-container { display: grid; grid-template-columns: 1fr 1fr; }
+.stack-end .post { border-right: 0.5px solid var(--line); }
+@media (max-width: 700px) {
+  .stack-end .posts-container { grid-template-columns: 1fr; }
 }
