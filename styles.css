@@ -85,10 +85,8 @@ header.title {
   border-top: 0.5px solid var(--line);
 }
 .footer-links-grid { display: flex; flex-direction: column; gap: 5px; }
-.footer-links-grid a span { font-size: 9px; vertical-align: middle; margin-left: 3px; }
 
-header a.text:hover,
-header a.text[aria-current="page"] { color: var(--bg); background: var(--ink); }
+header a.text:hover { color: var(--bg); background: var(--ink); }
 
 .right-panel { min-width: 0; display: flex; flex-direction: column; }
 .right-panel > section { flex: 1 0 auto; }
@@ -97,7 +95,7 @@ header a.text[aria-current="page"] { color: var(--bg); background: var(--ink); }
 .posts-container { display: grid; grid-template-columns: 1fr 1fr; }
 
 .post { border-right: 0.5px solid var(--line); border-bottom: 0.5px solid var(--line); min-width: 0; }
-.post-link { display: block; padding: var(--pad); height: 100%; }
+.post-link { display: block; padding: 10px; height: 100%; }
 
 .post-media-container {
   position: relative;
@@ -113,11 +111,13 @@ header a.text[aria-current="page"] { color: var(--bg); background: var(--ink); }
   height: 100%;
   object-fit: cover;
   transform: scale(1.01);
-  transition: transform 1.2s var(--ease);
+  opacity: 0;
+  transition: transform 1.2s var(--ease), opacity 0.8s ease;
 }
+.post-bg.is-active { opacity: 1; }
 .post-link:hover .post-bg, .post-link:focus-visible .post-bg { transform: scale(1.1); }
 
-.post-metadata { margin: 12px 0; display: flex; flex-direction: column; gap: 5px; }
+.post-metadata { margin: 12px 0 14px; padding: 0 12px; display: flex; flex-direction: column; gap: 5px; }
 .post-title { margin-top: 20px; }
 .post-client { color: var(--muted); }
 .post-heading {

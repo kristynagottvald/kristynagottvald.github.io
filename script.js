@@ -52,16 +52,17 @@
 
   function mediaHTML(p) {
     if (p.mediaType === 'video' && p.thumbnailVideo) {
-      return `<video class="post-bg" src="${esc(p.thumbnailVideo)}" poster="${esc(p.thumbnail)}" muted loop playsinline preload="metadata"></video>`;
+      return `<video class="post-bg is-active" src="${esc(p.thumbnailVideo)}" poster="${esc(p.thumbnail)}" muted loop playsinline preload="metadata"></video>`;
     }
-    return `<img class="post-bg" src="${esc(p.thumbnail)}" alt="" loading="lazy" referrerpolicy="no-referrer">`;
+    return `<img class="post-bg is-active" src="${esc(p.thumbnail)}" alt="" loading="lazy" referrerpolicy="no-referrer">`;
   }
 
   function renderGrid() {
+    stopCycling();
     cardsEl.innerHTML = projects
       .map(
         (p) => `
-      <article class="post">
+      <article class="post" data-pid="${esc(p.id)}">
         <a class="post-link" href="#${esc(p.id)}" aria-label="${esc(p.title)}">
           <div class="post-media-container">${mediaHTML(p)}</div>
           <div class="post-metadata">
@@ -81,6 +82,73 @@
       }, { threshold: 0.25 });
       videos.forEach((v) => io.observe(v));
     }
+    startCycling();
+  }
+
+  /* ---------- Home grid: cards cycle through the project's images ---------- */
+
+  let cycleTimers = [];
+  let cycleIO = null;
+
+  // Thumbnail first, then each distinct image from the case study.
+  function cardImages(p) {
+    const list = [p.thumbnail];
+    (p.caseStudyContent || []).forEach((b) => {
+      if (b.type === 'image' && b.src && !list.includes(b.src) && !/placeholder/.test(b.src)) list.push(b.src);
+    });
+    return list.filter(Boolean).slice(0, 8);
+  }
+
+  function stopCycling() {
+    cycleTimers.forEach(clearTimeout);
+    cycleTimers = [];
+    cycleIO && cycleIO.disconnect();
+    cycleIO = null;
+  }
+
+  // Every card steps through its images in page order every 2 seconds, offset by card position so they never all swap at once.
+  function startCycling() {
+    stopCycling();
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const visible = new Set();
+    cycleIO = new IntersectionObserver((entries) => {
+      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
+    }, { threshold: 0.2 });
+
+    cardsEl.querySelectorAll('.post[data-pid]').forEach((card, n) => {
+      const p = projects.find((x) => x.id === card.dataset.pid);
+      const urls = p ? cardImages(p) : [];
+      if (urls.length < 2) return;
+      const box = card.querySelector('.post-media-container');
+      let i = 0;
+      cycleIO.observe(card);
+
+      const schedule = (ms) => { cycleTimers[n] = setTimeout(advance, ms); };
+      const advance = () => {
+        if (!visible.has(card)) return schedule(1500);
+        i = (i + 1) % urls.length;
+        const probe = new Image();
+        probe.referrerPolicy = 'no-referrer';
+        probe.onload = () => {
+          const img = document.createElement('img');
+          img.className = 'post-bg';
+          img.alt = '';
+          img.referrerPolicy = 'no-referrer';
+          img.src = urls[i];
+          box.appendChild(img);
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            box.querySelectorAll('.post-bg.is-active').forEach((o) => o.classList.remove('is-active'));
+            img.classList.add('is-active');
+          }));
+          new Image().src = urls[(i + 1) % urls.length];
+          setTimeout(() => box.querySelectorAll('.post-bg:not(.is-active)').forEach((o) => o.remove()), 1500);
+          schedule(2000);
+        };
+        probe.onerror = () => { urls.splice(i, 1); i = Math.max(0, i - 1); if (urls.length > 1) schedule(500); };
+        probe.src = urls[i];
+      };
+      schedule(2000 + (n * 350) % 2000);
+    });
   }
 
   /* ---------- Case study ---------- */
