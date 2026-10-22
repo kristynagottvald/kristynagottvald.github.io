@@ -260,3 +260,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .next-media .reel-hint { z-index: 2; }
 .next-hint .hint-arrow { transition: transform .35s var(--ease); }
 a.next:hover .hint-arrow { transform: translate(2px, -2px); }
+
+/* same pill height as the Interactive label, with a little more room around the text */
+.next-hint { min-height: 36px; padding: 0 14px; }

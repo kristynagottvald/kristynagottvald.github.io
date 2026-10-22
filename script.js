@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023r');
+      const res = await fetch('projects.json?v=20261023s');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -154,10 +154,11 @@
 
   const pageTitle = (p) => p.pageTitle || p.title;
 
-  // Six other projects as image tiles, starting after the current one.
+  // Six other projects as image tiles, never the current project or the Next up project.
   function tilesHTML(p) {
     const i = projects.indexOf(p);
-    return Array.from({ length: Math.min(6, projects.length - 1) }, (_, k) => projects[(i + 1 + k) % projects.length])
+    // starts two after the current project: the one right after it is already shown as "Next up"
+    return Array.from({ length: Math.min(6, projects.length - 2) }, (_, k) => projects[(i + 2 + k) % projects.length])
       .map((q) => `<a class="tile" href="#${esc(q.id)}"><div class="tile-media"><img src="${esc(q.thumbnail)}" alt="" loading="lazy"></div><span class="tile-title">${esc(q.title)}</span></a>`)
       .join('');
   }
