@@ -211,11 +211,16 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 .embed.sketch { background: #1E1E1E; }
 .embed.sketch .pill {
   position: absolute; top: 14px; right: 14px; z-index: 2; pointer-events: none;
-  display: inline-flex; align-items: center; gap: 10px; height: 34px; padding: 0 16px;
-  border-radius: 999px; background: rgba(48, 48, 48, 0.92); color: #e6e6e6;
-  font: 500 13px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 0.06em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px;
+  border-radius: 12px; background: rgba(48, 48, 48, 0.92); color: #e6e6e6;
+  font: 500 11px/1 var(--font); letter-spacing: 1.5px; text-transform: uppercase;
 }
-.embed.sketch .pill-icon { flex: none; }
+.embed.sketch .pill-icon { flex: none; overflow: visible; }
+.embed.sketch .pill-cursor { transform-origin: 7px 6px; animation: pill-click 1.9s ease-in-out infinite; }
+.embed.sketch .pill-rays { animation: pill-rays 1.9s ease-in-out infinite; }
+@keyframes pill-click { 0%, 55%, 100% { transform: none; } 30% { transform: translate(-1.2px, -1.2px) scale(0.88); } }
+@keyframes pill-rays { 0%, 55%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .embed.sketch .pill-cursor, .embed.sketch .pill-rays { animation: none; } }
 .embed { position: relative; aspect-ratio: 16 / 9; background: var(--media-bg); overflow: hidden; }
 .embed iframe, .embed > img, .embed-play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .embed > img { object-fit: cover; }
