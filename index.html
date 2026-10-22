@@ -3,56 +3,133 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kristyna Gottvald • Art Direction, Design, Brand Systems</title>
-  <meta name="description" content="Portfolio of Kristyna Gottvald: art direction, design and brand systems.">
+  <title>Kristyna Gottvald • Graphic Designer</title>
+  <meta name="description" content="Portfolio of Kristyna Gottvald: graphic design, art direction and brand systems.">
+  <meta name="theme-color" content="#000000">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="styles.css?v=20261022d">
-  <script src="script.js?v=20261022d" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400&display=swap">
+  <link rel="stylesheet" href="styles.css?v=20261022w">
+  <script src="script.js?v=20261022w" defer></script>
 </head>
 <body>
-  <div class="container">
-    <header class="title">
-      <div class="title-text">
-        <h1><a class="text" href="#">Kristyna Gottvald</a></h1>
-        <h3>Brand Design</h3>
+  <!-- Fixed header: logo pill that opens the menu,  -->
+  <header class="hb" id="hb">
+    <div class="hb-pill">
+      <div class="hb-bar">
+        <a class="logo" href="#" aria-label="Kristyna Gottvald, home">kg</a>
+        <span class="hb-label" id="hb-label">Home</span>
+        <button class="hb-toggle" id="hb-toggle" type="button" aria-expanded="false" aria-controls="hb-menu"><span class="sr">Toggle menu</span><svg class="nav-ptr" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></button>
       </div>
-      <nav class="left-panel-footer" aria-label="Main">
-        <div class="footer-links-grid">
-          <a class="text" href="#" data-nav="work">Featured Work</a>
-          <a class="text" href="#about" data-nav="about">About</a>
-          <a class="text" href="https://www.linkedin.com/in/kgottvald/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a class="text" href="https://dribbble.com/gottbot/" target="_blank" rel="noopener noreferrer">Dribbble</a>
-          <a class="text" href="https://vimeo.com/gottvald" target="_blank" rel="noopener noreferrer">Vimeo</a>
-          <a class="text" href="https://openprocessing.org/user/500421/#sketches" target="_blank" rel="noopener noreferrer">Creative Coding</a>
+      <nav class="hb-menu" id="hb-menu" aria-label="Main">
+        <a href="#work" data-nav="work"><b>Projects</b><span>Explore case studies</span></a>
+        <a href="#about" data-nav="about"><b>About</b><span>Who I am</span></a>
+        <a href="#services" data-nav="services"><b>Services</b><span>What I do</span></a>
+        <a href="#contact" data-nav="contact"><b>Contact</b><span>Reach out</span></a>
+        <div class="hb-channels">
+          <a href="https://www.linkedin.com/in/kgottvald/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://dribbble.com/gottbot/" target="_blank" rel="noopener noreferrer">Dribbble</a>
+          <a href="https://vimeo.com/gottvald" target="_blank" rel="noopener noreferrer">Vimeo</a>
+          <a href="https://openprocessing.org/user/500421/#sketches" target="_blank" rel="noopener noreferrer">Creative Coding</a>
         </div>
       </nav>
-    </header>
+    </div>
+  </header>
 
-    <main class="right-panel" id="main">
-      <!-- Home: project grid, filled from projects.json -->
-      <section id="view-grid" aria-label="Featured work">
-        <div class="posts-container" id="cards"></div>
-      </section>
-
-      <!-- Case studies: current project plus the next ones, appended on scroll -->
-      <section id="view-case" aria-label="Case study" hidden>
-        <div id="case-stack"></div>
-        <div id="case-sentinel" aria-hidden="true"></div>
-      </section>
-
-      <!-- About -->
-      <section id="view-about" class="about" aria-labelledby="about-title" hidden>
-        <div class="about-inner">
-          <h2 id="about-title">I design brands for growth-stage companies.</h2>
-          <p>Over the last ten years, I’ve shaped brand narratives for industry leaders like Shopify, Clearco, and Mavenoid by turning complex strategy into seamless visual systems. I thrive on helping teams move fast and scale without breaking their design integrity.</p>
-          <p>When I'm off the clock, I’m exploring generative art as a creative coder, playing with vintage camera lenses, or hitting the tennis court.</p>
-          <h3>Let’s hit your next milestone together.</h3>
-          <p>You need to execute campaigns with speed, but without diluting your brand or fracturing your design system. By embedding directly with your marketing and product squads, I ensure your most ambitious creative projects go from concept to reality. If you’re looking for a design partner, I’d love to chat.</p>
+  <main id="main">
+    <!-- Home -->
+    <div id="view-home">
+      <!-- Showreel: the band grows to full screen while scrolling -->
+      <section class="reel" id="reel" aria-label="Showreel">
+        <div class="reel-stick">
+          <div class="reel-video" id="reel-video">
+            <iframe class="reel-frame is-on" src="hob-sketch.html" title="Interactive sketch: House of Balloons" allow="autoplay"></iframe>
+            <iframe class="reel-frame" src="sticker-sketch.html" title="Interactive sketch: sticker grid" allow="autoplay"></iframe>
+            <iframe class="reel-frame" src="dither-sketch.html" title="Interactive sketch: dither grid" allow="autoplay"></iframe>
+            <div class="reel-dots" id="reel-dots" role="group" aria-label="Slideshow">
+              <button type="button" class="dot is-on" aria-label="Show sketch 1"><i></i></button>
+              <button type="button" class="dot" aria-label="Show sketch 2"><i></i></button>
+              <button type="button" class="dot" aria-label="Show sketch 3"><i></i></button>
+            </div>
+            <span class="reel-hint">Interactive <svg class="ptr-svg" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle class="ripple" cx="7.2" cy="6.4" r="2.5" fill="none" stroke="currentColor" stroke-width="1"/><path class="ptr" d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/><path class="trace t1" pathLength="1" d="M6.4 5.6L1.4 1.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path class="trace t2" pathLength="1" d="M5.8 7.4L.6 9.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
+          </div>
+          <div class="reel-intro" id="reel-intro">
+            <p>I design brands for growth-stage companies. <span class="grey">Over the last ten years, I’ve shaped brand narratives for industry leaders like Shopify, Clearco, and Mavenoid by turning complex strategy into seamless visual systems.</span></p>
+          </div>
         </div>
       </section>
 
-      <footer class="site-footer">© Kristyna Gottvald • <a href="#">Featured Work</a></footer>
-    </main>
-  </div>
+      <!-- Projects: sticky copy column left, projects right -->
+      <section class="work" id="work" aria-label="Projects">
+        <div class="work-side">
+          <div class="work-side-in">
+            <h2 class="t-condensed">Projects</h2>
+            <h3 class="t-condensed grey" id="work-active">&nbsp;</h3>
+            <div class="work-side-foot">
+              <p class="work-desc grey" id="work-desc"></p>
+              <div class="work-meta">
+                <img id="work-thumb" alt="" width="40" height="40">
+                <div><p class="caps grey" id="work-tag"></p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="work-list" id="cards"></div>
+      </section>
+
+      <section class="services" id="services" aria-label="Services">
+        <div class="row-head"><h2 class="mono">Services</h2><p class="mono grey">What I do</p></div>
+        <ul class="service-list" id="service-list"></ul>
+      </section>
+    </div>
+
+    <!-- Case study -->
+    <section id="view-case" aria-label="Case study" hidden>
+      <div id="case-stack"></div>
+    </section>
+
+    <!-- About -->
+    <section id="view-about" class="about" aria-labelledby="about-title" hidden>
+      <div class="about-inner">
+        <h1 id="about-title" class="t-condensed">I design brands for growth-stage companies.</h1>
+        <div class="about-cols">
+          <p>Over the last ten years, I’ve shaped brand narratives for industry leaders like Shopify, Clearco, and Mavenoid by turning complex strategy into seamless visual systems. I thrive on helping teams move fast and scale without breaking their design integrity.</p>
+          <p>When I'm off the clock, I’m exploring generative art as a creative coder, playing with vintage camera lenses, or hitting the tennis court.</p>
+        </div>
+        <h2 class="about-sub t-condensed">Let’s hit your next milestone together.</h2>
+        <div class="about-cols">
+          <p>You need to execute campaigns with speed, but without diluting your brand or fracturing your design system. By embedding directly with your marketing and product squads, I ensure your most ambitious creative projects go from concept to reality. If you’re looking for a design partner, I’d love to chat.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Contact -->
+  <section class="contact" id="contact" aria-label="Contact">
+    <div class="contact-grid">
+      <div class="contact-head">
+        <h2 class="t-condensed">Contact</h2>
+      </div>
+      <div class="contact-rows">
+        <div class="contact-row"><h3>Email</h3><div class="grey"><a class="ul" href="mailto:kgottvald@gmail.com">kgottvald@gmail.com</a></div></div>
+        <div class="contact-row"><h3>Channels</h3>
+          <div class="grey">
+            <a class="ul" href="https://www.linkedin.com/in/kgottvald/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a class="ul" href="https://dribbble.com/gottbot/" target="_blank" rel="noopener noreferrer">Dribbble</a>
+            <a class="ul" href="https://vimeo.com/gottvald" target="_blank" rel="noopener noreferrer">Vimeo</a>
+            <a class="ul" href="https://openprocessing.org/user/500421/#sketches" target="_blank" rel="noopener noreferrer">Creative Coding</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-base">
+      <div class="widget">
+        <div class="widget-body"><span class="caps grey">Email</span><span class="widget-mail" id="mail">kgottvald@gmail.com</span></div>
+        <button class="copy" type="button" id="copy-mail">Copy</button>
+      </div>
+      <footer class="foot"><span>© Kristyna Gottvald</span><a href="#">Back to top ↑</a></footer>
+    </div>
+  </section>
 </body>
 </html>

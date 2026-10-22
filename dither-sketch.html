@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dither grid sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #141735; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+let baseCellSize = 80; 
+let cols, rows;
+let cellSize;
+let offsetX, offsetY;
+let gridMap = [];
+let overlayImages = {};
+let activeSelection = null; 
+
+// Follower chain tracking
+let activeMimics = []; 
+let scheduledMimics = 0; 
+let mimicsCompleted = 0; 
+
+const layout = [
+  ["#D768EB", "#D768EB", "#E6EB99", "#A48EFF", "#141735", "#D768EB", "#E6EB99", "#E6EB99", "#141735", "#E6EB99", "#FECA4F", "#C0CE00"],
+  ["#D768EB", "#D768EB", "#FF6F5C", "#D768EB", "#141735", "0", "#C0CE00", "#141735", "#C0CE00", "#E6EB99", "0", "0"],
+  ["#FECA4F", "#D768EB", "#FF6F5C", "#E6EB99", "#4131F1", "#141735", "#141735", "#A48EFF", "0", "#D768EB", "0", "1"],
+  ["#A48EFF", "#A48EFF", "#141735", "#C0CE00", "#C0CE00", "#A48EFF", "#FF6F5C", "#D768EB", "#D768EB", "0", "#D768EB", "#141735"],
+  ["#FECA4F", "#E6EB99", "#E6EB99", "#E6EB99", "#141735", "1", "#141735", "#4131F1", "0", "#141735", "#141735", "1"],
+  ["#E6EB99", "#A48EFF", "#A48EFF", "#A48EFF", "#D768EB", "#FF6F5C", "1", "#D768EB", "#D768EB", "#E6EB99", "#C0CE00", "0"],
+  ["#D768EB", "#D768EB", "#FECA4F", "#D768EB", "#D768EB", "#141735", "#E6EB99", "#4131F1", "#A48EFF", "#A48EFF", "#4131F1", "#FECA4F"]
+];
+
+const validColors = [...new Set(layout.flat().filter(item => item.startsWith("#") && item !== "#141735"))];
+
+function preload() {
+  overlayImages.lightpurp = loadImage("lightpurp-small.png");
+  overlayImages.limeLrg = loadImage("lime-larg.png");
+  overlayImages.limeMed = loadImage("lime-med.png");
+  overlayImages.limeSmall = loadImage("lime-small.png");
+  overlayImages.purpLrg = loadImage("purp-lrg.png");
+  overlayImages.purpMed = loadImage("purp-med.png");
+  overlayImages.purpMed2 = loadImage("purp-med2.png");
+  overlayImages.purpSmall = loadImage("purp-small.png");
+  overlayImages.redMed = loadImage("red-med.png");
+  overlayImages.selector = loadImage("selector.png"); 
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  textAlign(CENTER, CENTER);
+  textStyle(NORMAL); 
+  textFont('Arial'); 
+  
+  updateGridDimensions();
+  autoStartChain();
+}
+
+// Starts the chain reaction on its own, so no click is needed to begin.
+let autoStartTimer = null;
+let restartTimer = null;
+function autoStartChain() {
+  clearTimeout(autoStartTimer);
+  autoStartTimer = setTimeout(() => {
+    if (activeMimics.length === 0 && scheduledMimics === 0 && hasBinaryCells()) {
+      mimicsCompleted = 0;
+      scheduledMimics++;
+      startMimic({ color: random(validColors), pattern: null, isLarge: false });
+      scheduledMimics--;
+    }
+  }, 1000);
+}
+
+function updateGridDimensions() {
+  cellSize = baseCellSize;
+  cols = max(1, floor(width / cellSize));
+  rows = max(1, floor(height / cellSize));
+  
+  offsetX = (width - (cols * cellSize)) / 2;
+  offsetY = (height - (rows * cellSize)) / 2;
+  
+  let imgKeys = Object.keys(overlayImages).filter(k => k !== 'selector'); 
+  gridMap = [];
+  activeSelection = null; 
+  activeMimics = [];
+  scheduledMimics = 0;
+  mimicsCompleted = 0;
+  
+  // First pass: Generate normal 1x1 grid
+  for (let j = 0; j < rows; j++) {
+    let rowMap = [];
+    for (let i = 0; i < cols; i++) {
+      let cellData = layout[j % layout.length][i % layout[0].length];
+      
+      let isDarkNavy = (cellData === "#141735" || cellData === "0" || cellData === "1");
+      let textValue = (cellData === "0" || cellData === "1") ? cellData : "";
+      
+      if (!isDarkNavy && random() < 0.3) {
+        isDarkNavy = true;
+        textValue = random() < 0.5 ? "0" : "1";
+      }
+
+      let state = isDarkNavy ? 'binary' : 'color'; 
+      let targetColor = isDarkNavy ? random(validColors) : cellData;
+      
+      let pattern = null;
+      if (random() < 0.6) {
+        pattern = {
+          key: random(imgKeys),
+          flipX: random() < 0.5,
+          flipY: random() < 0.5,
+          dynamicOrientation: random() < 0.40, 
+          lastOrientationChange: millis(),
+          orientationInterval: random(2000, 5000) 
+        };
+      }
+      
+      rowMap.push({
+        color: targetColor,
+        state: state, 
+        textValue: textValue,
+        pattern: pattern,
+        dynamicColor: random() < 0.30,
+        isLarge: false,   
+        covered: false,   
+        parent: null      
+      });
+    }
+    gridMap.push(rowMap);
+  }
+
+  // Second pass: Randomly make 5% of cells 2x2
+  for (let j = 0; j < rows - 1; j++) {
+    for (let i = 0; i < cols - 1; i++) {
+      let cell = gridMap[j][i];
+      
+      if (!cell.covered && !cell.isLarge && random() < 0.05) {
+        let cRight = gridMap[j][i + 1];
+        let cBottom = gridMap[j + 1][i];
+        let cBottomRight = gridMap[j + 1][i + 1];
+        
+        if (!cRight.covered && !cRight.isLarge &&
+            !cBottom.covered && !cBottom.isLarge &&
+            !cBottomRight.covered && !cBottomRight.isLarge) {
+          
+          cell.isLarge = true;
+          cRight.covered = true; cRight.parent = { r: j, c: i };
+          cBottom.covered = true; cBottom.parent = { r: j, c: i };
+          cBottomRight.covered = true; cBottomRight.parent = { r: j, c: i };
+        }
+      }
+    }
+  }
+
+  // Third pass: Add exactly 5 MORE 2x2 cells
+  let extraLargeAdded = 0;
+  let attempts = 0;
+  while (extraLargeAdded < 5 && attempts < 2000) {
+    attempts++;
+    let j = floor(random(rows - 1));
+    let i = floor(random(cols - 1));
+    
+    let cell = gridMap[j][i];
+    if (!cell.covered && !cell.isLarge) {
+      let cRight = gridMap[j][i + 1];
+      let cBottom = gridMap[j + 1][i];
+      let cBottomRight = gridMap[j + 1][i + 1];
+      
+      if (!cRight.covered && !cRight.isLarge &&
+          !cBottom.covered && !cBottom.isLarge &&
+          !cBottomRight.covered && !cBottomRight.isLarge) {
+        
+        cell.isLarge = true;
+        cRight.covered = true; cRight.parent = { r: j, c: i };
+        cBottom.covered = true; cBottom.parent = { r: j, c: i };
+        cBottomRight.covered = true; cBottomRight.parent = { r: j, c: i };
+        extraLargeAdded++;
+      }
+    }
+  }
+
+  balanceBinary();
+}
+
+// Reset state: about half of the open cells are 0/1 (dark) cells, the rest are colour cells.
+function balanceBinary() {
+  let open = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      let cell = gridMap[r][c];
+      if (!cell.covered && !cell.isLarge) open.push(cell);
+    }
+  }
+  let target = round(open.length * 0.5);
+  let binary = open.filter(c => c.state === 'binary');
+  let colour = open.filter(c => c.state === 'color');
+  binary.sort(() => random() - 0.5);
+  colour.sort(() => random() - 0.5);
+  while (binary.length > target && binary.length) {
+    let cell = binary.pop();
+    cell.state = 'color';
+    cell.textValue = "";
+    cell.color = random(validColors);
+  }
+  while (binary.length < target && colour.length) {
+    let cell = colour.pop();
+    cell.state = 'binary';
+    cell.textValue = random() < 0.5 ? "0" : "1";
+    binary.push(cell);
+  }
+}
+
+// The page's slideshow asks the sketch to start over each time it comes back around.
+window.addEventListener('message', (e) => {
+  if (e.data === 'reset') {
+    clearTimeout(restartTimer);
+    restartTimer = null;
+    updateGridDimensions();
+    autoStartChain();
+  }
+});
+
+// Helper to shatter overlapping large cells back into 1x1s
+function breakLargeCell(r, c) {
+  if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+  let cell = gridMap[r][c];
+  
+  if (cell.covered && cell.parent) {
+    breakLargeCell(cell.parent.r, cell.parent.c);
+    return;
+  }
+  
+  if (cell.isLarge) {
+    cell.isLarge = false;
+    if (r + 1 < rows && c + 1 < cols) {
+      let cRight = gridMap[r][c + 1];
+      let cBottom = gridMap[r + 1][c];
+      let cBottomRight = gridMap[r + 1][c + 1];
+      
+      cRight.covered = false; cRight.parent = null;
+      cBottom.covered = false; cBottom.parent = null;
+      cBottomRight.covered = false; cBottomRight.parent = null;
+    }
+  }
+}
+
+// Helper to check if there are any 0 or 1 blocks left to overwrite
+function hasBinaryCells() {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (gridMap[r][c].state === 'binary') {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function draw() {
+  // 1. Process Mimic Animation States (BEFORE rendering)
+  // Loop backwards to allow safe removal of finished mimics
+  for (let i = activeMimics.length - 1; i >= 0; i--) {
+    let mimic = activeMimics[i];
+    let now = millis();
+    let p = (now - mimic.startTime) / mimic.duration; 
+
+    if (p >= 1.0) {
+      applyMimicPlacement(mimic); 
+      let fallbackData = mimic.selectionData; 
+      activeMimics.splice(i, 1); 
+      mimicsCompleted++;
+
+      // Trigger the next chain reaction
+      if (hasBinaryCells()) {
+        // Switch from 1 concurrent mimic to 3 concurrent mimics after 2 completions
+        let targetConcurrent = (mimicsCompleted >= 2) ? 3 : 1;
+        let currentCount = activeMimics.length + scheduledMimics;
+        let needed = targetConcurrent - currentCount;
+        
+        for (let n = 0; n < needed; n++) {
+          scheduledMimics++;
+          // Stagger them slightly so they don't perfectly sync
+          setTimeout(() => {
+            startMimic(fallbackData);
+            scheduledMimics--;
+          }, 500 + random(0, 300)); 
+        }
+      }
+    }
+  }
+
+  // When every 0/1 block has been replaced and the canvas has stayed full for 8 seconds, rebuild the grid and run again.
+  if (!hasBinaryCells() && activeMimics.length === 0 && scheduledMimics === 0 && !restartTimer) {
+    restartTimer = setTimeout(() => {
+      restartTimer = null;
+      updateGridDimensions();
+      autoStartChain();
+    }, 8000);
+  }
+
+  // 2. Render the Background and Grid Map
+  background("#141735"); 
+  
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      let cell = gridMap[j][i];
+      
+      if (cell.covered) continue; 
+      
+      let x = offsetX + (i * cellSize);
+      let y = offsetY + (j * cellSize);
+      
+      let currentSize = cell.isLarge ? cellSize * 2 : cellSize;
+      
+      push();
+      translate(x + currentSize / 2, y + currentSize / 2);
+      noStroke();
+      
+      if (cell.state === 'binary') {
+        fill("#141735"); 
+        rect(-currentSize / 2, -currentSize / 2, currentSize, currentSize);
+        
+        if (cell.textValue !== "") {
+          fill("#E6EB99"); 
+          textSize(currentSize * 0.7);
+          text(cell.textValue, 0, currentSize * 0.05);
+        }
+      } else {
+        let colorChangedThisFrame = false;
+        if (cell.dynamicColor && random() < 0.003) {
+          cell.color = random(validColors);
+          colorChangedThisFrame = true;
+        }
+        
+        fill(cell.color);
+        rect(-currentSize / 2, -currentSize / 2, currentSize, currentSize);
+        
+        if (cell.pattern && overlayImages[cell.pattern.key]) {
+          if (cell.pattern.dynamicOrientation && !colorChangedThisFrame) {
+            let now = millis();
+            if (now - cell.pattern.lastOrientationChange > cell.pattern.orientationInterval) {
+              if (random() < 0.5) {
+                cell.pattern.flipX = !cell.pattern.flipX; 
+              } else {
+                cell.pattern.flipY = !cell.pattern.flipY; 
+              }
+              cell.pattern.lastOrientationChange = now;
+              cell.pattern.orientationInterval = random(2000, 5000); 
+            }
+          }
+
+          push();
+          scale(cell.pattern.flipX ? -1 : 1, cell.pattern.flipY ? -1 : 1);
+          image(overlayImages[cell.pattern.key], -currentSize / 2, -currentSize / 2, currentSize, currentSize);
+          pop();
+        }
+      }
+      
+      pop();
+    }
+  }
+
+  // 2.5 Draw Hover Indicator (The Selector) over the currently hovered cell
+  let hoverCol = floor((mouseX - offsetX) / cellSize);
+  let hoverRow = floor((mouseY - offsetY) / cellSize);
+  
+  if (!activeSelection && hoverCol >= 0 && hoverCol < cols && hoverRow >= 0 && hoverRow < rows) {
+    let hCell = gridMap[hoverRow][hoverCol];
+    let hr = hoverRow;
+    let hc = hoverCol;
+    
+    // If hovering over a covered piece of a large cell, shift to the parent's coordinates
+    if (hCell.covered && hCell.parent) {
+      hr = hCell.parent.r;
+      hc = hCell.parent.c;
+      hCell = gridMap[hr][hc];
+    }
+
+    let hx = offsetX + (hc * cellSize);
+    let hy = offsetY + (hr * cellSize);
+    let hSize = hCell.isLarge ? cellSize * 2 : cellSize;
+    
+    // Check added here to make sure state is not 'binary' (navy block)
+    if (overlayImages.selector && hCell.state !== 'binary') {
+      push();
+      translate(hx + hSize / 2, hy + hSize / 2);
+      let selSize = hCell.isLarge ? hSize + 12 : hSize + 6;
+      image(overlayImages.selector, -selSize / 2, -selSize / 2, selSize, selSize);
+      pop();
+    }
+  }
+
+  // 3. Draw the User's Active Selection
+  if (activeSelection) {
+    push();
+    translate(mouseX, mouseY);
+    
+    let activeSize = activeSelection.isLarge ? cellSize * 2 : cellSize;
+    
+    fill(activeSelection.color);
+    noStroke();
+    rect(-activeSize / 2, -activeSize / 2, activeSize, activeSize);
+    
+    if (activeSelection.pattern && overlayImages[activeSelection.pattern.key]) {
+      push();
+      scale(activeSelection.pattern.flipX ? -1 : 1, activeSelection.pattern.flipY ? -1 : 1);
+      image(overlayImages[activeSelection.pattern.key], -activeSize / 2, -activeSize / 2, activeSize, activeSize);
+      pop();
+    }
+    
+    if (overlayImages.selector) {
+      let selSize = activeSelection.isLarge ? activeSize + 12 : activeSize + 6;
+      image(overlayImages.selector, -selSize / 2, -selSize / 2, selSize, selSize);
+    }
+    
+    pop();
+  }
+
+  // 4. Draw the Follower's (Mimic) Animations
+  for (let mimic of activeMimics) {
+    let now = millis();
+    let p = (now - mimic.startTime) / mimic.duration;
+    if (p > 1.0) p = 1.0; 
+
+    let currentX, currentY;
+    let showCell = false;
+
+    // Animation Timeline
+    if (p < 0.2) {
+      currentX = mimic.startX;
+      currentY = mimic.startY;
+    } else if (p < 0.8) {
+      let moveP = (p - 0.2) / 0.6; 
+      let easeP = moveP * moveP * (3 - 2 * moveP); 
+      currentX = lerp(mimic.startX, mimic.targetX, easeP);
+      currentY = lerp(mimic.startY, mimic.targetY, easeP);
+      showCell = true;
+    } else {
+      currentX = mimic.targetX;
+      currentY = mimic.targetY;
+      showCell = true;
+    }
+
+    push();
+    translate(currentX, currentY);
+    
+    let mSize = mimic.selectionData.isLarge ? cellSize * 2 : cellSize;
+    
+    if (showCell) {
+      fill(mimic.selectionData.color);
+      noStroke();
+      rect(-mSize / 2, -mSize / 2, mSize, mSize);
+      
+      if (mimic.selectionData.pattern && overlayImages[mimic.selectionData.pattern.key]) {
+        let pat = mimic.selectionData.pattern;
+        push();
+        scale(pat.flipX ? -1 : 1, pat.flipY ? -1 : 1);
+        image(overlayImages[pat.key], -mSize / 2, -mSize / 2, mSize, mSize);
+        pop();
+      }
+    }
+    
+    if (overlayImages.selector) {
+      let selSize = mimic.selectionData.isLarge ? mSize + 12 : mSize + 6;
+      image(overlayImages.selector, -selSize / 2, -selSize / 2, selSize, selSize);
+    }
+    pop();
+  }
+}
+
+function mousePressed() {
+  let col = floor((mouseX - offsetX) / cellSize);
+  let row = floor((mouseY - offsetY) / cellSize);
+
+  if (col >= 0 && col < cols && row >= 0 && row < rows) {
+    let cell = gridMap[row][col];
+    
+    if (cell.covered && cell.parent) {
+      row = cell.parent.r;
+      col = cell.parent.c;
+      cell = gridMap[row][col];
+    }
+
+    if (!activeSelection) {
+      if (cell.state === 'color') {
+        activeSelection = {
+          color: cell.color,
+          pattern: cell.pattern ? { ...cell.pattern } : null,
+          isLarge: cell.isLarge
+        };
+      }
+    } else {
+      let userData = {
+        color: activeSelection.color,
+        pattern: activeSelection.pattern ? { ...activeSelection.pattern } : null,
+        isLarge: activeSelection.isLarge
+      };
+
+      if (activeSelection.isLarge) {
+        if (row + 1 >= rows) row = rows - 2;
+        if (col + 1 >= cols) col = cols - 2;
+
+        breakLargeCell(row, col);
+        breakLargeCell(row + 1, col);
+        breakLargeCell(row, col + 1);
+        breakLargeCell(row + 1, col + 1);
+
+        let target = gridMap[row][col];
+        target.state = 'color';
+        target.color = activeSelection.color;
+        target.pattern = activeSelection.pattern ? { ...activeSelection.pattern } : null;
+        target.isLarge = true;
+
+        let cRight = gridMap[row][col + 1];
+        let cBottom = gridMap[row + 1][col];
+        let cBottomRight = gridMap[row + 1][col + 1];
+
+        cRight.covered = true; cRight.parent = { r: row, c: col };
+        cBottom.covered = true; cBottom.parent = { r: row, c: col };
+        cBottomRight.covered = true; cBottomRight.parent = { r: row, c: col };
+
+      } else {
+        if (cell.isLarge) {
+          breakLargeCell(row, col);
+        }
+        
+        cell.state = 'color';
+        cell.color = activeSelection.color;
+        cell.pattern = activeSelection.pattern ? { ...activeSelection.pattern } : null;
+        cell.isLarge = false;
+      }
+      
+      activeSelection = null; 
+
+      // Kick off the initial chain reaction if it's not already running
+      setTimeout(() => {
+        if (activeMimics.length === 0 && scheduledMimics === 0 && hasBinaryCells()) {
+          mimicsCompleted = 0; 
+          scheduledMimics++;
+          startMimic(userData);
+          scheduledMimics--;
+        }
+      }, 1000);
+    }
+  }
+}
+
+function startMimic(userDataFallback) {
+  let sRow = floor(random(rows));
+  let sCol = floor(random(cols));
+  let sCell = gridMap[sRow][sCol];
+  
+  if (sCell.covered && sCell.parent) {
+    sRow = sCell.parent.r;
+    sCol = sCell.parent.c;
+    sCell = gridMap[sRow][sCol];
+  }
+
+  let mimicSelection = { ...userDataFallback };
+  if (sCell.state === 'color') {
+    mimicSelection = {
+      color: sCell.color,
+      pattern: sCell.pattern ? { ...sCell.pattern } : null,
+      isLarge: sCell.isLarge
+    };
+  }
+
+  // Find target - intelligently avoid stacking multiple mimics on the exact same cell
+  let targetedCells = activeMimics.map(m => m.targetRow + "," + m.targetCol);
+  let targetOptions = [];
+  
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (gridMap[r][c].state === 'binary' && !gridMap[r][c].covered) {
+        if (!targetedCells.includes(r + "," + c)) {
+          targetOptions.push({ r: r, c: c });
+        }
+      }
+    }
+  }
+
+  // Fallback if all remaining binary cells are already targeted by other mimics
+  if (targetOptions.length === 0) {
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (gridMap[r][c].state === 'binary' && !gridMap[r][c].covered) {
+          targetOptions.push({ r: r, c: c });
+        }
+      }
+    }
+  }
+
+  let tRow, tCol;
+  if (targetOptions.length > 0) {
+    let chosen = random(targetOptions);
+    tRow = chosen.r;
+    tCol = chosen.c;
+  } else {
+    tRow = floor(random(rows));
+    tCol = floor(random(cols));
+  }
+  
+  let tCell = gridMap[tRow][tCol];
+  
+  if (tCell.covered && tCell.parent) {
+    tRow = tCell.parent.r;
+    tCol = tCell.parent.c;
+    tCell = gridMap[tRow][tCol];
+  }
+
+  if (mimicSelection.isLarge) {
+    if (tRow + 1 >= rows) tRow = rows - 2;
+    if (tCol + 1 >= cols) tCol = cols - 2;
+  }
+
+  let sHalfSize = mimicSelection.isLarge ? cellSize : cellSize / 2;
+  let tHalfSize = mimicSelection.isLarge ? cellSize : cellSize / 2;
+
+  // Push new state object to the active followers array
+  activeMimics.push({
+    targetRow: tRow, 
+    targetCol: tCol,
+    selectionData: mimicSelection,
+    startTime: millis(),
+    duration: random(1000, 1500), 
+    startX: offsetX + (sCol * cellSize) + sHalfSize,
+    startY: offsetY + (sRow * cellSize) + sHalfSize,
+    targetX: offsetX + (tCol * cellSize) + tHalfSize,
+    targetY: offsetY + (tRow * cellSize) + tHalfSize
+  });
+}
+
+function applyMimicPlacement(state) {
+  let row = state.targetRow;
+  let col = state.targetCol;
+  let cell = gridMap[row][col];
+  let selectionData = state.selectionData;
+
+  if (cell.covered && cell.parent) {
+    row = cell.parent.r;
+    col = cell.parent.c;
+    cell = gridMap[row][col];
+  }
+
+  if (selectionData.isLarge) {
+    breakLargeCell(row, col);
+    breakLargeCell(row + 1, col);
+    breakLargeCell(row, col + 1);
+    breakLargeCell(row + 1, col + 1);
+
+    let target = gridMap[row][col];
+    target.state = 'color';
+    target.color = selectionData.color;
+    target.pattern = selectionData.pattern ? { ...selectionData.pattern } : null;
+    target.isLarge = true;
+
+    let cRight = gridMap[row][col + 1];
+    let cBottom = gridMap[row + 1][col];
+    let cBottomRight = gridMap[row + 1][col + 1];
+
+    cRight.covered = true; cRight.parent = { r: row, c: col };
+    cBottom.covered = true; cBottom.parent = { r: row, c: col };
+    cBottomRight.covered = true; cBottomRight.parent = { r: row, c: col };
+  } else {
+    if (cell.isLarge) {
+      breakLargeCell(row, col);
+    }
+    
+    cell.state = 'color';
+    cell.color = selectionData.color;
+    cell.pattern = selectionData.pattern ? { ...selectionData.pattern } : null;
+    cell.isLarge = false;
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  updateGridDimensions();
+  autoStartChain();
+}
+</script>
+</body>
+</html>

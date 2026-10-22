@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sticker grid sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #232746; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+let blocks1x1 = [];
+let stickers = [];
+let gift, diagonalblock, paleyellow, sunsticker, giftboxlong, diagonalblockpurple, yellow, starburststicker, salesticker;
+let yellowhorz, yellowsalesticker, purpblock, salestickerpale;
+
+// Global grid variables for dynamic window sizing
+let gridElements = [];
+let occupancy = []; // which grid cells are taken, shared with the click-to-slide behaviour
+let s = 100; // Fixed block size to maintain aspect ratio across varying screen sizes
+let cols, rows;
+
+function preload() {
+  // Load original and new component images
+  diagonalblock = loadImage('diagonalblock.png');
+  diagonalblockpurple = loadImage('diagonalblockpurple.png');
+  gift = loadImage('gift.png');
+  giftboxlong = loadImage('giftboxlong.png');
+  paleyellow = loadImage('paleyellow.png');
+  salesticker = loadImage('salesticker.png');
+  starburststicker = loadImage('starburststicker.png');
+  sunsticker = loadImage('sunsticker.png');
+  yellow = loadImage('yellow.png');
+  
+  // New assets
+  yellowhorz = loadImage('yellowhorz.png');
+  yellowsalesticker = loadImage('yellowsalesticker.png');
+  purpblock = loadImage('purpblock.png');
+  salestickerpale = loadImage('salestickerpale.png');
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  calculateGrid();
+  
+  // Populate groups for the randomizer
+  blocks1x1 = [diagonalblock, diagonalblockpurple, gift, paleyellow, yellow, yellowhorz, purpblock];
+  stickers = [salesticker, starburststicker, sunsticker, yellowsalesticker, salestickerpale];
+  
+  generateRandomComposition();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  calculateGrid();
+  generateRandomComposition();
+}
+
+function calculateGrid() {
+  cols = Math.ceil(width / s);
+  rows = Math.ceil(height / s);
+}
+
+// Click a block and it slides to the nearest empty spot
+function mousePressed() {
+  for (let i = gridElements.length - 1; i >= 0; i--) {
+    let el = gridElements[i];
+    let w = el.type === 'giftboxlong' ? 2 : 1;
+    if (mouseX >= el.gridX * s && mouseX < (el.gridX + w) * s && mouseY >= el.gridY * s && mouseY < (el.gridY + 1) * s) {
+      slideToEmpty(el, w);
+      return;
+    }
+  }
+}
+
+function slideToEmpty(el, w) {
+  if (el.move) return;
+  let gx = el.gridX, gy = el.gridY;
+
+  // Treat the block's own cells (and any cell reserved for its idle slide) as free while searching
+  let own = [];
+  for (let k = 0; k < w; k++) own.push((gx + k) + "," + gy);
+  if (el.hasSlide) own.push((gx + el.slideDirX) + "," + (gy + el.slideDirY));
+  let isFree = (x, y) => !occupancy[x][y] || own.includes(x + "," + y);
+
+  let best = [], bestD = Infinity;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x + w <= cols; x++) {
+      if (x === gx && y === gy) continue;
+      let ok = true;
+      for (let k = 0; k < w; k++) if (!isFree(x + k, y)) ok = false;
+      if (!ok) continue;
+      let d = abs(x - gx) + abs(y - gy);
+      if (d < bestD) { bestD = d; best = [{ x, y }]; }
+      else if (d === bestD) best.push({ x, y });
+    }
+  }
+  if (best.length === 0) return;
+
+  let t = random(best);
+  for (let c of own) { let [cx, cy] = c.split(",").map(Number); occupancy[cx][cy] = false; }
+  el.hasSlide = false;
+  for (let k = 0; k < w; k++) occupancy[t.x + k][t.y] = true;
+  el.move = { fx: gx * s, fy: gy * s, t0: millis() };
+  el.gridX = t.x;
+  el.gridY = t.y;
+}
+
+function draw() {
+  background('#232746');
+  
+  // -- RENDER LOOP --
+  for (let el of gridElements) {
+    
+    // -- INDEPENDENT ELEMENT TIMING --
+    let cycleTime = 4000;
+    let m = (millis() + el.timeOffset) % cycleTime;
+    let t = 0;
+    let rotT = 0;
+    
+    if (m < 1000) {
+      // Phase 1: Action (Move out, rotate, fade)
+      t = m / 1000;
+      rotT = map(m, 0, 1000, 0, PI);
+    } else if (m < 2000) {
+      // Phase 2: Pause Out
+      t = 1;
+      rotT = PI;
+    } else if (m < 3000) {
+      // Phase 3: Action Reverse (Move in, rotate rest of way, fade back)
+      t = 1 - ((m - 2000) / 1000);
+      rotT = map(m, 2000, 3000, PI, TWO_PI);
+    } else {
+      // Phase 4: Pause In
+      t = 0;
+      rotT = 0; 
+    }
+    
+    // Smooth easing function for sliding and fading animations
+    let easeT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+    let currX = (el.gridX !== undefined ? el.gridX : el.x) * s;
+    let currY = (el.gridY !== undefined ? el.gridY : el.y) * s;
+
+    // A clicked block glides from its old cell to its new one
+    if (el.move) {
+      let mp = (millis() - el.move.t0) / 500;
+      if (mp >= 1) {
+        el.move = null;
+      } else {
+        let me = mp < 0.5 ? 2 * mp * mp : 1 - Math.pow(-2 * mp + 2, 2) / 2;
+        currX = lerp(el.move.fx, currX, me);
+        currY = lerp(el.move.fy, currY, me);
+      }
+    }
+    
+    // Apply sliding offsets for blocks selected to slide
+    if (el.hasSlide) {
+      currX += el.slideDirX * s * easeT;
+      currY += el.slideDirY * s * easeT;
+    }
+
+    // 1. Draw underlying base block
+    if (el.type === 'giftboxlong') {
+      image(giftboxlong, currX, currY, 2 * s, s);
+    } 
+    else if (el.type === 'block') {
+      if (el.isDiagonal) {
+        push();
+        translate(currX + s / 2, currY + s / 2);
+        if (el.isFlipped) {
+          scale(-1, 1); // Flip horizontally for non-switching diagonal blocks
+        }
+        
+        if (el.isSwitching) {
+          // ANIMATION: Diagonal block gradient looping (staggered by timeOffset)
+          image(diagonalblock, -s / 2, -s / 2, s, s); // Base yellow
+          push();
+          tint(255, 255 * easeT); // Crossfade loop based on easing
+          image(diagonalblockpurple, -s / 2, -s / 2, s, s); // Purple overlay
+          pop();
+        } else {
+          // Static diagonal block (not switching state animations)
+          image(el.img1, -s / 2, -s / 2, s, s);
+        }
+        pop();
+      } else {
+        image(el.img1, currX, currY, s, s);
+      }
+    }
+
+    // 2. Draw overlaid sticker
+    if (el.sticker) {
+      let currentStickerImg = el.sticker;
+      let isRotatable = (currentStickerImg === sunsticker || currentStickerImg === starburststicker);
+
+      // ANIMATION: Swap yellowsalesticker for salesticker at the peak of the animation
+      if (currentStickerImg === yellowsalesticker && easeT > 0.5) {
+        currentStickerImg = salesticker;
+      }
+
+      if (el.type === 'free_aspect') {
+        let aspect = currentStickerImg.height / currentStickerImg.width || 1;
+        let drawW = s;
+        let drawH = s * aspect;
+        let yOffset = 0;
+        
+        // Scale up by 2px and shift down by 1px for sale stickers
+        if (currentStickerImg === salesticker || currentStickerImg === yellowsalesticker) {
+          drawW += 2;
+          drawH += 2;
+          yOffset = 1;
+        }
+        
+        image(currentStickerImg, currX, currY + yOffset, drawW, drawH);
+      } 
+      else {
+        // Core centering logic
+        let customScale = 0.95;
+        if (currentStickerImg === sunsticker || currentStickerImg === salesticker || currentStickerImg === yellowsalesticker) {
+          customScale = 1.02;
+        }
+
+        let aspect = currentStickerImg.width / (currentStickerImg.height || 1);
+        let drawW, drawH;
+        if (aspect >= 1) {
+          drawW = s * customScale;
+          drawH = (s / aspect) * customScale;
+        } else {
+          drawH = s * customScale;
+          drawW = (s * aspect) * customScale;
+        }
+
+        // ANIMATION: Apply looping rotation to sun & starbursts perfectly centered
+        if (isRotatable) {
+          push();
+          translate(currX + s / 2, currY + s / 2); // Move origin to exact center of grid cell
+          rotate(rotT);
+          imageMode(CENTER); // Forces the image to draw perfectly aligned around 0,0
+          image(currentStickerImg, 0, 0, drawW, drawH);
+          pop();
+        } else {
+          // Standard Draw for non-rotating stickers
+          let offsetX = (s - drawW) / 2;
+          let offsetY = (s - drawH) / 2;
+
+          if (currentStickerImg === salestickerpale) {
+            let paleScale = 0.85;
+            drawW = s * paleScale;
+            drawH = (s / aspect) * paleScale;
+            offsetX = (s - drawW) / 2;
+            offsetY = (s - drawH) / 2;
+          } else if (currentStickerImg === salesticker || currentStickerImg === yellowsalesticker) {
+            offsetX -= s * 0.05;
+            offsetY -= s * 0.05;
+            // Scale up by 2px and shift down by 1px
+            drawW += 2;
+            drawH += 2;
+            offsetY += 1; 
+          }
+          
+          image(currentStickerImg, currX + offsetX, currY + offsetY, drawW, drawH);
+        }
+      }
+    }
+  }
+}
+
+function generateRandomComposition() {
+  gridElements = [];
+  
+  // Track grid occupancy strictly to prevent sliding overlaps dynamically based on screen size
+  let grid = Array(cols).fill().map(() => Array(rows).fill(false));
+  occupancy = grid;
+  
+  // 40-60% empty means we need to FILL between 40% and 60% of the cells
+  let totalCells = cols * rows;
+  let targetFilled = floor(random(totalCells * 0.4, totalCells * 0.6)); 
+  let filledCells = 0;
+  
+  // Pass 1: Try placing 1x2 gift boxes proportionally based on total cells
+  let maxLongBoxes = floor(totalCells / 16); 
+  let numLongBoxes = floor(random(maxLongBoxes * 0.5, maxLongBoxes));
+  for (let i = 0; i < numLongBoxes; i++) {
+    let rx = floor(random(cols - 1)); // Ensure it can span to x+1
+    let ry = floor(random(rows));
+    if (!grid[rx][ry] && !grid[rx+1][ry]) {
+      grid[rx][ry] = true;
+      grid[rx+1][ry] = true;
+      filledCells += 2;
+      gridElements.push({ type: 'giftboxlong', gridX: rx, gridY: ry, timeOffset: random(4000) });
+    }
+  }
+  
+  // Prepare an array of all remaining empty coordinates
+  let availableCells = [];
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (!grid[x][y]) availableCells.push({x, y});
+    }
+  }
+  
+  // Shuffle to randomize placement
+  availableCells.sort(() => random() - 0.5);
+  
+  // Pass 2: Fill remaining required cells with 1x1 blocks and standalone stickers
+  for (let i = 0; i < availableCells.length; i++) {
+    if (filledCells >= targetFilled) break;
+    
+    let cell = availableCells[i];
+    let x = cell.x, y = cell.y;
+    
+    grid[x][y] = true;
+    filledCells++;
+    
+    if (random() < 0.2) {
+      let standaloneSticker = random(stickers);
+      gridElements.push({ type: 'standaloneSticker', sticker: standaloneSticker, gridX: x, gridY: y, timeOffset: random(4000) });
+    } else {
+      let img = random(blocks1x1);
+      let el = { type: 'block', img1: img, gridX: x, gridY: y, timeOffset: random(4000) };
+      
+      // Handle diagonal block properties
+      if (img === diagonalblock || img === diagonalblockpurple) {
+        el.isDiagonal = true;
+        el.isSwitching = random() < 0.6; // Some switch state, some don't
+      }
+      
+      if (img !== yellowhorz) {
+        let isYellowBlock = (img === yellow);
+        let isPaleBlock = (img === paleyellow);
+        let isGiftBlock = (img === gift);
+        let isPurpleBlock = (img === purpblock);
+        
+        if (isYellowBlock || isPaleBlock || isPurpleBlock || isGiftBlock) {
+          if (random() < 0.4) {
+             let validStickers = stickers.filter(stk => {
+               if (isPaleBlock && stk === sunsticker) return false;
+               if (isYellowBlock && (stk === salesticker || stk === yellowsalesticker || stk === salestickerpale)) return false;
+               if (isGiftBlock && stk === salestickerpale) return false;
+               if (stk === yellowsalesticker && (isYellowBlock || isGiftBlock)) return false;
+               if (isGiftBlock && (stk === salesticker || stk === sunsticker || stk === starburststicker)) return false;
+               if (isPurpleBlock && stk === salesticker) return false;
+               if (isPaleBlock && stk === salestickerpale) return false;
+               return true;
+             });
+             
+             if (validStickers.length > 0) el.sticker = random(validStickers);
+          }
+        }
+      }
+      gridElements.push(el);
+    }
+  }
+  
+  // Select exactly 3 non-switching diagonals to flip horizontally
+  let nonSwitchingDiagonals = gridElements.filter(el => el.type === 'block' && el.isDiagonal && !el.isSwitching);
+  nonSwitchingDiagonals.sort(() => random() - 0.5);
+  let flipCount = Math.min(3, nonSwitchingDiagonals.length);
+  for (let i = 0; i < flipCount; i++) {
+    nonSwitchingDiagonals[i].isFlipped = true;
+  }
+  
+  // Pass 3: Evaluate empty cells and safely assign animations 
+  for (let el of gridElements) {
+    if (el.type === 'block' && (el.img1 === yellow || el.img1 === paleyellow || el.img1 === purpblock || el.img1 === gift)) {
+      let x = el.gridX;
+      let y = el.gridY;
+      let safeDirs = [];
+      
+      // Determine strictly empty adjacent cells using dynamic grid boundaries
+      if (x > 0 && !grid[x - 1][y]) safeDirs.push({dx: -1, dy: 0});
+      if (x < cols - 1 && !grid[x + 1][y]) safeDirs.push({dx: 1, dy: 0});
+      if (y > 0 && !grid[x][y - 1]) safeDirs.push({dx: 0, dy: -1});
+      if (y < rows - 1 && !grid[x][y + 1]) safeDirs.push({dx: 0, dy: 1});
+      
+      if (safeDirs.length > 0 && random() < 0.5) { 
+        let d = random(safeDirs);
+        el.hasSlide = true;
+        el.slideDirX = d.dx;
+        el.slideDirY = d.dy;
+        
+        // Claim this destination cell on the matrix immediately! 
+        grid[x + d.dx][y + d.dy] = true; 
+      }
+    }
+  }
+}
+</script>
+</body>
+</html>

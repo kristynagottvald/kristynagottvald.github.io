@@ -2,25 +2,18 @@
   'use strict';
 
   const SITE = 'Kristyna Gottvald';
-  const TAGLINE = 'Art Direction, Design, Brand Systems';
+  const TAGLINE = 'Graphic Designer';
 
   const $ = (sel, root = document) => root.querySelector(sel);
-  const views = {
-    work: $('#view-grid'),
-    case: $('#view-case'),
-    about: $('#view-about'),
-  };
+  const views = { home: $('#view-home'), case: $('#view-case'), about: $('#view-about') };
   const cardsEl = $('#cards');
   const stackEl = $('#case-stack');
+  const footerEl = $('#contact');
   const navLinks = document.querySelectorAll('[data-nav]');
 
   let projects = [];
-  let order = [];          // project ids shown in the current case study stack
-  let startIndex = 0;      // index in `projects` of the project that was opened
-  let activeId = null;     // project currently centred in the viewport
   let currentView = null;
-  let gridScroll = 0;
-  let activeObserver = null;
+  let homeScroll = 0;
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -31,178 +24,108 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261022d');
+      const res = await fetch('projects.json?v=20261022w');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
       console.error(err);
     }
     if (!projects.length) {
-      cardsEl.innerHTML =
-        '<p class="load-error">Could not load projects.json. If you opened index.html straight from disk, serve the folder instead (for example <code>npx serve</code>).</p>';
+      cardsEl.innerHTML = '<p class="load-error">Could not load projects.json. If you opened index.html straight from disk, serve the folder instead (for example <code>python3 -m http.server</code>).</p>';
       return;
     }
     renderGrid();
+    renderServices();
     route();
   }
 
-  /* ---------- Home grid ---------- */
+  const firstHeading = (p) => ((p.caseStudyContent || []).find((b) => b.type === 'text' && b.heading) || {}).heading || '';
+  // The line under a card never repeats the title, year or classifier.
+  const subtitle = (p) => {
+    if (p.blurb) return p.blurb;
+    const h = firstHeading(p), t = p.title.toLowerCase(), l = h.toLowerCase();
+    return h && !l.includes(t) && !t.includes(l) ? h : '';
+  };
 
-  function mediaHTML(p) {
-    if (p.mediaType === 'video' && p.thumbnailVideo) {
-      return `<video class="post-bg is-active" src="${esc(p.thumbnailVideo)}" poster="${esc(p.thumbnail)}" muted loop playsinline preload="metadata"></video>`;
-    }
-    return `<img class="post-bg is-active" src="${esc(p.thumbnail)}" alt="" loading="lazy" referrerpolicy="no-referrer">`;
-  }
+  /* ---------- Home: work list ---------- */
 
-  // The whole home grid, shown once after the last project of the continuous scroll.
-  function endGridHTML() {
-    return `<section class="stack-end" aria-label="All projects"><div class="stack-end-label">All projects</div><div class="posts-container">${projects
-      .map((p) => `<article class="post"><a class="post-link" href="#${esc(p.id)}" aria-label="${esc(p.title)}">
-          <div class="post-media-container"><img class="post-bg is-active" src="${esc(p.thumbnail)}" alt="" loading="lazy" referrerpolicy="no-referrer"></div>
-          <div class="post-metadata">
-            <div class="post-title">${[p.category, p.client].filter(Boolean).map(esc).join(' · ')}</div>
-            <h3 class="post-heading">${esc(p.title)}</h3>
-          </div>
-        </a></article>`)
-      .join('')}</div></section>`;
-  }
-
-  function appendEnd() {
-    if (!stackEl.querySelector('.stack-end')) stackEl.insertAdjacentHTML('beforeend', endGridHTML());
-  }
+  const ARROW = '<svg class="card-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor"/></svg>';
+  const SERVICES = ['Creative coding', 'Brand identity', 'Creative direction', 'Art direction', 'Campaigns', 'Illustration & motion'];
 
   function renderGrid() {
-    stopCycling();
     cardsEl.innerHTML = projects
-      .map(
-        (p) => `
-      <article class="post" data-pid="${esc(p.id)}">
-        <a class="post-link" href="#${esc(p.id)}" aria-label="${esc(p.title)}">
-          <div class="post-media-container">${mediaHTML(p)}</div>
-          <div class="post-metadata">
-            <div class="post-title">${[p.category, p.client].filter(Boolean).map(esc).join(' · ')}</div>
-            <h3 class="post-heading">${esc(p.title)}</h3>
+      .map((p) => `
+      <article class="card" data-pid="${esc(p.id)}">
+        <a href="#${esc(p.id)}" aria-label="${esc(p.title)}">
+          <div class="card-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
+          <div class="card-meta">
+            <h3 class="card-title">${esc(p.title)}</h3>
+            ${subtitle(p) ? `<p class="card-sub">${esc(subtitle(p))}</p>` : ''}${ARROW}
           </div>
         </a>
-      </article>`
-      )
+      </article>`)
       .join('');
-
-    // Play looping card videos only while they are on screen.
-    const videos = cardsEl.querySelectorAll('video');
-    if (videos.length && 'IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => (e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()));
-      }, { threshold: 0.25 });
-      videos.forEach((v) => io.observe(v));
-    }
-    startCycling();
+    $('#service-list').innerHTML = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${esc(t)}</span></li>`).join('');
+    watchWork();
   }
+  const renderServices = () => {};
 
-  /* ---------- Home grid: cards cycle through the project's images ---------- */
-
-  let cycleTimers = [];
-  let cycleIO = null;
-
-  // Thumbnail first, then each distinct image from the case study.
-  function cardImages(p) {
-    const list = [p.thumbnail];
-    (p.caseStudyContent || []).forEach((b) => {
-      if (b.type === 'image' && b.src && !list.includes(b.src) && !/placeholder/.test(b.src)) list.push(b.src);
+  // The card nearest the middle of the screen is "active": it stays bright and fills the sticky side column.
+  const firstBody = (p) => (((p.caseStudyContent || []).find((b) => b.type === 'text' && (b.body || []).length) || {}).body || []).filter((t) => !/^\s*(role:|key results)/i.test(t)).join('\n\n');
+  function setWork(card) {
+    const p = projects.find((x) => x.id === card.dataset.pid);
+    if (!p) return;
+    cardsEl.querySelectorAll('.card').forEach((c) => c.classList.toggle('is-active', c === card));
+    $('#work-active').textContent = p.title;
+    $('#work-desc').textContent = firstBody(p);
+    $('#work-thumb').src = p.thumbnail;
+    $('#work-tag').textContent = [p.year, p.category].filter(Boolean).join(' – ');
+  }
+  let workTick = false;
+  function updateWork() {
+    workTick = false;
+    if (currentView !== 'home') return;
+    const mid = window.innerHeight * 0.5;
+    let best = null, bd = Infinity;
+    cardsEl.querySelectorAll('.card').forEach((c) => {
+      const r = c.getBoundingClientRect();
+      const d = Math.abs(r.top + r.height / 2 - mid);
+      if (d < bd) { bd = d; best = c; }
     });
-    return list.filter(Boolean).slice(0, 8);
+    if (best && !best.classList.contains('is-active')) setWork(best);
   }
-
-  function stopCycling() {
-    cycleTimers.forEach(clearTimeout);
-    cycleTimers = [];
-    cycleIO && cycleIO.disconnect();
-    cycleIO = null;
-  }
-
-  // One card changes at a time, in grid order, spaced so each card still changes every 2 seconds.
-  function swapImage(c) {
-    c.i = (c.i + 1) % c.urls.length;
-    const probe = new Image();
-    probe.referrerPolicy = 'no-referrer';
-    probe.onload = () => {
-      const img = document.createElement('img');
-      img.className = 'post-bg';
-      img.alt = '';
-      img.referrerPolicy = 'no-referrer';
-      img.src = c.urls[c.i];
-      c.box.appendChild(img);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        c.box.querySelectorAll('.post-bg.is-active').forEach((o) => o.classList.remove('is-active'));
-        img.classList.add('is-active');
-      }));
-      new Image().src = c.urls[(c.i + 1) % c.urls.length];
-      setTimeout(() => c.box.querySelectorAll('.post-bg:not(.is-active)').forEach((o) => o.remove()), 1500);
-    };
-    probe.onerror = () => { c.urls.splice(c.i, 1); c.i = Math.max(0, c.i - 1); };
-    probe.src = c.urls[c.i];
-  }
-
-  function startCycling() {
-    stopCycling();
-    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const visible = new Set();
-    cycleIO = new IntersectionObserver((entries) => {
-      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
-    }, { threshold: 0.2 });
-    const cards = [];
-    cardsEl.querySelectorAll('.post[data-pid]').forEach((card) => {
-      const urls = (() => { const p = projects.find((x) => x.id === card.dataset.pid); return p ? cardImages(p) : []; })();
-      if (urls.length < 2) return;
-      cards.push({ card, urls, box: card.querySelector('.post-media-container'), i: 0 });
-      cycleIO.observe(card);
-    });
-    // A wave through the cards in view, in grid order: first card steps to its next image, then the
-    // second card, then the third, and on, wrapping back to the first visible card.
-    let pos = -1;
-    const tick = () => {
-      const n = cards.length;
-      const live = cards.filter((c) => visible.has(c.card) && c.urls.length > 1).length;
-      let hit = null;
-      for (let k = 1; k <= n && !hit; k++) {
-        const c = cards[(pos + k) % n];
-        if (visible.has(c.card) && c.urls.length > 1) { hit = c; pos = (pos + k) % n; }
-      }
-      if (hit) swapImage(hit);
-      cycleTimers[0] = setTimeout(tick, hit ? Math.max(250, 2000 / live) : 1000);
-    };
-    cycleTimers[0] = setTimeout(tick, 1500);
+  function watchWork() {
+    const first = cardsEl.querySelector('.card');
+    first && setWork(first);
+    window.addEventListener('scroll', () => { if (!workTick) { workTick = true; requestAnimationFrame(updateWork); } }, { passive: true });
   }
 
   /* ---------- Case study ---------- */
 
-  // "Role: a, b, c" and "Key results ..." become a label on the left and one item per line on the right.
   const SMALL = new Set(['and', 'of', 'the', 'for', 'to', 'in', '&']);
-  const titleCase = (r) =>
-    r.replace(/\S+/g, (w, i) => (i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1)));
+  const titleCase = (r) => r.replace(/\S+/g, (w, i) => (i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1)));
   const LABELED = /^\s*(role:|key results:?\s)/i;
+  const CREDIT_ANY = /^\s*[A-Z][A-Za-z '’&\/]{2,30}:\s/;
   const CREDIT = /^\s*(creative direction|art direction|design(ed)? by|production|producer|animation|motion|photography|copy(writing)?|illustration|agency|credits?|team|studio|also on the team)\b[^:]{0,40}:/i;
 
-  function roleRow(text, noLine) {
+  function roleRow(text) {
     const kr = /^\s*key results:?\s*/i.test(text);
     const items = kr
       ? text.replace(/^\s*key results:?\s*/i, '').split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean)
       : text.replace(/^\s*role:\s*/i, '').split(',').map((x) => x.trim()).filter(Boolean).map(titleCase);
-    const row = `<div class="role-row${kr ? ' key-results' : ''}"><div class="role-label">${kr ? 'Key results' : 'Role'}</div><ul class="role-list${kr ? ' body' : ''}">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
-    return kr ? `<div class="kr-wrap${noLine ? ' no-line' : ''}">${row}</div>` : row.replace('role-row"', `role-row${noLine ? ' no-line' : ''}"`);
+    const row = `<div class="role-row"><div class="role-label">${kr ? 'Key results' : 'Role'}</div><ul class="role-list${kr ? ' body' : ''}">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
+    return kr ? `<div class="kr-wrap">${row}</div>` : row;
   }
 
-  // Heading on the left, body on the right under a divider line; credits go last.
   function textBlock(b) {
     const paras = [].concat(b.body || []);
     const labeled = paras.filter((t) => LABELED.test(t));
-    const rest = paras.filter((t) => !LABELED.test(t)).sort((x, y) => CREDIT.test(x) - CREDIT.test(y));
+    const rest = paras.filter((t) => !LABELED.test(t)).sort((x, y) => (CREDIT.test(x) || CREDIT_ANY.test(x)) - (CREDIT.test(y) || CREDIT_ANY.test(y)));
     const row = b.heading || rest.length
-      ? `<div class="text-row${b.noLine ? ' no-line' : ''}"><div class="text-left">${b.heading ? `<h3>${esc(b.heading)}</h3>` : ''}</div><div class="text-right">${rest.map((t) => `<p>${esc(t)}</p>`).join('')}</div></div>`
+      ? `<div class="text-row${b.noLine ? ' no-line' : ''}"><div class="text-left">${b.heading ? `<h3>${esc(b.heading)}</h3>` : ''}</div><div class="text-right">${rest.map((t) => `<p${CREDIT_ANY.test(t) && t.length < 200 ? ' class="credit"' : ''}>${esc(t)}</p>`).join('')}</div></div>`
       : '';
     if (!row && !labeled.length) return '';
-    return `<div class="block-text">${row}${labeled.map((t) => roleRow(t, b.noLine)).join('')}</div>`;
+    return `<div class="block-text">${row}${labeled.map(roleRow).join('')}</div>`;
   }
 
   function blockHTML(b) {
@@ -210,9 +133,7 @@
       case 'text':
         return textBlock(b);
       case 'image':
-        return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><img src="${esc(b.src)}" alt="${esc(b.alt)}" loading="lazy" referrerpolicy="no-referrer">${
-          b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''
-        }</figure>`;
+        return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><img src="${esc(b.src)}" alt="${esc(b.alt)}" loading="lazy">${b.caption ? `<figcaption class="figcap">${esc(b.caption)}</figcaption>` : ''}</figure>`;
       case 'vimeo': {
         const id = String(b.id || '').replace(/\D/g, '');
         if (!id) return '';
@@ -220,53 +141,57 @@
         return `<figure class="block-media"><div class="embed" data-vimeo="${id}"${hash} data-title="${esc(b.title || 'Video')}"></div></figure>`;
       }
       case 'sketch':
-        return `<figure class="block-media"><div class="embed sketch"><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe><span class="pill">Interactive <svg class="pill-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path class="pill-ray" d="M8 5.8V1.5" pathLength="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path class="pill-ray" d="M5.8 8H1.5" pathLength="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path class="pill-cursor" d="M8 8l10.5 4.2-4.4 1.8-1.8 4.5z" fill="currentColor"/></svg></span></div></figure>`;
+        return `<figure class="block-media"><div class="embed sketch"><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe><span class="reel-hint">Interactive <svg class="ptr-svg" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path class="ptr" d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/><path class="trace t1" pathLength="1" d="M6.4 5.4C5 3.8 3.4 2.8 1.4 2.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path class="trace t2" pathLength="1" d="M5.8 7.6C4 7.6 2.4 8 .8 9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span></div></figure>`;
       case 'video':
-        return `<figure class="block-media"><video src="${esc(b.src)}"${b.poster ? ` poster="${esc(b.poster)}"` : ''} controls playsinline preload="metadata"></video>${
-          b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''
-        }</figure>`;
+        return `<figure class="block-media"><video src="${esc(b.src)}"${b.poster ? ` poster="${esc(b.poster)}"` : ''} controls playsinline preload="metadata"></video>${b.caption ? `<figcaption class="figcap">${esc(b.caption)}</figcaption>` : ''}</figure>`;
       default:
         return '';
     }
   }
 
+  // Letters become spans with a staggered delay so a hover lifts them one after another.
+  const wave = (t) => { let n = 0; return t.split(' ').map((w) => `<span class="w" aria-hidden="true">${[...w].map((c) => `<span class="ch" style="--i:${n++}">${esc(c)}</span>`).join('')}</span>`).join(' '); };
+
   const pageTitle = (p) => p.pageTitle || p.title;
 
-  // First image or video, then the title row (title left, description right), then the rest.
-  // Projects after the opened one start with a "Next up" block: text beside the first image.
-  function caseHTML(p, isNext, preview) {
+  // Six other projects as image tiles, starting after the current one.
+  function tilesHTML(p) {
+    const i = projects.indexOf(p);
+    return Array.from({ length: Math.min(6, projects.length - 1) }, (_, k) => projects[(i + 1 + k) % projects.length])
+      .map((q) => `<a class="tile" href="#${esc(q.id)}"><div class="tile-media"><img src="${esc(q.thumbnail)}" alt="" loading="lazy"></div><span class="tile-title">${esc(q.title)}</span></a>`)
+      .join('');
+  }
+
+  function caseHTML(p) {
     const content = p.caseStudyContent || [];
     const blocks = content.map(blockHTML);
-    content.forEach((b, i) => {
-      const n = content[i + 1];
-      if (b.type === 'text' && b.side === 'left' && n && n.type === 'image' && n.half === true) { blocks[i] = `<div class="pair">${blocks[i]}${blocks[i + 1]}</div>`; blocks[i + 1] = ''; }
-    });
     const heroAt = content.findIndex((b) => b.type === 'image' || b.type === 'vimeo');
     const hero = heroAt >= 0 ? blocks.splice(heroAt, 1)[0] : '';
-    const hasDesc = !!(p.summary && p.summary.trim());
-    const head = p.hideTitle && !hasDesc
-      ? ''
-      : `<header class="case-head"><div class="case-inner${p.noLine ? ' no-line' : ''}">
-          <div class="case-left">${p.hideTitle ? '' : `<h2 id="t-${esc(p.id)}">${esc(pageTitle(p))}</h2>`}</div>
-          <div class="case-right">${hasDesc ? `<p class="lede">${esc(p.summary)}</p>` : ''}</div>
-        </div></header>`;
-    const top = isNext
-      ? `<div class="next-up">
-          <div class="next-up-text">
-            <div class="next-up-label">Next up</div>
-            <div class="next-up-title">${esc(p.title)}</div>
-          </div>
-          <div class="next-up-media">${hero}</div>
-        </div>`
-      : hero;
+    const i = projects.indexOf(p);
+    const next = projects[(i + 1) % projects.length];
+    const meta = [p.year, p.category, p.client].filter(Boolean).map(esc).map((m) => `<span>${m}</span>`).join('');
     return `
-      <article class="case${isNext ? ' is-next' : ''}${preview ? ' preview' : ''}" data-id="${esc(p.id)}" aria-label="${esc(pageTitle(p))}">
-        ${top}<div class="case-rest">${head}${blocks.join('')}</div>
+      <article class="case" aria-label="${esc(pageTitle(p))}">
+        <header class="case-top">
+          <div class="case-meta">${meta}</div>
+          <h1>${esc(pageTitle(p))}</h1>
+          ${p.summary && p.summary.trim() ? `<p class="case-lede">${esc(p.summary)}</p>` : ''}
+        </header>
+        <div class="case-body">${hero}${blocks.join('')}</div>
+        <footer class="case-end">
+          <a class="next" href="#${esc(next.id)}">
+            <div class="caps next-label">Next up</div>
+            <div class="next-title" aria-label="${esc(next.title)}">${wave(next.title)}</div>
+          </a>
+          <div class="all-projects">
+            <h2 class="t-condensed">All projects</h2>
+            <div class="tiles">${tilesHTML(p)}</div>
+          </div>
+        </footer>
       </article>`;
   }
 
-  // Vimeo embeds autoplay muted and loop. The iframe is only created once it nears the viewport,
-  // so a long case study does not start every video at once.
+  // Vimeo embeds autoplay muted and loop; the iframe is only created near the viewport.
   const embedObserver = 'IntersectionObserver' in window
     ? new IntersectionObserver((entries) => {
         entries.forEach((e) => {
@@ -288,204 +213,168 @@
     box.replaceChildren(frame);
   }
 
-  function watchEmbeds(root) {
-    root.querySelectorAll('.embed[data-vimeo]').forEach((box) => (embedObserver ? embedObserver.observe(box) : loadEmbed(box)));
-  }
-
-  const revealed = new Set();   // next projects that have grown to full width
-
-  // The first project is shown in full. Each one after it starts as a preview directly under the
-  // previous project and only turns into the full project once it has grown to 100% width.
-  // The next project to show: the one after the last one shown, in list order. There is no wrap-around;
-  // after the last project in the list the scroll ends with the home grid.
-  function nextProject() {
-    const present = new Set([...order, ...[...document.querySelectorAll('#case-stack .case')].map((c) => c.dataset.id)]);
-    const from = projects.findIndex((p) => p.id === order[order.length - 1]);
-    const p = projects[from + 1];
-    return p && !present.has(p.id) ? p : null;
-  }
-
-  function appendProject(p) {
-    order.push(p.id);
-    stackEl.insertAdjacentHTML('beforeend', caseHTML(p, order.length > 1, order.length > 1));
-    const el = stackEl.lastElementChild;
-    const img = el.querySelector('.next-up-media img');
-    img && img.setAttribute('loading', 'eager');
-    activeObserver.observe(el);
-    watchEmbeds(el);
-  }
-
-  function appendNext() {
-    const p = nextProject();
-    if (!p) return false;
-    appendProject(p);
-    return !!nextProject();
-  }
-
-  function setActive(id) {
-    if (id === activeId) return;
-    activeId = id;
-    const p = projects.find((x) => x.id === id);
-    history.replaceState(null, '', `#${id}`);
-    if (p) document.title = `${pageTitle(p)} • ${SITE}`;
-  }
-
   function showCase(id) {
-    const idx = projects.findIndex((p) => p.id === id);
-    if (idx < 0) { location.hash = ''; return; }
-
-    teardownCase();
-    startIndex = idx;
-    order = [];
-    activeId = id;
-    revealed.clear();
-    stackEl.innerHTML = '';
-
-    // The case that crosses a thin band at the middle of the screen is the "current" one.
-    activeObserver = new IntersectionObserver((entries) => {
-      entries.forEach((e) => e.isIntersecting && setActive(e.target.dataset.id));
-    }, { rootMargin: '-45% 0px -50% 0px' });
-
-    appendProject(projects[idx]);   // the project itself
-    appendNext();                   // the "Next up" preview directly underneath it
-    if (!stackEl.querySelector('.case.preview')) appendEnd();   // a single project: straight to the end grid
-    document.title = `${pageTitle(projects[idx])} • ${SITE}`;
-    window.scrollTo(0, 0);
-    updatePreview();
+    const p = projects.find((x) => x.id === id);
+    if (!p) { location.hash = ''; return false; }
+    stackEl.innerHTML = caseHTML(p);
+    stackEl.querySelectorAll('.embed[data-vimeo]').forEach((box) => (embedObserver ? embedObserver.observe(box) : loadEmbed(box)));
+    document.title = `${pageTitle(p)} • ${SITE}`;
+    return true;
   }
 
-  function teardownCase() {
-    activeObserver && activeObserver.disconnect();
-    activeObserver = null;
-    stackEl.innerHTML = '';
-    order = [];
+  /* ---------- Routing (hash based) ---------- */
+  // ""          -> home      "#about"  -> about
+  // "#work"     -> home, scrolled to the work list
+  // "#services" / "#contact" -> home / footer anchors
+  // "#<id>"     -> case study
+
+  // Letters light up one after another (white on the menu, grey on the pill label).
+  function lightUp(el, text) {
+    const t = text || el.dataset.t || el.textContent;
+    el.dataset.t = t;
+    el.setAttribute('aria-label', t);
+    el.innerHTML = [...t].map((ch, i) => `<span class="lu" aria-hidden="true" style="--i:${i}">${esc(ch)}</span>`).join('');
   }
-
-  /* ---------- "Next up" preview: grows to the full-width next project as you scroll ---------- */
-
-  const clamp01 = (x) => Math.min(1, Math.max(0, x));
-  const smooth = (a, b, x) => { const k = clamp01((x - a) / (b - a)); return k * k * (3 - 2 * k); };
-  const lerp = (a, b, k) => a + (b - a) * k;
-
-  // The "Next up" block sits directly under the divider line at the bottom of the current project. It starts
-  // as a 50%-wide pop-out on the right (text at full size on top, image below at 50% scale) and its left side
-  // moves out to the left as it grows, until the text box and image fill 100% of the width.
-  function measurePreview(el) {
-    const nu = el.querySelector('.next-up');
-    const media = el.querySelector('.next-up-media');
-    const text = el.querySelector('.next-up-text');
-    const small = nu.clientWidth < 640;
-    const prev = text.style.width;
-    text.style.width = '100%';
-    const full = nu.offsetHeight;                      // layout height of the finished block
-    text.style.width = prev;
-    const top = nu.getBoundingClientRect().top;
-    return { nu, media, text, small, t: full ? clamp01((window.innerHeight - top) / full) : 0 };
-  }
-
-  function applyPreview(m) {
-    const e = smooth(0, 1, m.t);
-    m.media.style.transform = `scale(${lerp(0.5, 1, e)})`;
-    m.text.style.width = m.small ? '100%' : lerp(50, 100, e) + '%';
-    m.nu.style.setProperty('--w', (m.small ? 100 : lerp(50, 100, e)) + '%');   // the dark panel grows with the text box
-  }
-
-  function revealPreview(el) {
-    el.classList.remove('preview');
-    ['.next-up', '.next-up-media', '.next-up-text'].forEach((sel) => el.querySelector(sel).removeAttribute('style'));
-    revealed.add(el.dataset.id);
-    const next = nextProject();
-    if (next) appendProject(next); else appendEnd();
-  }
-
-  // Scrolling back up turns the last full next project back into a preview, which shrinks again.
-  function revertPreview(el) {
-    while (el.nextElementSibling) {
-      if (el.nextElementSibling.classList.contains('case')) order.pop();
-      el.nextElementSibling.remove();
-    }
-    el.classList.add('preview');
-    revealed.delete(el.dataset.id);
-  }
-
-  function updatePreview() {
-    if (!(currentView === 'case')) return;
-    const stack = stackEl;
-    const pv = stack.querySelector('.case.preview');
-    if (pv) {
-      const m = measurePreview(pv);
-      if (m.t >= 0.985) return revealPreview(pv);
-      applyPreview(m);
-    }
-    const cases = [...stack.querySelectorAll('.case')];
-    for (let i = cases.length - 1; i > 0; i--) {
-      if (cases[i].classList.contains('preview')) continue;
-      if (measurePreview(cases[i]).t < 0.96) { revertPreview(cases[i]); updatePreview(); }
-      break;
-    }
-  }
-
-  stackEl.addEventListener('click', (e) => {
-    const nu = e.target.closest('.case.preview .next-up');
-    if (nu) nu.closest('.case').scrollIntoView({ behavior: 'smooth', block: 'end' });
-  });
-
-  let previewTick = false;
-  const onPreviewScroll = () => {
-    if (previewTick) return;
-    previewTick = true;
-    requestAnimationFrame(() => { previewTick = false; updatePreview(); });
-  };
-  window.addEventListener('scroll', onPreviewScroll, { passive: true });
-  window.addEventListener('resize', onPreviewScroll);
-
-  /* ---------- Routing (hash based, no reloads) ---------- */
-  // ""            -> grid
-  // "#about"      -> about
-  // "#<id>"       -> case study for that project
 
   function show(name) {
-    if (currentView === 'work') gridScroll = window.scrollY;
+    if (currentView === 'home') homeScroll = window.scrollY;
     Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
+    if (name !== 'case') stackEl.innerHTML = '';
+    const navKey = name === 'case' ? 'work' : name === 'home' ? 'work' : name;
     navLinks.forEach((a) => {
-      const on = a.dataset.nav === (name === 'case' ? 'work' : name);
-      a.toggleAttribute('aria-current', on);
-      if (on) a.setAttribute('aria-current', 'page');
+      const b = a.querySelector('b');
+      if (a.dataset.nav === navKey) {
+        if (!a.hasAttribute('aria-current')) { a.setAttribute('aria-current', 'page'); b && lightUp(b); }
+      } else {
+        a.removeAttribute('aria-current');
+        if (b && b.dataset.t) { b.textContent = b.dataset.t; delete b.dataset.t; }
+      }
     });
-    $('.site-footer').hidden = name === 'case';
     currentView = name;
+    lightUp($('#hb-label'), { home: 'Home', case: 'Projects', about: 'About' }[name]);
+    $('#hb').classList.remove('open');
+    requestAnimationFrame(updateWork);
+  }
+
+  function scrollToId(id) {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' });
   }
 
   function route() {
     const hash = decodeURIComponent(location.hash.slice(1));
-
-    // Scrolling already updated the hash to a project inside the open stack.
-    if (currentView === 'case' && hash === activeId) return;
+    const returning = currentView === 'case';
 
     if (hash === 'about') {
-      teardownCase();
       show('about');
       document.title = `About • ${SITE}`;
       window.scrollTo(0, 0);
+    } else if (hash === 'contact') {
+      if (!currentView || currentView === 'case') show('home');
+      document.title = `${SITE} • ${TAGLINE}`;
+      scrollToId('contact');
+    } else if (hash === 'work' || hash === 'services') {
+      if (currentView !== 'home') show('home');
+      document.title = `${SITE} • ${TAGLINE}`;
+      scrollToId(hash);
     } else if (hash) {
       show('case');
-      showCase(hash);
+      if (showCase(hash)) window.scrollTo(0, 0);
     } else {
-      const returning = currentView === 'case';
-      teardownCase();
-      show('work');
+      show('home');
       document.title = `${SITE} • ${TAGLINE}`;
-      window.scrollTo(0, returning ? gridScroll : 0);
+      window.scrollTo(0, returning ? homeScroll : 0);
     }
   }
 
-  // Any image that fails to load (for example a removed Tumblr URL) falls back to a grey 16:9 placeholder.
+  // A missing image falls back to a grey placeholder.
   document.addEventListener('error', (e) => {
     const img = e.target;
     if (img.tagName !== 'IMG' || img.dataset.fallback) return;
     img.dataset.fallback = '1';
     img.src = 'placeholder.svg';
   }, true);
+
+  $('#hb-toggle').addEventListener('click', () => {
+    const hb = $('#hb');
+    $('#hb-toggle').setAttribute('aria-expanded', String(hb.classList.toggle('open')));
+  });
+
+  // Hero slideshow: each sketch shows for 4 seconds, then the next fades in.
+  const frames = [...document.querySelectorAll('.reel-frame')];
+  const dots = [...document.querySelectorAll('.reel-dots .dot')];
+  let slide = 0, slideTimer = null;
+  function showSlide(i) {
+    slide = (i + frames.length) % frames.length;
+    frames.forEach((f, k) => f.classList.toggle('is-on', k === slide));
+    // The dither sketch starts over each time the slideshow comes back to it.
+    if (frames[slide].getAttribute('src') === 'dither-sketch.html') { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
+    dots.forEach((d, k) => {
+      d.classList.remove('is-on');
+      if (k === slide) { void d.offsetWidth; d.classList.add('is-on'); }
+    });
+    clearTimeout(slideTimer);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) slideTimer = setTimeout(() => showSlide(slide + 1), 4000);
+  }
+  dots.forEach((d, k) => d.addEventListener('click', () => showSlide(k)));
+  showSlide(0);
+
+  /* ---------- Logo tone: white, or charcoal over light content ---------- */
+
+  const logoEl = $('.logo');
+  const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+  const luma = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+  // Brightness of an <img> at a viewport point, mapping object-fit: cover when set.
+  function imgLuma(img, x, y) {
+    if (!img.complete || !img.naturalWidth) return null;
+    const r = img.getBoundingClientRect();
+    let u = (x - r.left) / r.width, v = (y - r.top) / r.height;
+    if (getComputedStyle(img).objectFit === 'cover') {
+      const k = Math.max(r.width / img.naturalWidth, r.height / img.naturalHeight);
+      u = ((x - r.left) - (r.width - img.naturalWidth * k) / 2) / (img.naturalWidth * k);
+      v = ((y - r.top) - (r.height - img.naturalHeight * k) / 2) / (img.naturalHeight * k);
+    }
+    try {
+      probe.canvas.width = probe.canvas.height = 1;
+      probe.clearRect(0, 0, 1, 1);
+      probe.drawImage(img, Math.max(0, Math.min(img.naturalWidth - 1, u * img.naturalWidth)), Math.max(0, Math.min(img.naturalHeight - 1, v * img.naturalHeight)), 1, 1, 0, 0, 1, 1);
+      const d = probe.getImageData(0, 0, 1, 1).data;
+      return d[3] < 20 ? null : luma(d[0], d[1], d[2]);
+    } catch (e) { return null; }
+  }
+
+  function lumaAt(x, y) {
+    for (const el of document.elementsFromPoint(x, y)) {
+      if (el.closest('.hb')) continue;
+      if (el.tagName === 'IMG') { const l = imgLuma(el, x, y); if (l !== null) return l; continue; }
+      if (el.tagName === 'IFRAME') return 40;
+      const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
+      if (m && (m[3] === undefined || +m[3] > 0.5)) return luma(+m[0], +m[1], +m[2]);
+    }
+    return 0;
+  }
+
+  let toneTick = false;
+  function updateTone() {
+    toneTick = false;
+    const r = logoEl.getBoundingClientRect();
+    const pts = [[r.left + 6, r.top + r.height / 2], [r.left + r.width / 2, r.top + r.height / 2], [r.right - 6, r.top + r.height / 2]];
+    const avg = pts.reduce((a, [x, y]) => a + lumaAt(x, y), 0) / pts.length;
+    $('#hb').style.setProperty('--hb-ink', avg > 150 ? '#2c2c2c' : '#fff');
+  }
+  const queueTone = () => { if (!toneTick) { toneTick = true; requestAnimationFrame(updateTone); } };
+  window.addEventListener('scroll', queueTone, { passive: true });
+  window.addEventListener('resize', queueTone);
+  window.addEventListener('hashchange', () => setTimeout(queueTone, 50));
+  document.addEventListener('load', queueTone, true);
+  setTimeout(queueTone, 300);
+
+  $('#copy-mail').addEventListener('click', (e) => {
+    const btn = e.currentTarget;
+    const done = () => { btn.textContent = 'Copied'; setTimeout(() => (btn.textContent = 'Copy'), 1500); };
+    (navigator.clipboard ? navigator.clipboard.writeText($('#mail').textContent) : Promise.reject()).then(done, () => {});
+  });
 
   window.addEventListener('hashchange', route);
   load();
