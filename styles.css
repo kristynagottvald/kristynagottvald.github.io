@@ -269,7 +269,7 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 
 /* ---------- Next up: reserved under the current project; a copy grows out of the bottom-right corner ---------- */
 .case.is-next { border-top: 0; }
-.next-up-text { padding: 24px var(--pad-wide); }
+.next-up-text { padding: 56px var(--pad-wide); }
 .next-up-label { font-size: 11px; line-height: 16px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
 .next-up-title { margin-top: 8px; font-size: 44px; line-height: 48px; font-weight: 600; letter-spacing: -1.6px; color: var(--ink); text-wrap: balance; }
 .next-up-media img, .next-up-media .embed { border: 0; }
@@ -278,7 +278,7 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 .case.preview .next-up-media { transform-origin: 100% 0; }
 .case.preview .case-rest { display: none; }
 @media (max-width: 700px) {
-  .next-up-text { padding-inline: var(--pad); }
+  .next-up-text { padding: 40px var(--pad); }
   .next-up-title { font-size: 32px; line-height: 36px; letter-spacing: -1.2px; }
 }
 
@@ -299,9 +299,11 @@ figcaption { padding: 12px var(--pad-wide) 0; }
   .stack-end .posts-container { grid-template-columns: 1fr; }
 }
 
-/* Key results: a half-width white block with rounded corners, in the right-hand column. */
+/* Key results: a half-width block with rounded corners, in the right-hand column, under a divider line. */
+.kr-wrap { border-top: 0.5px solid var(--line); padding-top: 20px; }
+.text-row + .kr-wrap, .role-row + .kr-wrap, .kr-wrap + .role-row, .kr-wrap + .kr-wrap { margin-top: 24px; }
 .role-row.key-results {
-  background: #fff;
+  background: #efede6;   /* a touch darker than the page */
   color: var(--ink);
   border: 0;
   border-radius: 12px;

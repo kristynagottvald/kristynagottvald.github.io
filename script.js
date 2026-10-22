@@ -31,7 +31,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261021f');
+      const res = await fetch('projects.json?v=20261021g');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -189,7 +189,8 @@
     const items = kr
       ? text.replace(/^\s*key results:?\s*/i, '').split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean)
       : text.replace(/^\s*role:\s*/i, '').split(',').map((x) => x.trim()).filter(Boolean).map(titleCase);
-    return `<div class="role-row${kr ? ' key-results' : ''}${noLine ? ' no-line' : ''}"><div class="role-label">${kr ? 'Key results' : 'Role'}</div><ul class="role-list${kr ? ' body' : ''}">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
+    const row = `<div class="role-row${kr ? ' key-results' : ''}"><div class="role-label">${kr ? 'Key results' : 'Role'}</div><ul class="role-list${kr ? ' body' : ''}">${items.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
+    return kr ? `<div class="kr-wrap${noLine ? ' no-line' : ''}">${row}</div>` : row.replace('role-row"', `role-row${noLine ? ' no-line' : ''}"`);
   }
 
   // Heading on the left, body on the right under a divider line; credits go last.
