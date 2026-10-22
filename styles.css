@@ -40,7 +40,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hb { position: fixed; z-index: 40; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
 .hb > * { pointer-events: auto; }
 .hb-pill { position: relative; width: 200px; background: transparent; border-radius: var(--r-sm); transition: width .4s cubic-bezier(.65,0,.35,1); overflow: hidden; }
-.hb-pill::before { content: ""; position: absolute; inset: 0; background: var(--off-black); border-radius: var(--r-md); opacity: 1; }
+.hb-pill::before { content: ""; position: absolute; inset: 0; background: var(--bg); border-radius: var(--r-md); opacity: 1; }
 .hb-bar { position: relative; display: flex; align-items: center; height: 44px; padding: 0 12px 0 14px; gap: 20px; white-space: nowrap; }
 .logo { flex: none; display: inline-flex; align-items: baseline; gap: 2px; font: 700 24px/1 var(--sans); letter-spacing: -1.4px; color: #fff; }
 .logo-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
