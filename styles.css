@@ -184,7 +184,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .next-title .w { display: inline-block; white-space: nowrap; }
 .next-title .ch { display: inline-block; }
 @keyframes lift { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-.14em); } }
-.case-end a.next:hover .ch { animation: lift .5s var(--ease) both; animation-delay: calc(var(--i) * 28ms); }
+.next-title.dance .ch { animation: lift .5s var(--ease) both; animation-delay: calc(var(--i) * 28ms); }
 
 /* ---------- About ---------- */
 .about { padding: 150px var(--pad) 120px calc(var(--pad) + var(--indent)); min-height: 90vh; }

@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023q');
+      const res = await fetch('projects.json?v=20261023r');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -207,6 +207,28 @@
   window.addEventListener('scroll', updateNextMedia, { passive: true });
   window.addEventListener('resize', updateNextMedia);
 
+  // While the "Next up" block is hovered the title dances, rests for 2 seconds, then dances again.
+  // A dance that has started always finishes; it only stops looping once the pointer leaves.
+  function bindDance() {
+    const a = $('.case-end a.next');
+    if (!a) return;
+    const title = a.querySelector('.next-title');
+    const total = 500 + title.querySelectorAll('.ch').length * 28 + 40;   // one dance: last letter's delay + its 0.5s lift
+    let hovering = false, active = false;
+    const run = () => {
+      active = true;
+      title.classList.remove('dance');
+      void title.offsetWidth;
+      title.classList.add('dance');
+      setTimeout(() => {
+        title.classList.remove('dance');
+        setTimeout(() => { if (hovering) run(); else active = false; }, 2000);   // 2 second rest
+      }, total);
+    };
+    a.addEventListener('mouseenter', () => { hovering = true; if (!active) run(); });
+    a.addEventListener('mouseleave', () => { hovering = false; });
+  }
+
   function caseHTML(p) {
     const content = p.caseStudyContent || [];
     const blocks = content.map(blockHTML);
@@ -266,6 +288,7 @@
     stackEl.querySelectorAll('.embed[data-vimeo]').forEach((box) => (embedObserver ? embedObserver.observe(box) : loadEmbed(box)));
     document.title = `${pageTitle(p)} • ${SITE}`;
     startNextMedia();
+    bindDance();
     return true;
   }
 
