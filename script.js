@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023t');
+      const res = await fetch('projects.json?v=20261023u');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -78,7 +78,7 @@
     cardsEl.querySelectorAll('.card').forEach((c) => c.classList.toggle('is-active', c === card));
     $('#work-active').textContent = p.title;
     $('#work-desc').textContent = firstBody(p);
-    $('#work-thumb').src = p.thumbnail;
+    $('#work-thumb').src = p.squareThumbnail || p.thumbnail;
     $('#work-tag').textContent = [p.year, p.category].filter(Boolean).join(' – ');
   }
   let workTick = false;
