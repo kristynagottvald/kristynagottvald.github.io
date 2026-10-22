@@ -133,8 +133,8 @@ header a.text:hover { color: var(--bg); background: var(--ink); }
 .load-error { padding: 40px var(--pad); }
 
 /* ---------- Case study ---------- */
-/* 300px below each project, closed by a full-width line; the growing preview has neither. */
-.case { padding-bottom: 300px; border-bottom: 0.5px solid var(--line); }
+/* 240px below each project, closed by a full-width line; the growing preview has neither. */
+.case { padding-bottom: 240px; border-bottom: 0.5px solid var(--line); }
 .case.preview { padding-bottom: 0; border-bottom: 0; }
 .case + .case { border-top: 0.5px solid var(--line); }
 
@@ -145,6 +145,20 @@ header a.text:hover { color: var(--bg); background: var(--ink); }
   border-bottom: 0.5px solid var(--line);
 }
 .block-media + .block-media { margin-top: 4px; }
+/* Half-width image in the right-hand column. */
+.block-media.half-right { width: 50%; margin-left: 50%; }
+.block-media.half-left { width: 50%; margin-right: 50%; }
+.block-media.half-left img { border: 0.5px solid var(--line); }
+.block-media.half-right img { border: 0.5px solid var(--line); }
+/* A text block set beside the half-width image after it: text in the left column, image in the right. */
+.pair { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+.block-media + .pair { margin-top: 4px; }
+.pair > .block-text { padding-top: 0; padding-right: var(--pad-wide); }
+.pair > .block-text .text-row { grid-template-columns: 1fr; }
+.pair > .block-text .text-left:empty { display: none; }
+.pair > .block-media.half-right { width: 100%; margin-left: 0; margin-top: 0; }
+@media (max-width: 700px) { .pair { grid-template-columns: 1fr; } .pair > .block-media.half-right { margin-top: 36px; } .pair > .block-text { padding: 20px var(--pad) 0; } }
+@media (max-width: 700px) { .block-media.half-right, .block-media.half-left { width: 100%; margin-left: 0; margin-right: 0; } }
 .case > .block-media:first-child img, .case > .block-media:first-child .embed { border-top: 0; }
 figcaption { padding: 12px var(--pad-wide) 0; }
 
@@ -194,6 +208,7 @@ figcaption { padding: 12px var(--pad-wide) 0; }
   .case-head + .block-media, .block-text + .block-media { margin-top: 36px; }
 }
 
+.embed.sketch { background: #1E1E1E; }
 .embed { position: relative; aspect-ratio: 16 / 9; background: var(--media-bg); overflow: hidden; }
 .embed iframe, .embed > img, .embed-play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .embed > img { object-fit: cover; }

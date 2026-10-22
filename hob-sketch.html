@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House of Balloons sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #1E1E1E; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.sound.min.js"></script>
+</head>
+<body>
+<script>
+var rects = [];
+var souls = [];
+var detectionRadius = 40;
+var reverb;
+var lpFilter;
+
+const cMajorBase = [130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94];
+var currentDegree = 0;
+var lastFrequency = 130.81;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  rectMode(CENTER);
+
+  lpFilter = new p5.LowPass();
+  lpFilter.res(2);
+
+  reverb = new p5.Reverb();
+  reverb.process(lpFilter, 4.0, 2);
+  reverb.drywet(0.45);
+
+  let numRects = floor(random(50, 71));
+  for (let i = 0; i < numRects; i++) {
+    createNewBar(i);
+  }
+}
+
+function createNewBar(index) {
+  let barHeight = 20;
+  let barWidth = random(40, 280);
+  let pos = findEmptySpace(barWidth, barHeight);
+
+  let restingColor;
+  let isOrange = false;
+  let rVal = random(1);
+
+  if (rVal < 0.33) {
+    restingColor = '#D2491D';
+    isOrange = true;
+  } else {
+    restingColor = (index % 2 === 0) ? '#FDFEA1' : '#BBAE8B';
+  }
+
+  let hoverColor = '#C6C677';
+  rects.push(new rectObj(pos.x, pos.y, barWidth, barHeight, color(restingColor), color(hoverColor), isOrange));
+}
+
+function findEmptySpace(w, h) {
+  let x, y;
+  let valid = false;
+  let attempts = 0;
+  while (!valid && attempts < 100) {
+    x = random(w, width - w);
+    y = random(h, height - h);
+    let dToMouse = dist(x, y, mouseX, mouseY);
+    let overlapping = false;
+
+    for (let r of rects) {
+      if (r && r.anchorX !== undefined) {
+        // Increased distance check slightly for more noticeable movement buffer
+        if (dist(x, y, r.anchorX, r.anchorY) < 85) {
+          overlapping = true;
+          break;
+        }
+      }
+    }
+
+    if (dToMouse > 250 && !overlapping) {
+      valid = true;
+    }
+    attempts++;
+  }
+  return { x: x, y: y || height/2 };
+}
+
+function draw() {
+  background('#1E1E1E');
+
+  let filterCutoff = map(mouseY, height, 0, 200, 1600);
+  lpFilter.freq(constrain(filterCutoff, 200, 1600));
+
+  for (let i = souls.length - 1; i >= 0; i--) {
+    souls[i].update();
+    souls[i].display();
+    if (souls[i].isDead()) souls.splice(i, 1);
+  }
+
+  for (let r of rects) {
+    r.update();
+    if (r.isVisible && r.alpha >= 255) {
+      let isHoveringNow = collideRectCircle(r.curX - r.baseW/2, r.curY - r.h/2, r.baseW, r.h, mouseX, mouseY, detectionRadius * 2);
+
+      if (!r.wasHovering && isHoveringNow) {
+        let noteStep = random([2, 3, 4, 5]);
+        let direction = random() > 0.5 ? 1 : -1;
+        currentDegree = (currentDegree + (noteStep * direction)) % cMajorBase.length;
+        if (currentDegree < 0) currentDegree += cMajorBase.length;
+
+        let octaveShift = random([1, 2, 4]);
+        lastFrequency = cMajorBase[currentDegree] * octaveShift;
+
+        souls.push(new Soul(r.curX, r.curY, r.baseW, r.h, r.restingColor, r.fft));
+        r.triggerAudio(lastFrequency);
+
+        r.isVisible = false;
+        r.alpha = 0;
+        r.respawnTimer = 140;
+      }
+      r.wasHovering = isHoveringNow;
+    }
+    r.disp();
+  }
+}
+
+function Soul(x, y, w, h, col, fftRef) {
+  this.x = x;
+  this.y = y;
+  this.baseW = w;
+  this.currentW = w;
+  this.h = h;
+  this.col = col;
+  this.fft = fftRef;
+  this.alpha = 140;
+  this.verticalDrift = random(0.5, 1.2);
+  this.smoothWave = 0;
+
+  this.update = function() {
+    this.y -= this.verticalDrift;
+    this.alpha -= 1.5;
+    let waveform = this.fft.waveform();
+    let targetWave = (waveform.length > 0) ? waveform[0] * 50 : 0;
+    this.smoothWave = lerp(this.smoothWave, targetWave, 0.1);
+    this.currentW = this.baseW + this.smoothWave;
+  };
+
+  this.display = function() {
+    noStroke();
+    let c = color(this.col);
+    c.setAlpha(this.alpha);
+    fill(c);
+    rect(this.x, this.y, this.currentW, this.h);
+  };
+
+  this.isDead = function() { return this.alpha <= 0; };
+}
+
+function rectObj(x, y, w, h, restingCol, hoverCol, isOrange) {
+  this.anchorX = x;
+  this.anchorY = y;
+  this.curX = x;
+  this.curY = y;
+  this.baseW = w;
+  this.h = h;
+  this.restingColor = restingCol;
+  this.hoverColor = hoverCol;
+  this.isVisible = true;
+  this.alpha = 255;
+  this.wasHovering = false;
+  this.respawnTimer = 0;
+  this.fft = new p5.FFT(0.8, 128);
+
+  this.noiseOffset = random(2000);
+
+  // Noticeably increased speed and strength
+  // Orange bars move slightly faster and further
+  this.swaySpeed = isOrange ? 0.008 : 0.006;
+  this.swayStrength = isOrange ? 45 : 35;
+
+  this.update = function() {
+    let t = frameCount * this.swaySpeed;
+
+    // Using two different offsets for X and Y creates a more "circular" or wandering sway
+    this.curX = this.anchorX + (noise(t, this.noiseOffset) - 0.5) * this.swayStrength;
+    this.curY = this.anchorY + (noise(t + 500, this.noiseOffset) - 0.5) * this.swayStrength;
+
+    if (!this.isVisible) {
+      this.respawnTimer--;
+      if (this.respawnTimer <= 0) {
+        let newPos = findEmptySpace(this.baseW, this.h);
+        this.anchorX = newPos.x;
+        this.anchorY = newPos.y;
+        this.isVisible = true;
+        this.alpha = 0;
+      }
+    } else if (this.alpha < 255) {
+      this.alpha += 3;
+    }
+  }
+
+  this.triggerAudio = function(pitch) {
+    let type = (this.baseW < 120) ? 'triangle' : 'sine';
+    let osc = new p5.Oscillator(type);
+    osc.freq(pitch);
+    let env = new p5.Envelope();
+    env.setADSR(0.1, 0.2, 0.3, 1.8);
+    env.setRange((type === 'triangle') ? 0.25 : 0.4, 0);
+    osc.amp(env);
+    osc.disconnect();
+    osc.connect(lpFilter);
+    osc.start();
+    env.play();
+    this.fft.setInput(osc);
+    osc.stop(2.2);
+  };
+
+  this.disp = function() {
+    if (this.isVisible) {
+      noStroke();
+      let c = color(this.restingColor);
+      c.setAlpha(this.alpha);
+      fill(c);
+      rect(this.curX, this.curY, this.baseW, this.h);
+    }
+  };
+}
+
+function collideRectCircle(rx, ry, rw, rh, cx, cy, cd) {
+  let radius = cd / 2;
+  let closestX = constrain(cx, rx - rw/2, rx + rw/2);
+  let closestY = constrain(cy, ry - rh/2, ry + rh/2);
+  let distanceX = cx - closestX;
+  let distanceY = cy - closestY;
+  return (distanceX * distanceX + distanceY * distanceY) < radius * radius;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+// Browsers keep audio muted until the visitor interacts with the page; this unlocks it on the first click or tap.
+function mousePressed() { userStartAudio(); }
+function touchStarted() { userStartAudio(); }
+</script>
+</body>
+</html>

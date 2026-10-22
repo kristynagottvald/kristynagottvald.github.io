@@ -31,7 +31,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261021m');
+      const res = await fetch('projects.json?v=20261021v');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -182,7 +182,7 @@
   const titleCase = (r) =>
     r.replace(/\S+/g, (w, i) => (i > 0 && SMALL.has(w.toLowerCase()) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1)));
   const LABELED = /^\s*(role:|key results:?\s)/i;
-  const CREDIT = /^\s*(creative direction|art direction|design(ed)? by|production|producer|animation|motion|photography|copy(writing)?|illustration|agency|credits?|team|studio)\b[^:]{0,40}:/i;
+  const CREDIT = /^\s*(creative direction|art direction|design(ed)? by|production|producer|animation|motion|photography|copy(writing)?|illustration|agency|credits?|team|studio|also on the team)\b[^:]{0,40}:/i;
 
   function roleRow(text, noLine) {
     const kr = /^\s*key results:?\s*/i.test(text);
@@ -210,7 +210,7 @@
       case 'text':
         return textBlock(b);
       case 'image':
-        return `<figure class="block-media"><img src="${esc(b.src)}" alt="${esc(b.alt)}" loading="lazy" referrerpolicy="no-referrer">${
+        return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><img src="${esc(b.src)}" alt="${esc(b.alt)}" loading="lazy" referrerpolicy="no-referrer">${
           b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''
         }</figure>`;
       case 'vimeo': {
@@ -219,6 +219,8 @@
         const hash = b.hash ? ` data-hash="${esc(b.hash)}"` : '';
         return `<figure class="block-media"><div class="embed" data-vimeo="${id}"${hash} data-title="${esc(b.title || 'Video')}"></div></figure>`;
       }
+      case 'sketch':
+        return `<figure class="block-media"><div class="embed sketch"><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe></div></figure>`;
       case 'video':
         return `<figure class="block-media"><video src="${esc(b.src)}"${b.poster ? ` poster="${esc(b.poster)}"` : ''} controls playsinline preload="metadata"></video>${
           b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''
@@ -235,6 +237,10 @@
   function caseHTML(p, isNext, preview) {
     const content = p.caseStudyContent || [];
     const blocks = content.map(blockHTML);
+    content.forEach((b, i) => {
+      const n = content[i + 1];
+      if (b.type === 'text' && b.side === 'left' && n && n.type === 'image' && n.half === true) { blocks[i] = `<div class="pair">${blocks[i]}${blocks[i + 1]}</div>`; blocks[i + 1] = ''; }
+    });
     const heroAt = content.findIndex((b) => b.type === 'image' || b.type === 'vimeo');
     const hero = heroAt >= 0 ? blocks.splice(heroAt, 1)[0] : '';
     const hasDesc = !!(p.summary && p.summary.trim());
