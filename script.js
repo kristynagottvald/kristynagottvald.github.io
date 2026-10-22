@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023l');
+      const res = await fetch('projects.json?v=20261023n');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -50,7 +50,7 @@
   /* ---------- Home: work list ---------- */
 
   const ARROW = '<svg class="card-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor"/></svg>';
-  const SERVICES = ['Creative coding', 'Brand identity', 'Creative direction', 'Art direction', 'Campaigns', 'Illustration & motion'];
+  const SERVICES = ['Brand identity', 'Creative coding', 'Creative direction', 'Art direction', 'Campaigns', 'Illustration & motion'];
 
   function renderGrid() {
     cardsEl.innerHTML = projects

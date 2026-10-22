@@ -238,12 +238,16 @@ function drawSelector(sz) {
   stroke("#141735");
   strokeWeight(SELECTOR_STROKE);
   rect(-sz / 2 + inset, -sz / 2 + inset, sz - inset * 2, sz - inset * 2);
-  noStroke();
-  fill("#141735");
-  rect(-sz / 2, -sz / 2, SELECTOR_NUB, SELECTOR_NUB);
-  rect(sz / 2 - SELECTOR_NUB, -sz / 2, SELECTOR_NUB, SELECTOR_NUB);
-  rect(-sz / 2, sz / 2 - SELECTOR_NUB, SELECTOR_NUB, SELECTOR_NUB);
-  rect(sz / 2 - SELECTOR_NUB, sz / 2 - SELECTOR_NUB, SELECTOR_NUB, SELECTOR_NUB);
+  // White corner squares with the same dark outline, centred on the outline's corners so they overlap it
+  let cx = sz / 2 - inset;
+  fill("#fff");
+  stroke("#141735");
+  strokeWeight(SELECTOR_STROKE);
+  for (let sx of [-1, 1]) {
+    for (let sy of [-1, 1]) {
+      rect(sx * cx - SELECTOR_NUB / 2, sy * cx - SELECTOR_NUB / 2, SELECTOR_NUB, SELECTOR_NUB);
+    }
+  }
   pop();
 }
 

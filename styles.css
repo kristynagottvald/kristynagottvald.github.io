@@ -12,7 +12,8 @@
   --cond: "Barlow Semi Condensed", "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --ease: cubic-bezier(0.15, 0, 0.15, 1);
-  --pad: 16px;
+  --pad: 8px;      /* margin around the hero, images and tiles */
+  --indent: 12px;  /* left indent for text that sits at the far left edge */
   --r-sm: 4px;
   --r-md: 8px;
 }
@@ -92,14 +93,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ptr-svg .ripple { transform-box: view-box; transform-origin: 7.2px 6.4px; opacity: 0; animation: ripple 2.6s ease-out infinite; }
 @keyframes ptr-click { 0%, 50%, 100% { transform: translate(0,0) scale(1); } 58% { transform: translate(1.8px,1.8px) scale(.5); } 68% { transform: translate(-.8px,-.8px) scale(1.2); } 80% { transform: translate(0,0) scale(1); } }
 @keyframes ripple { 0%, 56% { opacity: 0; transform: scale(.3); } 60% { opacity: 1; transform: scale(.6); } 86%, 100% { opacity: 0; transform: scale(3.4); } }
-.reel-intro { display: flex; align-items: center; padding: 0 var(--pad) 0 12px; }
+.reel-intro { display: flex; align-items: center; padding: 0 var(--pad) 0 var(--indent); }
 .reel-intro p { max-width: 22em; font: 300 26px/1.2 var(--cond); }
 @media (min-width: 640px) { .reel-intro p { font-size: 38px; line-height: 1.1; letter-spacing: -1px; } }
 .reel-intro .grey { color: var(--grey); }
 
 /* ---------- Work ---------- */
 .work { position: relative; display: grid; grid-template-columns: 1fr; padding: 96px var(--pad) 120px; }
-.work-side { padding-bottom: 24px; }
+.work-side { padding: 0 0 24px var(--indent); }
 .work-side-in { display: flex; flex-direction: column; gap: 12px; }
 .work-side-foot, #work-active { display: none; }
 .work-list { display: grid; gap: 24px; }
@@ -115,7 +116,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 @media (min-width: 900px) {
   .work { grid-template-columns: 6fr 10fr; gap: 0 8px; }
-  .work-side { padding: 0 0 0 12px; }
+  .work-side { padding: 0 0 0 var(--indent); }
   .work-side-in { position: sticky; top: 0; height: 100svh; padding: 30svh 0 24px; gap: 0; }
   .work-side-in h2, .work-side-in h3 { }
   #work-active { display: block; min-height: 1.2em; max-width: 12em; padding-right: 24px; text-wrap: balance; transition: opacity .2s; }
@@ -138,11 +139,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .service-list .n { color: var(--grey); }
 
 /* ---------- Case study ---------- */
-.case-top { padding: 110px var(--pad) 40px; display: grid; gap: 24px; }
+.case-top { padding: 110px var(--pad) 40px calc(var(--pad) + var(--indent)); display: grid; gap: 24px; }
 .case-top h1 { font: 300 clamp(40px, 7vw, 104px)/1 var(--cond); letter-spacing: -0.03em; max-width: 80%; text-wrap: balance; margin-left: -0.09em; }
 .case-meta { color: var(--grey); display: flex; gap: 24px; flex-wrap: wrap; }
 .case-lede { color: var(--grey); max-width: 56ch; font-size: 18px; line-height: 24px; }
-.case-body { padding: 0 var(--pad); display: grid; gap: 12px; }
+.case-body { padding: 0 var(--pad); display: grid; gap: var(--pad); }
 .block-media { margin: 0; position: relative; }
 .block-media img, .block-media video { width: 100%; height: auto; border-radius: var(--r-md); background: var(--off-black); }
 .block-media.half-right { width: calc(50% - 6px); margin-left: calc(50% + 6px); }
@@ -186,7 +187,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .case-end a.next:hover .ch { animation: lift .5s var(--ease) both; animation-delay: calc(var(--i) * 28ms); }
 
 /* ---------- About ---------- */
-.about { padding: 150px var(--pad) 120px; min-height: 90vh; }
+.about { padding: 150px var(--pad) 120px calc(var(--pad) + var(--indent)); min-height: 90vh; }
 .about-inner { display: grid; gap: 56px; }
 .about h1 { font-size: clamp(44px, 9vw, 140px); line-height: .96; letter-spacing: -0.04em; max-width: 12ch; }
 .about-sub { font-size: clamp(28px, 4vw, 56px); max-width: 16ch; padding-top: 24px; border-top: 1px solid var(--line); }
@@ -197,7 +198,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ---------- Contact + footer ---------- */
 .contact { padding: 24px var(--pad) 0; border-top: 1px solid var(--line); min-height: 100svh; display: flex; flex-direction: column; }
 .contact-grid { display: grid; grid-template-columns: 1fr; gap: 48px; padding-top: 24px; }
-.contact-head { padding-left: 0; }
+.contact-head { padding-left: var(--indent); }
 .contact-rows { display: grid; }
 .contact-row { display: grid; grid-template-columns: 4fr 5fr; gap: 8px; padding: 12px 0 36px; border-top: 1px solid var(--line); }
 .contact-row h3 { font-size: 15px; }
@@ -214,7 +215,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .foot { display: flex; justify-content: space-between; color: var(--mid-grey); text-transform: none; font: 350 13px/1 var(--sans); }
 .foot a:hover { color: var(--ink); }
 @media (min-width: 900px) {
-  .contact-grid { grid-template-columns: 5fr 9fr; gap: 8px; padding-left: 12px; margin-left: 0; }
+  .contact-grid { grid-template-columns: 5fr 9fr; gap: 8px; padding-left: 0; margin-left: 0; }
   .contact-grid .contact-rows { grid-column: 2; }
   .contact-base { grid-template-columns: 7fr 9fr; padding-left: 0; }
   .foot { padding-right: 12px; }
@@ -234,3 +235,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .contact-row { grid-template-columns: 1fr 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------- Consistent left indent for text on the far-left edge ---------- */
+.text-left { padding-left: var(--indent); }
+.role-row > .role-label { padding-left: var(--indent); }
+.kr-wrap .role-row > .role-label { padding-left: 0; }
+.case-end .next-label, .case-end .next-title, .all-projects h2 { padding-left: var(--indent); }
+.row-head { padding-left: var(--indent); padding-right: var(--indent); }
+.service-list li { padding-left: var(--indent); }
+.contact-row h3 { padding-left: var(--indent); }
+.foot span, .widget { margin-left: 0; }
+.foot { padding-left: var(--indent); }
+.widget { margin-left: var(--indent); }
+.tile-title, .card-meta { padding-left: var(--indent); }
+@media (max-width: 700px) {
+  .contact-head { padding-left: var(--indent); }
+}

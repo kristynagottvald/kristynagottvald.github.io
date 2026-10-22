@@ -21,6 +21,7 @@ let yellowhorz, yellowsalesticker, purpblock, salestickerpale;
 let gridElements = [];
 let occupancy = []; // which grid cells are taken, shared with the click-to-slide behaviour
 let s = 100; // Fixed block size to maintain aspect ratio across varying screen sizes
+const B = 1; // blocks are drawn 1px larger on every side so neighbouring blocks overlap and no hairline gap shows
 let cols, rows;
 
 function preload() {
@@ -179,7 +180,7 @@ function draw() {
 
     // 1. Draw underlying base block
     if (el.type === 'giftboxlong') {
-      image(giftboxlong, currX, currY, 2 * s, s);
+      image(giftboxlong, currX - B, currY - B, 2 * s + 2 * B, s + 2 * B);
     } 
     else if (el.type === 'block') {
       if (el.isDiagonal) {
@@ -191,18 +192,18 @@ function draw() {
         
         if (el.isSwitching) {
           // ANIMATION: Diagonal block gradient looping (staggered by timeOffset)
-          image(diagonalblock, -s / 2, -s / 2, s, s); // Base yellow
+          image(diagonalblock, -s / 2 - B, -s / 2 - B, s + 2 * B, s + 2 * B); // Base yellow
           push();
           tint(255, 255 * easeT); // Crossfade loop based on easing
-          image(diagonalblockpurple, -s / 2, -s / 2, s, s); // Purple overlay
+          image(diagonalblockpurple, -s / 2 - B, -s / 2 - B, s + 2 * B, s + 2 * B); // Purple overlay
           pop();
         } else {
           // Static diagonal block (not switching state animations)
-          image(el.img1, -s / 2, -s / 2, s, s);
+          image(el.img1, -s / 2 - B, -s / 2 - B, s + 2 * B, s + 2 * B);
         }
         pop();
       } else {
-        image(el.img1, currX, currY, s, s);
+        image(el.img1, currX - B, currY - B, s + 2 * B, s + 2 * B);
       }
     }
 
