@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023a');
+      const res = await fetch('projects.json?v=20261023c');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -162,6 +162,51 @@
       .join('');
   }
 
+  // Every image of a project, thumbnail first, for the "Next up" cycle.
+  function nextImages(q) {
+    const list = [q.thumbnail];
+    (q.caseStudyContent || []).forEach((b) => { if (b.type === 'image' && b.src && !list.includes(b.src) && !/placeholder/.test(b.src)) list.push(b.src); });
+    return list.filter(Boolean);
+  }
+
+  // The "Next up" image grows from 50% to 100% width while it scrolls into view, and cycles every 3 seconds.
+  let nextTimer = null;
+  function stopNextMedia() { clearInterval(nextTimer); nextTimer = null; }
+  function updateNextMedia() {
+    const m = $('.next-media');
+    if (!m || currentView !== 'case') return;
+    const t = Math.min(1, Math.max(0, (window.innerHeight - m.getBoundingClientRect().top) / (window.innerHeight * 0.8)));
+    m.style.width = 50 + 50 * t + '%';
+  }
+  function startNextMedia() {
+    stopNextMedia();
+    const m = $('.next-media');
+    if (!m) return;
+    const urls = JSON.parse(m.dataset.urls || '[]');
+    let i = 0;
+    updateNextMedia();
+    if (urls.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    nextTimer = setInterval(() => {
+      const r = m.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;   // only while on screen
+      i = (i + 1) % urls.length;
+      const probe = new Image();
+      probe.onload = () => {
+        const img = document.createElement('img');
+        img.alt = '';
+        img.src = urls[i];
+        m.appendChild(img);
+        // The new image fades in over the old one, which is removed once it is fully covered.
+        requestAnimationFrame(() => requestAnimationFrame(() => img.classList.add('is-active')));
+        setTimeout(() => m.querySelectorAll('img').forEach((o) => { if (o !== img) o.remove(); }), 1100);
+      };
+      probe.onerror = () => { urls.splice(i, 1); i = Math.max(0, i - 1); };
+      probe.src = urls[i];
+    }, 3000);
+  }
+  window.addEventListener('scroll', updateNextMedia, { passive: true });
+  window.addEventListener('resize', updateNextMedia);
+
   function caseHTML(p) {
     const content = p.caseStudyContent || [];
     const blocks = content.map(blockHTML);
@@ -182,6 +227,7 @@
           <a class="next" href="#${esc(next.id)}">
             <div class="caps next-label">Next up</div>
             <div class="next-title" aria-label="${esc(next.title)}">${wave(next.title)}</div>
+            <div class="next-media" data-urls="${esc(JSON.stringify(nextImages(next)))}"><img class="is-active" src="${esc(nextImages(next)[0])}" alt=""></div>
           </a>
           <div class="all-projects">
             <h2 class="t-condensed">All projects</h2>
@@ -219,6 +265,7 @@
     stackEl.innerHTML = caseHTML(p);
     stackEl.querySelectorAll('.embed[data-vimeo]').forEach((box) => (embedObserver ? embedObserver.observe(box) : loadEmbed(box)));
     document.title = `${pageTitle(p)} • ${SITE}`;
+    startNextMedia();
     return true;
   }
 
@@ -239,7 +286,7 @@
   function show(name) {
     if (currentView === 'home') homeScroll = window.scrollY;
     Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
-    if (name !== 'case') stackEl.innerHTML = '';
+    if (name !== 'case') { stopNextMedia(); stackEl.innerHTML = ''; }
     const navKey = name === 'case' ? 'work' : name === 'home' ? 'work' : name;
     navLinks.forEach((a) => {
       const b = a.querySelector('b');
