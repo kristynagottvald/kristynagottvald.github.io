@@ -307,8 +307,8 @@ figcaption { padding: 12px var(--pad-wide) 0; }
   border-radius: 12px;
   padding: 32px var(--pad-wide);
 }
-.role-row.key-results { grid-template-columns: 1fr 3fr; }   /* the results start one column further left */
+.role-row.key-results { grid-template-columns: 1fr; gap: 18px; }   /* one left column: label on top, results below */
 .role-row.key-results .role-label { color: #b9b6ae; }
 .role-row.key-results .role-list,
-.role-row.key-results .role-list.body { color: #fff; max-width: none; }
-@media (max-width: 700px) { .role-row.key-results { padding: 24px var(--pad); grid-template-columns: 1fr; } }
+.role-row.key-results .role-list.body { color: #fff; max-width: 64ch; }
+@media (max-width: 700px) { .role-row.key-results { padding: 24px var(--pad); } }
