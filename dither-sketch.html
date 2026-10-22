@@ -224,6 +224,29 @@ window.addEventListener('message', (e) => {
   }
 });
 
+// The selector is drawn as vectors so its lines keep the same stroke weight at every size
+// (the old image scaled up, which made the lines thicker around the large 2x2 cells).
+const SELECTOR_STROKE = 1.1;  // outline weight in px
+const SELECTOR_EDGE = 0.3;    // outline centre sits this far inside the cell edge
+const SELECTOR_NUB = 7;       // corner squares
+function drawSelector(sz) {
+  let pad = sz > cellSize * 1.5 ? 6 : 3;            // selector box extends 3px (6px for a 2x2 cell) past the cell
+  let inset = pad + SELECTOR_EDGE;
+  push();
+  rectMode(CORNER);
+  noFill();
+  stroke("#141735");
+  strokeWeight(SELECTOR_STROKE);
+  rect(-sz / 2 + inset, -sz / 2 + inset, sz - inset * 2, sz - inset * 2);
+  noStroke();
+  fill("#141735");
+  rect(-sz / 2, -sz / 2, SELECTOR_NUB, SELECTOR_NUB);
+  rect(sz / 2 - SELECTOR_NUB, -sz / 2, SELECTOR_NUB, SELECTOR_NUB);
+  rect(-sz / 2, sz / 2 - SELECTOR_NUB, SELECTOR_NUB, SELECTOR_NUB);
+  rect(sz / 2 - SELECTOR_NUB, sz / 2 - SELECTOR_NUB, SELECTOR_NUB, SELECTOR_NUB);
+  pop();
+}
+
 // Helper to shatter overlapping large cells back into 1x1s
 function breakLargeCell(r, c) {
   if (r < 0 || r >= rows || c < 0 || c >= cols) return;
@@ -389,7 +412,7 @@ function draw() {
       push();
       translate(hx + hSize / 2, hy + hSize / 2);
       let selSize = hCell.isLarge ? hSize + 12 : hSize + 6;
-      image(overlayImages.selector, -selSize / 2, -selSize / 2, selSize, selSize);
+      drawSelector(selSize);
       pop();
     }
   }
@@ -414,7 +437,7 @@ function draw() {
     
     if (overlayImages.selector) {
       let selSize = activeSelection.isLarge ? activeSize + 12 : activeSize + 6;
-      image(overlayImages.selector, -selSize / 2, -selSize / 2, selSize, selSize);
+      drawSelector(selSize);
     }
     
     pop();
@@ -466,7 +489,7 @@ function draw() {
     
     if (overlayImages.selector) {
       let selSize = mimic.selectionData.isLarge ? mSize + 12 : mSize + 6;
-      image(overlayImages.selector, -selSize / 2, -selSize / 2, selSize, selSize);
+      drawSelector(selSize);
     }
     pop();
   }
