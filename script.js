@@ -31,7 +31,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261021w');
+      const res = await fetch('projects.json?v=20261021x');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -61,7 +61,7 @@
       .map((p) => `<article class="post"><a class="post-link" href="#${esc(p.id)}" aria-label="${esc(p.title)}">
           <div class="post-media-container"><img class="post-bg is-active" src="${esc(p.thumbnail)}" alt="" loading="lazy" referrerpolicy="no-referrer"></div>
           <div class="post-metadata">
-            <div class="post-title">${[p.category, p.year, p.client].filter(Boolean).map(esc).join(' · ')}</div>
+            <div class="post-title">${[p.category, p.client].filter(Boolean).map(esc).join(' · ')}</div>
             <h3 class="post-heading">${esc(p.title)}</h3>
           </div>
         </a></article>`)
@@ -81,7 +81,7 @@
         <a class="post-link" href="#${esc(p.id)}" aria-label="${esc(p.title)}">
           <div class="post-media-container">${mediaHTML(p)}</div>
           <div class="post-metadata">
-            <div class="post-title">${[p.category, p.year, p.client].filter(Boolean).map(esc).join(' · ')}</div>
+            <div class="post-title">${[p.category, p.client].filter(Boolean).map(esc).join(' · ')}</div>
             <h3 class="post-heading">${esc(p.title)}</h3>
           </div>
         </a>
