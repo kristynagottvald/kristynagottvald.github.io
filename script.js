@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023x');
+      const res = await fetch('projects.json?v=20261023y');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
