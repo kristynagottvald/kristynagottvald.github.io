@@ -283,7 +283,10 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 }
 
 /* Dark mode for the "Next up" pop-out (text and first image); the rest of the project is light again. */
-.case.is-next .next-up { background: #0c0c0c; color: #fbfaf7; }
+.case.is-next .next-up { position: relative; color: #fbfaf7; }
+/* The dark panel is as wide as the pop-out: it grows from 50% to 100% with the text box and image. */
+.case.is-next .next-up::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: var(--w, 100%); background: #0c0c0c; }
+.case.is-next .next-up-text, .case.is-next .next-up-media { position: relative; }
 .case.is-next .next-up-label { color: #9b988f; }
 .case.is-next .next-up-title { color: #fbfaf7; }
 

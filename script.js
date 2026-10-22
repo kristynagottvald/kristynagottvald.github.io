@@ -31,7 +31,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261021a');
+      const res = await fetch('projects.json?v=20261021b');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -380,11 +380,12 @@
     const e = smooth(0, 1, m.t);
     m.media.style.transform = `scale(${lerp(0.5, 1, e)})`;
     m.text.style.width = m.small ? '100%' : lerp(50, 100, e) + '%';
+    m.nu.style.setProperty('--w', (m.small ? 100 : lerp(50, 100, e)) + '%');   // the dark panel grows with the text box
   }
 
   function revealPreview(el) {
     el.classList.remove('preview');
-    ['.next-up-media', '.next-up-text'].forEach((sel) => el.querySelector(sel).removeAttribute('style'));
+    ['.next-up', '.next-up-media', '.next-up-text'].forEach((sel) => el.querySelector(sel).removeAttribute('style'));
     revealed.add(el.dataset.id);
     const next = nextProject();
     if (next) appendProject(next); else appendEnd();
