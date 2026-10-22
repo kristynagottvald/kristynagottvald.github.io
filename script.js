@@ -31,7 +31,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261022a');
+      const res = await fetch('projects.json?v=20261022b');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -220,7 +220,7 @@
         return `<figure class="block-media"><div class="embed" data-vimeo="${id}"${hash} data-title="${esc(b.title || 'Video')}"></div></figure>`;
       }
       case 'sketch':
-        return `<figure class="block-media"><div class="embed sketch"><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe><span class="pill">Interactive <svg class="pill-icon" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path class="pill-rays" d="M7 4.3V2M4.3 6.9H2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path class="pill-cursor" d="M7 6l8 3.2-3.4 1.3-1.3 3.4z" fill="currentColor"/></svg></span></div></figure>`;
+        return `<figure class="block-media"><div class="embed sketch"><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe><span class="pill">Interactive <svg class="pill-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="pill-rays" d="M8 5.6V2M5.6 8H2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="pill-cursor" d="M8 8l10.5 4.2-4.4 1.8-1.8 4.5z" fill="currentColor"/></svg></span></div></figure>`;
       case 'video':
         return `<figure class="block-media"><video src="${esc(b.src)}"${b.poster ? ` poster="${esc(b.poster)}"` : ''} controls playsinline preload="metadata"></video>${
           b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''

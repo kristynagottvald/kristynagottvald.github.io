@@ -211,12 +211,12 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 .embed.sketch { background: #1E1E1E; }
 .embed.sketch .pill {
   position: absolute; top: 14px; right: 14px; z-index: 2; pointer-events: none;
-  display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px;
-  border-radius: 12px; background: rgba(48, 48, 48, 0.92); color: #e6e6e6;
+  display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px 8px 20px;
+  border-radius: 0; background: rgba(48, 48, 48, 0.92); color: #e6e6e6;
   font: 500 11px/1 var(--font); letter-spacing: 1.5px; text-transform: uppercase;
 }
 .embed.sketch .pill-icon { flex: none; overflow: visible; }
-.embed.sketch .pill-cursor { transform-origin: 7px 6px; animation: pill-click 1.9s ease-in-out infinite; }
+.embed.sketch .pill-cursor { transform-origin: 8px 8px; animation: pill-click 1.9s ease-in-out infinite; }
 .embed.sketch .pill-rays { animation: pill-rays 1.9s ease-in-out infinite; }
 @keyframes pill-click { 0%, 55%, 100% { transform: none; } 30% { transform: translate(-1.2px, -1.2px) scale(0.88); } }
 @keyframes pill-rays { 0%, 55%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
