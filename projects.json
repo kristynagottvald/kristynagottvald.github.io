@@ -332,7 +332,7 @@
     "thumbnail": "postal-fix-thumb.png",
     "title": "Postal Fix",
     "year": 2026,
-    "squareThumbnail": "lob.webp"
+    "squareThumbnail": "lob-square.webp"
   },
   {
     "caseStudyContent": [
@@ -758,7 +758,8 @@
     "summary": "",
     "thumbnail": "build-better-demos-with-ai-cover.webp",
     "title": "Build better demos with AI",
-    "year": 2025
+    "year": 2025,
+    "squareThumbnail": "reprise-square.webp"
   },
   {
     "caseStudyContent": [
@@ -877,7 +878,8 @@
     "summary": "",
     "thumbnail": "lob.webp",
     "title": "Lob",
-    "year": 2025
+    "year": 2025,
+    "squareThumbnail": "lob-square.webp"
   },
   {
     "caseStudyContent": [
