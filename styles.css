@@ -104,11 +104,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .work-side-in { display: flex; flex-direction: column; gap: 12px; }
 .work-side-foot, #work-active { display: none; }
 .work-list { display: grid; gap: 24px; }
-.card a { display: flex; flex-direction: column; gap: 12px; transition: opacity .17s linear; }
+.card a { display: flex; flex-direction: column; gap: 4px; transition: opacity .17s linear; }
 .card-media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--r-md); background: var(--off-black); }
 .card-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
 .card a:hover .card-media img { transform: scale(1.04); }
-.card-meta { position: relative; padding: 2px 20px 4px 0; }
+.card-meta { position: relative; padding: 0 20px 4px 0; }
 .card-title { font-size: 15px; }
 .card-sub { color: var(--grey); font-size: 15px; }
 .card-arrow { position: absolute; top: 5px; right: 0; color: var(--grey); transition: color .2s; }
@@ -170,7 +170,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .case-end .next-label { letter-spacing: .18em; }
 .all-projects { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px 12px; }
-.tile { display: grid; gap: 12px; align-content: start; }
+.tile { display: grid; gap: 4px; align-content: start; }
 .tile-media { aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: var(--off-black); }
 .tile-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
 .tile:hover .tile-media img { transform: scale(1.05); }
@@ -247,7 +247,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .foot span, .widget { margin-left: 0; }
 .foot { padding-left: var(--indent); }
 .widget { margin-left: 0; padding-left: var(--indent); }
-.tile-title, .card-meta { padding-left: var(--indent); }
+
 @media (max-width: 700px) {
   .contact-head { padding-left: var(--indent); }
 }
