@@ -45,10 +45,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .logo { flex: none; display: inline-flex; align-items: baseline; gap: 2px; font: 700 24px/1 var(--sans); letter-spacing: -1.4px; color: var(--hb-ink, #fff); transition: color .25s linear; }
 .hb-pill:hover .logo, .hb-pill:focus-within .logo, .hb.open .logo { color: #fff; }
 .logo-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.hb-label { color: var(--hb-ink, #fff); --lu-to: var(--hb-ink, #fff); margin-right: -12px; transition: color .25s linear; }
+.hb-label { color: var(--hb-ink, #fff); --lu-to: var(--hb-ink, #fff); margin-right: -17px; transition: color .25s linear; }
 .hb-pill:hover, .hb-pill:focus-within, .hb.open .hb-pill { --hb-ink: #fff; }
 .hb-toggle { margin-left: 0; width: 15px; height: 24px; position: relative; display: flex; align-items: center; }
-.nav-ptr { display: block; color: var(--hb-ink, #fff); transition: color .25s linear; }
+.nav-ptr { display: block; transform: translateY(-3px) rotate(-45deg); transform-origin: 11.3px 10.4px; color: var(--hb-ink, #fff); transition: color .25s linear; }
 .hb-menu { position: relative; display: flex; flex-direction: column; opacity: 0; max-height: 0; overflow: hidden; padding: 0 6px; transition: opacity .17s linear, max-height .4s var(--ease); }
 .hb-menu > a { display: block; position: relative; height: 36px; padding: 0 8px; overflow: hidden; border-radius: var(--r-sm); }
 .hb-menu > a > b, .hb-menu > a > span { position: absolute; left: 8px; top: 0; height: 36px; line-height: 36px; font-weight: 350; font-size: 15px; transition: transform .3s var(--ease); }
@@ -84,11 +84,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ptr-svg { overflow: visible; }
 .ptr-svg .ptr { transform-box: view-box; transform-origin: 7.2px 6.4px; animation: ptr-click 2.6s ease-in-out infinite; }
 .ptr-svg .ripple { transform-box: view-box; transform-origin: 7.2px 6.4px; opacity: 0; animation: ripple 2.6s ease-out infinite; }
-.ptr-svg .trace { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; animation: trace 2.6s ease-in-out infinite; }
-.ptr-svg .t2 { animation-delay: .08s; }
 @keyframes ptr-click { 0%, 50%, 100% { transform: translate(0,0) scale(1); } 58% { transform: translate(1.8px,1.8px) scale(.5); } 68% { transform: translate(-.8px,-.8px) scale(1.2); } 80% { transform: translate(0,0) scale(1); } }
 @keyframes ripple { 0%, 56% { opacity: 0; transform: scale(.3); } 60% { opacity: 1; transform: scale(.6); } 86%, 100% { opacity: 0; transform: scale(3.4); } }
-@keyframes trace { 0%, 56% { stroke-dashoffset: 1; opacity: 0; } 60% { opacity: 1; } 78% { stroke-dashoffset: 0; opacity: 1; } 92%, 100% { stroke-dashoffset: -1; opacity: 0; } }
 .reel-intro { display: flex; align-items: center; padding: 0 var(--pad) 0 12px; }
 .reel-intro p { max-width: 22em; font: 300 26px/1.2 var(--cond); }
 @media (min-width: 640px) { .reel-intro p { font-size: 38px; line-height: 1.1; letter-spacing: -1px; } }
