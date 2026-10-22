@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023c');
+      const res = await fetch('projects.json?v=20261023d');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -365,57 +365,6 @@
   }
   dots.forEach((d, k) => d.addEventListener('click', () => showSlide(k)));
   showSlide(0);
-
-  /* ---------- Logo tone: white, or charcoal over light content ---------- */
-
-  const logoEl = $('.logo');
-  const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-  const luma = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-  // Brightness of an <img> at a viewport point, mapping object-fit: cover when set.
-  function imgLuma(img, x, y) {
-    if (!img.complete || !img.naturalWidth) return null;
-    const r = img.getBoundingClientRect();
-    let u = (x - r.left) / r.width, v = (y - r.top) / r.height;
-    if (getComputedStyle(img).objectFit === 'cover') {
-      const k = Math.max(r.width / img.naturalWidth, r.height / img.naturalHeight);
-      u = ((x - r.left) - (r.width - img.naturalWidth * k) / 2) / (img.naturalWidth * k);
-      v = ((y - r.top) - (r.height - img.naturalHeight * k) / 2) / (img.naturalHeight * k);
-    }
-    try {
-      probe.canvas.width = probe.canvas.height = 1;
-      probe.clearRect(0, 0, 1, 1);
-      probe.drawImage(img, Math.max(0, Math.min(img.naturalWidth - 1, u * img.naturalWidth)), Math.max(0, Math.min(img.naturalHeight - 1, v * img.naturalHeight)), 1, 1, 0, 0, 1, 1);
-      const d = probe.getImageData(0, 0, 1, 1).data;
-      return d[3] < 20 ? null : luma(d[0], d[1], d[2]);
-    } catch (e) { return null; }
-  }
-
-  function lumaAt(x, y) {
-    for (const el of document.elementsFromPoint(x, y)) {
-      if (el.closest('.hb')) continue;
-      if (el.tagName === 'IMG') { const l = imgLuma(el, x, y); if (l !== null) return l; continue; }
-      if (el.tagName === 'IFRAME') return 40;
-      const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
-      if (m && (m[3] === undefined || +m[3] > 0.5)) return luma(+m[0], +m[1], +m[2]);
-    }
-    return 0;
-  }
-
-  let toneTick = false;
-  function updateTone() {
-    toneTick = false;
-    const r = logoEl.getBoundingClientRect();
-    const pts = [[r.left + 6, r.top + r.height / 2], [r.left + r.width / 2, r.top + r.height / 2], [r.right - 6, r.top + r.height / 2]];
-    const avg = pts.reduce((a, [x, y]) => a + lumaAt(x, y), 0) / pts.length;
-    $('#hb').style.setProperty('--hb-ink', avg > 150 ? '#2c2c2c' : '#fff');
-  }
-  const queueTone = () => { if (!toneTick) { toneTick = true; requestAnimationFrame(updateTone); } };
-  window.addEventListener('scroll', queueTone, { passive: true });
-  window.addEventListener('resize', queueTone);
-  window.addEventListener('hashchange', () => setTimeout(queueTone, 50));
-  document.addEventListener('load', queueTone, true);
-  setTimeout(queueTone, 300);
 
   $('#copy-mail').addEventListener('click', (e) => {
     const btn = e.currentTarget;
