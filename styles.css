@@ -209,6 +209,13 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 }
 
 .embed.sketch { background: #1E1E1E; }
+.embed.sketch .pill {
+  position: absolute; top: 14px; right: 14px; z-index: 2; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 10px; height: 34px; padding: 0 16px;
+  border-radius: 999px; background: rgba(48, 48, 48, 0.92); color: #e6e6e6;
+  font: 500 13px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.embed.sketch .pill-icon { flex: none; }
 .embed { position: relative; aspect-ratio: 16 / 9; background: var(--media-bg); overflow: hidden; }
 .embed iframe, .embed > img, .embed-play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .embed > img { object-fit: cover; }
