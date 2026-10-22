@@ -1306,7 +1306,8 @@
     "summary": "The State of Remote Engineering Report explores the sentiments of software engineers regarding working from home during the 2020 COVID-19 pandemic. The report is based on survey data and includes insights from over 1000 engineers from across the world on how economic uncertainties have affected their teams, as well as their opinions on remote work, benefits, the future of work post-pandemic and what companies can offer prospective employees.",
     "thumbnail": "the-state-of-remote-engineering.webp",
     "title": "The State of Remote Engineering",
-    "year": 2021
+    "year": 2021,
+    "squareThumbnail": "the-state-of-remote-engineering-square.webp"
   },
   {
     "caseStudyContent": [
