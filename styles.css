@@ -300,7 +300,7 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 }
 
 /* Key results: a half-width block with rounded corners, in the right-hand column, under a divider line. */
-.kr-wrap { border-top: 0.5px solid var(--line); padding-top: 20px; }
+.kr-wrap { border-top: 0.5px solid var(--line); padding-top: 20px; padding-bottom: 40px; }   /* extra space below the block */
 .text-row + .kr-wrap, .role-row + .kr-wrap, .kr-wrap + .role-row, .kr-wrap + .kr-wrap { margin-top: 24px; }
 .role-row.key-results {
   background: #efede6;   /* a touch darker than the page */
