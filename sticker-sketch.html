@@ -64,16 +64,25 @@ function calculateGrid() {
   rows = Math.ceil(height / s);
 }
 
-// Click a block and it slides to the nearest empty spot
-function mousePressed() {
+// Which block (if any) sits under a point
+function elementAt(x, y) {
   for (let i = gridElements.length - 1; i >= 0; i--) {
     let el = gridElements[i];
     let w = el.type === 'giftboxlong' ? 2 : 1;
-    if (mouseX >= el.gridX * s && mouseX < (el.gridX + w) * s && mouseY >= el.gridY * s && mouseY < (el.gridY + 1) * s) {
-      slideToEmpty(el, w);
-      return;
-    }
+    if (x >= el.gridX * s && x < (el.gridX + w) * s && y >= el.gridY * s && y < (el.gridY + 1) * s) return el;
   }
+  return null;
+}
+
+// Hover only counts once the pointer has actually moved over the canvas
+let hasMouse = false;
+function mouseMoved() { hasMouse = true; }
+document.addEventListener('mouseleave', () => { hasMouse = false; });
+
+// Click a block and it slides to the nearest empty spot
+function mousePressed() {
+  let el = elementAt(mouseX, mouseY);
+  if (el) slideToEmpty(el, el.type === 'giftboxlong' ? 2 : 1);
 }
 
 function slideToEmpty(el, w) {
@@ -113,7 +122,12 @@ function draw() {
   background('#232746');
   
   // -- RENDER LOOP --
+  let hoverEl = hasMouse ? elementAt(mouseX, mouseY) : null;
   for (let el of gridElements) {
+
+    // The block under the pointer fades to half opacity, and eases back when the pointer leaves
+    el.hoverA = lerp(el.hoverA === undefined ? 1 : el.hoverA, el === hoverEl ? 0.5 : 1, 0.2);
+    drawingContext.globalAlpha = el.hoverA;
     
     // -- INDEPENDENT ELEMENT TIMING --
     let cycleTime = 4000;
@@ -267,6 +281,7 @@ function draw() {
       }
     }
   }
+  drawingContext.globalAlpha = 1;
 }
 
 function generateRandomComposition() {
