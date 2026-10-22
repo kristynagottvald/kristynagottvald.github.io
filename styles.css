@@ -117,7 +117,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 900px) {
   .work { grid-template-columns: 6fr 10fr; gap: 0 8px; }
   .work-side { padding: 0 0 0 var(--indent); }
-  .work-side-in { position: sticky; top: 0; height: 100svh; padding: 30svh 0 24px; gap: 0; }
+  .work-side-in { position: sticky; top: 0; height: 100svh; padding: 15svh 0 24px; gap: 0; }
   .work-side-in h2, .work-side-in h3 { }
   #work-active { display: block; min-height: 1.2em; max-width: 12em; padding-right: 24px; text-wrap: balance; transition: opacity .2s; }
   .work-side-foot { display: flex; flex-direction: column; gap: 48px; margin-top: auto; }
