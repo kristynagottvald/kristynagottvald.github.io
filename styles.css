@@ -311,10 +311,12 @@ figcaption { padding: 12px var(--pad-wide) 0; }
   padding: 32px var(--pad-wide);
   grid-template-columns: 1fr;
   gap: 18px;
-  width: 50%;
-  margin-left: auto;
+  /* Starts one padding-width left of the right-hand copy column (which begins 20px past the half-way point),
+     so the text inside lines up with the copy above and below. */
+  width: calc(50% + 20px);
+  margin-left: calc(50% - 20px);
 }
 .role-row.key-results .role-label { color: var(--muted); }
 .role-row.key-results .role-list,
 .role-row.key-results .role-list.body { color: var(--ink); max-width: 64ch; }
-@media (max-width: 700px) { .role-row.key-results { padding: 24px var(--pad); width: 100%; margin-left: 0; } }
+@media (max-width: 700px) { .role-row.key-results { padding: 24px var(--pad); width: calc(100% + var(--pad)); margin-left: calc(-1 * var(--pad)); } }
