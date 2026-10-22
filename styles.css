@@ -304,7 +304,7 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 .text-row + .kr-wrap, .role-row + .kr-wrap, .kr-wrap + .role-row, .kr-wrap + .kr-wrap { margin-top: 24px; }
 .case .kr-wrap + .role-row, .case .kr-wrap + .kr-wrap { margin-top: 0; }   /* the wrapper's own bottom padding gives the space */
 .role-row.key-results {
-  background: #efede6;   /* a touch darker than the page */
+  background: #f4f2ec;   /* a touch darker than the page */
   color: var(--ink);
   border: 0;
   border-radius: 5px;
