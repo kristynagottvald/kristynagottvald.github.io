@@ -78,6 +78,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .reel-dots .dot.is-on i::after { animation: reel-fill 4s linear forwards; }
 @keyframes reel-fill { to { transform: scaleX(1); } }
 .reel-hint { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 8px; background: rgba(40,40,40,.7); backdrop-filter: blur(8px); font: 400 10px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #e8e8e8; pointer-events: none; }
+.hint-title, .hint-cta { display: inline-flex; align-items: center; gap: 8px; }
+.hint-sep { opacity: .7; }
+@media (max-width: 700px) {
+  /* on phones the pill only names the project; the Interactive part is hidden */
+  .reel-hint { max-width: calc(100% - 172px); }
+  .reel-video .hint-sep, .reel-video .hint-cta { display: none; }
+  .hint-title { text-align: right; line-height: 1.4; }
+}
 .ptr-svg { overflow: visible; position: relative; top: 2px; }
 .ptr-svg .ptr { transform-box: view-box; transform-origin: 7.2px 6.4px; animation: ptr-click 2.6s ease-in-out infinite; }
 .ptr-svg .ripple { transform-box: view-box; transform-origin: 7.2px 6.4px; opacity: 0; animation: ripple 2.6s ease-out infinite; }

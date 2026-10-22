@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023g');
+      const res = await fetch('projects.json?v=20261023h');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -141,7 +141,7 @@
         return `<figure class="block-media"><div class="embed" data-vimeo="${id}"${hash} data-title="${esc(b.title || 'Video')}"></div></figure>`;
       }
       case 'sketch':
-        return `<figure class="block-media"><div class="embed sketch"><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe><span class="reel-hint">Interactive <svg class="ptr-svg" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle class="ripple" cx="7.2" cy="6.4" r="2.5" fill="none" stroke="currentColor" stroke-width="1"/><path class="ptr" d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></span></div></figure>`;
+        return `<figure class="block-media"><div class="embed sketch"><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe><span class="reel-hint"><span class="hint-cta">Interactive <svg class="ptr-svg" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle class="ripple" cx="7.2" cy="6.4" r="2.5" fill="none" stroke="currentColor" stroke-width="1"/><path class="ptr" d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></span></span></div></figure>`;
       case 'video':
         return `<figure class="block-media"><video src="${esc(b.src)}"${b.poster ? ` poster="${esc(b.poster)}"` : ''} controls playsinline preload="metadata"></video>${b.caption ? `<figcaption class="figcap">${esc(b.caption)}</figcaption>` : ''}</figure>`;
       default:
@@ -354,6 +354,7 @@
   function showSlide(i) {
     slide = (i + frames.length) % frames.length;
     frames.forEach((f, k) => f.classList.toggle('is-on', k === slide));
+    $('#hint-title').textContent = frames[slide].dataset.label || '';
     // The dither sketch starts over each time the slideshow comes back to it.
     if (frames[slide].getAttribute('src') === 'dither-sketch.html') { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
     dots.forEach((d, k) => {
