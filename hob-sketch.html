@@ -34,15 +34,21 @@ function setup() {
   reverb.process(lpFilter, 4.0, 2);
   reverb.drywet(0.45);
 
-  let numRects = floor(random(50, 71));
+  let numRects = targetBarCount();
   for (let i = 0; i < numRects; i++) {
     createNewBar(i);
   }
 }
 
+// Bar count follows the canvas area (about 60 bars on a 1400 x 630 canvas), so small screens are not crowded.
+function targetBarCount() {
+  let scaled = round(random(50, 71) * (width * height) / (1400 * 630));
+  return constrain(scaled, 12, 70);
+}
+
 function createNewBar(index) {
   let barHeight = 20;
-  let barWidth = random(40, 280);
+  let barWidth = random(40, min(280, width * 0.5));
   let pos = findEmptySpace(barWidth, barHeight);
 
   let restingColor;
@@ -80,7 +86,7 @@ function findEmptySpace(w, h) {
       }
     }
 
-    if (dToMouse > 250 && !overlapping) {
+    if (dToMouse > min(250, min(width, height) * 0.35) && !overlapping) {
       valid = true;
     }
     attempts++;
@@ -238,8 +244,27 @@ function collideRectCircle(rx, ry, rw, rh, cx, cy, cd) {
   return (distanceX * distanceX + distanceY * distanceY) < radius * radius;
 }
 
+// When the screen changes size, bars are re-spread across the new canvas and the count follows its area.
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  relayoutBars();
+}
+
+function relayoutBars() {
+  let n = constrain(round(60 * (width * height) / (1400 * 630)), 12, 70);
+  while (rects.length > n) rects.pop();
+  for (let r of rects) {
+    r.anchorX = undefined;               // so the old spot does not block the new layout
+    r.baseW = min(r.baseW, width * 0.5);
+  }
+  souls = [];
+  for (let r of rects) {
+    let p = findEmptySpace(r.baseW, r.h);
+    r.anchorX = p.x; r.anchorY = p.y;
+    r.curX = p.x; r.curY = p.y;
+    r.isVisible = true; r.alpha = 255;
+  }
+  while (rects.length < n) createNewBar(rects.length);
 }
 
 // Browsers keep audio muted until the visitor interacts with the page; this unlocks it on the first click or tap.
