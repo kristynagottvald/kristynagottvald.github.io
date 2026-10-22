@@ -143,7 +143,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .service-list .n { color: var(--grey); }
 
 /* ---------- Case study ---------- */
-.case-top { padding: 110px var(--pad) 40px calc(var(--pad) + var(--indent)); display: grid; gap: 24px; }
+.case-top { padding: 110px var(--pad) 40px 31.5px; display: grid; gap: 24px; }   /* 31.5px = left edge of the kg logo */
 .case-top h1 { font: 300 clamp(40px, 7vw, 104px)/1 var(--cond); letter-spacing: -0.03em; max-width: 80%; text-wrap: balance; margin-left: -0.09em; }
 .case-meta { color: var(--grey); display: flex; gap: 24px; flex-wrap: wrap; }
 .case-lede { color: var(--grey); max-width: 56ch; font-size: 18px; line-height: 24px; }
