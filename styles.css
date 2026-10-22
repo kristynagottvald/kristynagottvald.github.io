@@ -255,3 +255,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* more room on the right of the right-hand text column */
 .text-right, .role-list:not(.body), .about-cols p { padding-right: calc(var(--indent) * 3); }
 @media (max-width: 700px) { .text-right, .role-list:not(.body), .about-cols p { padding-right: var(--indent); } }
+
+/* "View project" overlay on the Next up image, same style as the Interactive label */
+.next-media .reel-hint { z-index: 2; }
+.next-hint .hint-arrow { transition: transform .35s var(--ease); }
+a.next:hover .hint-arrow { transform: translate(2px, -2px); }

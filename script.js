@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261023p');
+      const res = await fetch('projects.json?v=20261023q');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -227,7 +227,7 @@
           <a class="next" href="#${esc(next.id)}">
             <div class="caps next-label">Next up</div>
             <div class="next-title" aria-label="${esc(next.title)}">${wave(next.title)}</div>
-            <div class="next-media" data-urls="${esc(JSON.stringify(nextImages(next)))}"><img class="is-active" src="${esc(nextImages(next)[0])}" alt=""></div>
+            <div class="next-media" data-urls="${esc(JSON.stringify(nextImages(next)))}"><img class="is-active" src="${esc(nextImages(next)[0])}" alt=""><span class="reel-hint next-hint">View project <svg class="hint-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" stroke-linecap="square"/></svg></span></div>
           </a>
           <div class="all-projects">
             <h2 class="t-condensed">All projects</h2>
