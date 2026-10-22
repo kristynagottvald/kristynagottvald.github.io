@@ -217,8 +217,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 900px) {
   .contact-grid { grid-template-columns: 5fr 9fr; gap: 8px; padding-left: 0; margin-left: 0; }
   .contact-grid .contact-rows { grid-column: 2; }
-  .contact-base { grid-template-columns: 7fr 9fr; padding-left: 0; }
-  .foot { padding-right: 12px; }
+  .contact-base { grid-template-columns: 5fr 9fr; gap: 8px; padding-left: 0; }
+  .foot { padding-right: var(--indent); }
 }
 
 /* ---------- Responsive ---------- */
@@ -246,7 +246,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .contact-row h3 { padding-left: var(--indent); }
 .foot span, .widget { margin-left: 0; }
 .foot { padding-left: var(--indent); }
-.widget { margin-left: var(--indent); }
+.widget { margin-left: 0; padding-left: var(--indent); }
 .tile-title, .card-meta { padding-left: var(--indent); }
 @media (max-width: 700px) {
   .contact-head { padding-left: var(--indent); }
