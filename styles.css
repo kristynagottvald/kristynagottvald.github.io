@@ -117,7 +117,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 900px) {
   .work { grid-template-columns: 6fr 10fr; gap: 0 8px; }
   .work-side { padding: 0 0 0 var(--indent); }
-  .work-side-in { position: sticky; top: 0; height: 100svh; padding: 15svh 0 24px; gap: 0; }
+  /* The column is only as tall as it can be while still fitting on screen when the first card is centred,
+     so the description and thumbnail are visible before the next project takes over. */
+  .work { --card-h: calc((100vw - 24px) * 0.3516); }
+  .work-side-in { position: sticky; top: 0; height: max(420px, calc((100svh + var(--card-h)) / 2 - 24px)); padding: min(15svh, 120px) 0 24px; gap: 0; }
   .work-side-in h2, .work-side-in h3 { }
   #work-active { display: block; min-height: 1.2em; max-width: 12em; padding-right: 24px; text-wrap: balance; transition: opacity .2s; }
   .work-side-foot { display: flex; flex-direction: column; gap: 48px; margin-top: auto; }
@@ -263,3 +266,8 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 
 /* same pill height as the Interactive label, with a little more room around the text */
 .next-hint { min-height: 36px; padding: 0 14px; }
+
+/* shorter windows: fewer description lines so it never runs into the title */
+@media (min-width: 900px) and (max-height: 820px) { .work-desc { -webkit-line-clamp: 6; } .work-side-foot { gap: 24px; } }
+@media (min-width: 900px) and (max-height: 680px) { .work-desc { -webkit-line-clamp: 4; } }
+@media (min-width: 900px) and (max-height: 560px) { .work-desc { -webkit-line-clamp: 2; } }
