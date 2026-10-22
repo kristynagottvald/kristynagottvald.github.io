@@ -2,6 +2,126 @@
   {
     "caseStudyContent": [
       {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "House of Balloons (HOB) is a recording studio and creative brand built for producers, engineers, and artists who define their own sound through fearless improvisation. Its visual identity—Arrangement—is a fluid, DAW-inspired system that distills chaos into clarity and process into refined style. At its core is a modular grid designed not to constrain, but to be endlessly pushed to the limit. HOB isn’t for producers who stay on the grid. It’s for the ones who rearrange it."
+        ],
+        "heading": "A visual system for producers who break the mold.",
+        "type": "text"
+      },
+      {
+        "src": "hob-sketch.html",
+        "title": "House of Balloons interactive sketch",
+        "type": "sketch"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-02.gif",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-03.webp",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-04.gif",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-05.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "Directly inspired by the intuitive ways music creators work, Arrangement is the design system for House of Balloons.",
+          "Stretch captures the pure digital feel of grabbing a clip in a Digital Audio Workstation (DAW) and transforming it on the timeline. It’s that instant, fluid time-bending motion translated into living elasticity: every element in the system can expand, contract, and lock into perfect rhythm, giving the brand a precise yet effortlessly musical breath.",
+          "Stack mirrors the modern producer’s workflow of piling tracks vertically in the arrangement view. The brand’s signature grid turns flat musical “bars” into overlapping digital planes that rise and recess with subtle depth and dimension. These layered grids glide and interlock around the typography exactly like tracks in a session, giving letters their own space and velocity."
+        ],
+        "heading": "Built around two core conceptual pillars — Stretch and Stack.",
+        "type": "text"
+      },
+      {
+        "id": "1208322514",
+        "title": "Arrangement System",
+        "type": "vimeo"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-06.webp",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-07.webp",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-08.webp",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-09.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "Producers today are living in a golden age of tools and technology—music production has become a limitless playground for creative expression. Yet with infinite possibilities comes the need for the right frame to shape and focus the sound."
+        ],
+        "type": "text"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-10.webp",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-11.webp",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-12.webp",
+        "type": "image"
+      },
+      {
+        "alt": "House of Balloons",
+        "src": "house-of-balloons-13.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "For HOB, I created a new visual identity called Arrangement. Deeply rooted in the modern DAW workflow, improvisation, and the raw creative process, it uses fluid warped typography and a sleek layered grid system as a supportive foundation—one that gives today’s producers and studio artists the perfect frame to shape limitless ideas into focused, powerful sound. The logo features a stylized “o” that serves as a minimalist representation of the balloon at the heart of the studio’s name. More than a simple letterform, it subtly evokes euphoria and heightened states while paying quiet homage to the House of Balloons origin story—The Weeknd’s seminal 2011 debut mixtape.",
+          "To scale HOB’s asset production, I built a custom generative motion tool utilizing p5.js. The tool automated the creation of complex motion graphics and looping patterns, delivering ready-to-use reels and video content for social media.",
+          "Role: Creative direction, creative concepts, brand guidelines, illustration system, creative coding, motion design"
+        ],
+        "heading": "Where improvisation becomes identity.",
+        "type": "text"
+      }
+    ],
+    "category": "Visual identity",
+    "client": "",
+    "hideTitle": true,
+    "id": "805512551996817408",
+    "mediaType": "image",
+    "noLine": true,
+    "summary": "",
+    "thumbnail": "house-of-balloons.webp",
+    "title": "House of Balloons",
+    "year": 2020
+  },
+  {
+    "caseStudyContent": [
+      {
         "alt": "Postal Fix",
         "src": "postal-fix.webp",
         "type": "image"
@@ -1184,126 +1304,6 @@
     "thumbnail": "the-state-of-remote-engineering.webp",
     "title": "The State of Remote Engineering",
     "year": 2021
-  },
-  {
-    "caseStudyContent": [
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons.webp",
-        "type": "image"
-      },
-      {
-        "body": [
-          "House of Balloons (HOB) is a recording studio and creative brand built for producers, engineers, and artists who define their own sound through fearless improvisation. Its visual identity—Arrangement—is a fluid, DAW-inspired system that distills chaos into clarity and process into refined style. At its core is a modular grid designed not to constrain, but to be endlessly pushed to the limit. HOB isn’t for producers who stay on the grid. It’s for the ones who rearrange it."
-        ],
-        "heading": "A visual system for producers who break the mold.",
-        "type": "text"
-      },
-      {
-        "src": "hob-sketch.html",
-        "title": "House of Balloons interactive sketch",
-        "type": "sketch"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-02.gif",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-03.webp",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-04.gif",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-05.webp",
-        "type": "image"
-      },
-      {
-        "body": [
-          "Directly inspired by the intuitive ways music creators work, Arrangement is the design system for House of Balloons.",
-          "Stretch captures the pure digital feel of grabbing a clip in a Digital Audio Workstation (DAW) and transforming it on the timeline. It’s that instant, fluid time-bending motion translated into living elasticity: every element in the system can expand, contract, and lock into perfect rhythm, giving the brand a precise yet effortlessly musical breath.",
-          "Stack mirrors the modern producer’s workflow of piling tracks vertically in the arrangement view. The brand’s signature grid turns flat musical “bars” into overlapping digital planes that rise and recess with subtle depth and dimension. These layered grids glide and interlock around the typography exactly like tracks in a session, giving letters their own space and velocity."
-        ],
-        "heading": "Built around two core conceptual pillars — Stretch and Stack.",
-        "type": "text"
-      },
-      {
-        "id": "1208322514",
-        "title": "Arrangement System",
-        "type": "vimeo"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-06.webp",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-07.webp",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-08.webp",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-09.webp",
-        "type": "image"
-      },
-      {
-        "body": [
-          "Producers today are living in a golden age of tools and technology—music production has become a limitless playground for creative expression. Yet with infinite possibilities comes the need for the right frame to shape and focus the sound."
-        ],
-        "type": "text"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-10.webp",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-11.webp",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-12.webp",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-13.webp",
-        "type": "image"
-      },
-      {
-        "body": [
-          "For HOB, I created a new visual identity called Arrangement. Deeply rooted in the modern DAW workflow, improvisation, and the raw creative process, it uses fluid warped typography and a sleek layered grid system as a supportive foundation—one that gives today’s producers and studio artists the perfect frame to shape limitless ideas into focused, powerful sound. The logo features a stylized “o” that serves as a minimalist representation of the balloon at the heart of the studio’s name. More than a simple letterform, it subtly evokes euphoria and heightened states while paying quiet homage to the House of Balloons origin story—The Weeknd’s seminal 2011 debut mixtape.",
-          "To scale HOB’s asset production, I built a custom generative motion tool utilizing p5.js. The tool automated the creation of complex motion graphics and looping patterns, delivering ready-to-use reels and video content for social media.",
-          "Role: Creative direction, creative concepts, brand guidelines, illustration system, creative coding, motion design"
-        ],
-        "heading": "Where improvisation becomes identity.",
-        "type": "text"
-      }
-    ],
-    "category": "Visual identity",
-    "client": "",
-    "hideTitle": true,
-    "id": "805512551996817408",
-    "mediaType": "image",
-    "noLine": true,
-    "summary": "",
-    "thumbnail": "house-of-balloons.webp",
-    "title": "House of Balloons",
-    "year": 2020
   },
   {
     "caseStudyContent": [
