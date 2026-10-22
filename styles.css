@@ -117,11 +117,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 900px) {
   .work { grid-template-columns: 6fr 10fr; gap: 0 8px; }
   .work-side { padding: 0 0 0 var(--indent); }
-  /* The column is only as tall as it can be while still fitting on screen when the first card is centred,
-     so the description and thumbnail are visible before the next project takes over. */
-  .work { --card-h: calc((100vw - 24px) * 0.3516); }
-  .work-side-in { position: sticky; top: 0; height: max(420px, calc((100svh + var(--card-h)) / 2 - 24px)); padding: min(15svh, 120px) 0 24px; gap: 0; }
-  .work-side-in h2, .work-side-in h3 { }
+  /* The column is a full screen tall and pins at the top. The list starts lower by exactly the amount that
+     makes the first card centred at the moment it pins, so the description and thumbnail sit at the bottom
+     edge and are visible while the first project is active. */
+  .work { --card-h: calc((100vw - 24px) * 0.3516); padding-top: 0; }
+  .work-list { padding-top: calc((100svh - var(--card-h)) / 2); }
+  .work-side-in { position: sticky; top: 0; height: 100svh; padding: min(15svh, 120px) 0 16px; gap: 0; }
   #work-active { display: block; min-height: 1.2em; max-width: 12em; padding-right: 24px; text-wrap: balance; transition: opacity .2s; }
   .work-side-foot { display: flex; flex-direction: column; gap: 48px; margin-top: auto; }
   .work-desc { max-width: 66%; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 9; -webkit-box-orient: vertical; overflow: hidden; }
