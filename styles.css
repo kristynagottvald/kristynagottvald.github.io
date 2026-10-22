@@ -81,7 +81,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .reel-dots .dot.is-on i::after { animation: reel-fill 4s linear forwards; }
 @keyframes reel-fill { to { transform: scaleX(1); } }
 .reel-hint { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 8px; background: rgba(40,40,40,.7); backdrop-filter: blur(8px); font: 400 10px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #e8e8e8; pointer-events: none; }
-.ptr-svg { overflow: visible; }
+.ptr-svg { overflow: visible; position: relative; top: 2px; }
 .ptr-svg .ptr { transform-box: view-box; transform-origin: 7.2px 6.4px; animation: ptr-click 2.6s ease-in-out infinite; }
 .ptr-svg .ripple { transform-box: view-box; transform-origin: 7.2px 6.4px; opacity: 0; animation: ripple 2.6s ease-out infinite; }
 @keyframes ptr-click { 0%, 50%, 100% { transform: translate(0,0) scale(1); } 58% { transform: translate(1.8px,1.8px) scale(.5); } 68% { transform: translate(-.8px,-.8px) scale(1.2); } 80% { transform: translate(0,0) scale(1); } }
