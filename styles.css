@@ -159,7 +159,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .block-text { padding: 24px 0 36px; }
 .text-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; border-top: 1px solid var(--line); padding-top: 20px; }
 .text-row.no-line { border-top: 0; padding-top: 0; }
-.text-left h3 { font: 300 clamp(26px, 2.8vw, 40px)/1.1 var(--cond); letter-spacing: -0.03em; max-width: 18ch; text-wrap: balance; }
+.text-left h3 { font: 300 clamp(26px, 2.8vw, 40px)/1.1 var(--cond); letter-spacing: -0.03em; max-width: none; padding-right: 32px; text-wrap: balance; }
 .text-right { display: grid; gap: 16px; align-content: start; max-width: 58ch; color: var(--grey); font-size: 17px; line-height: 24px; }
 .text-right p:first-child { color: var(--ink); }
 .text-right p.credit { color: var(--grey); padding-top: 4px; }
