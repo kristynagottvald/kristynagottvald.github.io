@@ -211,7 +211,7 @@ figcaption { padding: 12px var(--pad-wide) 0; }
 .embed.sketch { background: #1E1E1E; }
 .embed.sketch .pill {
   position: absolute; top: 14px; right: 14px; z-index: 2; pointer-events: none;
-  display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px 8px 20px;
+  display: inline-flex; align-items: center; gap: 5px; padding: 8px 18px 8px 20px;
   border-radius: 0; background: rgba(48, 48, 48, 0.92); color: #e6e6e6;
   font: 500 11px/1 var(--font); letter-spacing: 1.5px; text-transform: uppercase;
 }
