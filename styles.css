@@ -272,3 +272,11 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 @media (min-width: 900px) and (max-height: 820px) { .work-desc { -webkit-line-clamp: 6; } .work-side-foot { gap: 24px; } }
 @media (min-width: 900px) and (max-height: 680px) { .work-desc { -webkit-line-clamp: 4; } }
 @media (min-width: 900px) and (max-height: 560px) { .work-desc { -webkit-line-clamp: 2; } }
+
+/* Key results: each blurb starts with a small four-pointed star */
+.role-list.body li { position: relative; padding-left: 20px; }
+.role-list.body li::before {
+  content: ""; position: absolute; left: 0; top: .42em; width: 9px; height: 9px; background: var(--ink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0C5.4 3.2 6.8 4.6 10 5C6.8 5.4 5.4 6.8 5 10C4.6 6.8 3.2 5.4 0 5C3.2 4.6 4.6 3.2 5 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0C5.4 3.2 6.8 4.6 10 5C6.8 5.4 5.4 6.8 5 10C4.6 6.8 3.2 5.4 0 5C3.2 4.6 4.6 3.2 5 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
