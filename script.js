@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261024l');
+      const res = await fetch('projects.json?v=20261024m');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
     } catch (err) {
@@ -365,6 +365,13 @@
     img.dataset.fallback = '1';
     img.src = 'placeholder.svg';
   }, true);
+
+  // The menu shows on hover and hides as soon as the pointer leaves (the click toggle is for touch screens).
+  $('.hb-pill').addEventListener('mouseleave', () => {
+    $('#hb').classList.remove('open');
+    $('#hb-toggle').setAttribute('aria-expanded', 'false');
+    if ($('.hb-pill').contains(document.activeElement)) document.activeElement.blur();
+  });
 
   $('#hb-toggle').addEventListener('click', () => {
     const hb = $('#hb');

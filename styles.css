@@ -63,8 +63,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* channel links use .caps */
 .hb-channels a { color: var(--grey); transition: color .2s; }
 .hb-channels a:hover { color: var(--ink); }
-.hb-pill:hover, .hb-pill:focus-within, .hb.open .hb-pill { width: 270px; }
-.hb-pill:hover .hb-menu, .hb-pill:focus-within .hb-menu, .hb.open .hb-menu { opacity: 1; max-height: 420px; }
+.hb-pill:hover, .hb-pill:has(:focus-visible), .hb.open .hb-pill { width: 270px; }
+.hb-pill:hover .hb-menu, .hb-pill:has(:focus-visible) .hb-menu, .hb.open .hb-menu { opacity: 1; max-height: 420px; }
 
 /* ---------- Showreel: static hero, 70% interactive / 30% text ---------- */
 .reel { height: 100svh; min-height: 560px; display: grid; grid-template-rows: 70fr 30fr; padding: 8px 8px 0; }
