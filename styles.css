@@ -241,7 +241,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* Brand-pillar text beside the half-width image (left column) */
-.aside-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.aside-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 12px; align-items: start; border-top: 1px solid var(--line); padding-top: 20px; }
 .aside-row .block-media { width: 100%; margin: 0; }
 .aside-text { display: grid; gap: 16px; align-content: start; color: var(--grey); font-size: 17px; line-height: 24px; padding: 0 calc(var(--indent) * 1.5) 0 var(--indent); }
 .aside-text p:first-child { color: var(--ink); }
@@ -274,6 +274,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .text-right { padding-right: calc(var(--indent) * 1.5); }   /* project text blocks run closer to the right edge */
 .role-list:not(.body), .about-cols p { padding-right: calc(var(--indent) * 3); }
 @media (max-width: 700px) { .text-right, .role-list:not(.body), .about-cols p { padding-right: var(--indent); } }
+/* Stacked layout: every text line shares the heading's left indent */
+@media (max-width: 700px) {
+  .text-right, .role-list:not(.body) { padding-left: var(--indent); }
+  .kr-wrap { width: 100%; margin-left: 0; }
+  .kr-wrap .role-row { padding: 28px var(--indent); }
+}
 
 /* "View project" overlay on the Next up image, same style as the Interactive label */
 .next-media .reel-hint { z-index: 2; }
