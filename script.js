@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261024v');
+      const res = await fetch('projects.json?v=20261024y');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -178,10 +178,11 @@
   function updateNextMedia() {
     const m = $('.next-media');
     if (!m || currentView !== 'case') return;
-    if (!matchMedia('(min-width: 900px)').matches) { m.style.width = ''; return; }
+    if (!matchMedia('(min-width: 900px)').matches) { m.style.width = ''; m.parentElement.style.minHeight = ''; return; }
     // Grows from 25% of the page to the full two-column span, whose left edge is the second tile's edge below.
-    const span = m.parentElement.clientWidth * 2 / 3 + 4;   // (A - 24) / 3 * 2 + 12 with the 12px gaps
+    const span = m.parentElement.clientWidth * 2 / 3 - 4;   // (A - 24) / 3 * 2 + 12 with the 12px gaps
     const from = Math.min(1, (window.innerWidth * 0.25) / span);
+    m.parentElement.style.minHeight = span * 9 / 16 + 'px';   // reserve the full-size image so the divider below never jumps
     const t = Math.min(1, Math.max(0, (window.innerHeight - m.getBoundingClientRect().top) / (window.innerHeight * 0.8)));
     m.style.width = (from + (1 - from) * t) * 100 + '%';
   }
