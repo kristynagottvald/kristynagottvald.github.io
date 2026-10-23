@@ -173,7 +173,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .case-end { padding: 120px var(--pad) 80px; display: grid; gap: 20px; }
 .case-end .caps { color: var(--grey); }
 .case-end .next-label { letter-spacing: .18em; }
-.all-projects { margin-top: -12px; padding-top: 20px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
+.all-projects { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px 12px; }
 .tile { display: grid; gap: 4px; align-content: start; }
 .tile-media { aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: var(--off-black); }
