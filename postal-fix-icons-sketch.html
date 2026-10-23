@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Postal Fix icons sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #6C5FFF; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+const W = 2000, H = 1153;
+const BG = '#6C5FFF', BLUE = '#4033F0', BLUE2 = '#5A4DF5';
+const MAG = '#E05CF0', PINK = '#F0B8F5', YEL = '#E8F577', WHITE = '#FFFFFF';
+let t = 0, S = 1;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  document.documentElement.style.background = BG;
+  document.body.style.background = BG;
+  document.body.style.margin = '0';
+  document.body.style.overflow = 'hidden';
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function dist2(x1, y1, x2, y2) { return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2); }
+
+function easeOutBack(x) {
+  const c1 = 1.70158, c3 = c1 + 1;
+  return 1 + c3 * pow(x - 1, 3) + c1 * pow(x - 1, 2);
+}
+function ease(x) { return x < 0.5 ? 2 * x * x : 1 - pow(-2 * x + 2, 2) / 2; }
+
+function intro(i) {
+  const k = constrain((t - 0.18 * i) / 0.8, 0, 1);
+  return max(0.0001, easeOutBack(k));
+}
+
+function xf(cx, cy, sc, rot, dx, dy) {
+  translate(cx + (dx || 0), cy + (dy || 0));
+  rotate(rot || 0);
+  scale(sc || 1);
+  translate(-cx, -cy);
+}
+
+function draw() {
+  t = millis() / 1000;
+  background(BG);
+  S = min(width / W, height / H);
+  translate((width - W * S) / 2, (height - H * S) / 2);
+  scale(S);
+  noStroke();
+  fill(BG);
+  rect(0, 0, W, H);
+
+  drawMailbox();
+  drawVideo();
+  drawPin();
+  drawCalendar();
+  drawStamp();
+  drawBandage();
+  drawChat();
+  noStroke();
+  fill(BG);
+  rect(-4000, -4000, 10000, 4000);
+  rect(-4000, H, 10000, 4000);
+  rect(-4000, 0, 4000, H);
+  rect(W, 0, 4000, H);
+}
+
+/* ---------- shared bits ---------- */
+
+function uspsLogo(cx, cy, w) {
+  push();
+  translate(cx, cy);
+  scale(w / 147);
+  shearX(-0.21);
+  fill(WHITE);
+  rect(-61, -60, 122, 120, 4);
+  fill('#4F3BE4');
+  const EAGLE = [[172, 85], [725, 85], [625, 490], [92, 490], [635, 238], [472, 222], [445, 185], [148, 185]];
+  beginShape();
+  for (const [px, py] of EAGLE) {
+    const v = (py - 287.5) * 0.16;
+    vertex((px - 408) * 0.16 + 0.21 * v, v - 12);
+  }
+  endShape(CLOSE);
+  fill(BLUE);
+  textAlign(LEFT, CENTER);
+  textStyle(BOLD);
+  textSize(27);
+  const letters = 'USPS', track = 5;
+  let total = -track;
+  for (const c of letters) total += textWidth(c) + track;
+  let x = -total / 2;
+  for (const c of letters) {
+    text(c, x, 42);
+    x += textWidth(c) + track;
+  }
+  pop();
+}
+
+function bez(x0, y0, x1, y1, x2, y2, x3, y3) {
+  for (let i = 1; i <= 24; i++) {
+    const u = i / 24, m = 1 - u;
+    vertex(
+      m * m * m * x0 + 3 * m * m * u * x1 + 3 * m * u * u * x2 + u * u * u * x3,
+      m * m * m * y0 + 3 * m * m * u * y1 + 3 * m * u * u * y2 + u * u * u * y3
+    );
+  }
+}
+
+function heart(cx, cy, w) {
+  const s = w / 540;
+  push();
+  translate(cx, cy);
+  beginShape();
+  vertex(0, 235 * s);
+  vertex(-245 * s, -27 * s);
+  bez(-245 * s, -27 * s, -300 * s, -95 * s, -260 * s, -235 * s, -135 * s, -235 * s);
+  bez(-135 * s, -235 * s, -70 * s, -235 * s, -45 * s, -175 * s, 0, -135 * s);
+  bez(0, -135 * s, 45 * s, -175 * s, 70 * s, -235 * s, 135 * s, -235 * s);
+  bez(135 * s, -235 * s, 260 * s, -235 * s, 300 * s, -95 * s, 245 * s, -27 * s);
+  endShape(CLOSE);
+  pop();
+}
+
+/* ---------- 1. mailbox ---------- */
+
+function drawMailbox() {
+  const bob = sin(t * 2) * 6;
+  const wob = sin(t * 1.3) * 0.012;
+  push();
+  xf(576, 483, intro(0), wob, 0, bob);
+
+  fill(PINK);
+  rect(404, 420, 14, 63, 5);
+  rect(613, 420, 15, 63, 5);
+  fill(MAG);
+  rect(568, 420, 14, 63, 5);
+  rect(733, 420, 15, 63, 5);
+
+  fill(MAG);
+  beginShape();
+  vertex(520, 125); vertex(640, 125);
+  bez(640, 125, 700, 125, 748, 175, 748, 240);
+  vertex(748, 423); vertex(520, 423);
+  endShape(CLOSE);
+  fill(PINK);
+  rect(628, 290, 120, 5);
+
+  const c = t % 6;
+  let o = 0;
+  if (c >= 0.6 && c < 1.2) o = ease((c - 0.6) / 0.6);
+  else if (c >= 1.2 && c < 3.4) o = 1;
+  else if (c >= 3.4 && c < 4.0) o = 1 - ease((c - 3.4) / 0.6);
+
+  if (c > 1.3 && c < 3.4) {
+    const popScale = max(0.0001, easeOutBack(constrain((c - 1.3) / 0.45, 0, 1)));
+    const m = ease(constrain((c - 2.1) / 1.0, 0, 1));
+    const ew = 77, eh = 117, ex = 656;
+    const ey = lerp(50, 197, m);
+    drawingContext.save();
+    drawingContext.beginPath();
+    drawingContext.rect(600, -300, 300, 570);
+    drawingContext.clip();
+    push();
+    translate(ex + ew / 2, ey + eh / 2);
+    scale(popScale);
+    translate(-(ex + ew / 2), -(ey + eh / 2));
+    fill('#A99BF7');
+    rect(ex, ey, ew, eh);
+    fill(WHITE);
+    beginShape();
+    vertex(ex, ey);
+    vertex(ex + ew, ey);
+    vertex(ex + ew, ey + eh);
+    vertex(ex, ey + eh);
+    vertex(ex + ew * 0.51, ey + eh * 0.495);
+    endShape(CLOSE);
+    pop();
+    drawingContext.restore();
+  }
+
+  fill(PINK);
+  quad(645, 197, lerp(733, 777, o), 197, 733, 270, 645, 270);
+  noFill();
+  stroke(WHITE);
+  const hs = lerp(52, 58, o) / 505, hx = lerp(693, 719, o);
+  strokeWeight(56 * hs);
+  strokeCap(SQUARE);
+  strokeJoin(MITER);
+  const hp = (x, y) => [(x - 304.5) * hs + hx, 221 + (y - 48) * hs];
+  beginShape();
+  vertex(...hp(81, 48));
+  vertex(...hp(81, 100));
+  bez(...hp(81, 100), ...hp(81, 138), ...hp(110, 157), ...hp(150, 157));
+  vertex(...hp(459, 157));
+  bez(...hp(459, 157), ...hp(498, 157), ...hp(528, 138), ...hp(528, 100));
+  vertex(...hp(528, 48));
+  endShape();
+  noStroke();
+
+  fill(PINK);
+  beginShape();
+  vertex(404, 423); vertex(404, 237);
+  bez(404, 237, 404, 175, 454, 125, 516, 125);
+  bez(516, 125, 580, 125, 628, 175, 628, 237);
+  vertex(628, 423);
+  endShape(CLOSE);
+
+  uspsLogo(508, 289, 150);
+  pop();
+}
+
+/* ---------- 2. video player ---------- */
+
+function drawVideo() {
+  const sc = intro(1);
+  const bob = sin(t * 1.7 + 1) * 5;
+  push();
+  xf(1070, 260, sc, 0, 0, bob);
+  fill(BLUE);
+  rect(893, 145, 354, 231, 12);
+
+  fill(BLUE2);
+  rect(915, 167, 163, 13, 7);
+  rect(915, 192, 70, 13, 7);
+  rect(1188, 167, 38, 13, 7);
+  quad(1151, 175, 1165, 167, 1180, 175, 1165, 183);
+
+  push();
+  xf(1075, 258, 1 + sin(t * 4) * 0.09, 0, 0, 0);
+  fill(YEL);
+  triangle(1050, 224, 1050, 291, 1111, 258);
+  pop();
+
+  fill(BLUE2);
+  rect(915, 337, 40, 16, 8);
+  rect(968, 337, 258, 16, 8);
+  const p = (t * 0.18) % 1;
+  const hx = 985 + p * 225;
+  fill(MAG);
+  rect(968, 337, hx - 968, 16, 8);
+  fill(PINK);
+  circle(hx, 345, 28);
+  pop();
+}
+
+/* ---------- 3. location pin ---------- */
+
+function drawPin() {
+  const sc = intro(2);
+  const bounce = abs(sin(t * 2.4));
+  const dy = -bounce * 10;
+  push();
+  xf(1493, 623, sc, 0, 0, dy);
+  push();
+  fill(YEL);
+  const pcx = 1500, pcy = 272, pr = 126, tipx = 1493, tipy = 623;
+  const pdist = dist2(pcx, pcy, tipx, tipy);
+  const base = atan2(tipy - pcy, tipx - pcx), off = acos(pr / pdist);
+  circle(pcx, pcy, pr * 2);
+  triangle(
+    pcx + pr * cos(base - off), pcy + pr * sin(base - off),
+    pcx + pr * cos(base + off), pcy + pr * sin(base + off),
+    tipx, tipy
+  );
+  beginShape();
+  vertex(pcx, pcy);
+  vertex(pcx + pr * cos(base - off), pcy + pr * sin(base - off));
+  vertex(tipx, tipy);
+  vertex(pcx + pr * cos(base + off), pcy + pr * sin(base + off));
+  endShape(CLOSE);
+  fill(BLUE);
+  circle(1500, 272, 198);
+  uspsLogo(1498, 270, 122);
+  pop();
+  pop();
+}
+
+/* ---------- 4. calendar + pen ---------- */
+
+const CELLS = [
+  [462, 711], [525, 711], [587, 711], [650, 711],
+  [400, 774], [462, 774], [525, 774], [587, 774], [650, 774],
+  [400, 837], [462, 837], [525, 837], [587, 837], [650, 837],
+  [400, 900]
+];
+const TICKS = [0, 5, 9, 11, 1];
+
+function checkPoint(ci, p) {
+  const [x, y] = CELLS[ci];
+  const a = [x + 14, y + 27], b = [x + 22, y + 36], c = [x + 38, y + 12];
+  if (p < 0.4) {
+    const k = p / 0.4;
+    return [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
+  }
+  const k = (p - 0.4) / 0.6;
+  return [lerp(b[0], c[0], k), lerp(b[1], c[1], k)];
+}
+
+function drawCheck(x, y, p) {
+  if (p <= 0) return;
+  stroke(BLUE);
+  strokeWeight(7);
+  strokeCap(ROUND);
+  noFill();
+  const a = [x + 14, y + 27], b = [x + 22, y + 36], c = [x + 38, y + 12];
+  if (p < 0.4) {
+    const k = p / 0.4;
+    line(a[0], a[1], lerp(a[0], b[0], k), lerp(a[1], b[1], k));
+  } else {
+    const k = (p - 0.4) / 0.6;
+    line(a[0], a[1], b[0], b[1]);
+    line(b[0], b[1], lerp(b[0], c[0], k), lerp(b[1], c[1], k));
+  }
+  noStroke();
+}
+
+function drawCalendar() {
+  const sc = intro(3);
+  push();
+  xf(549, 800, sc, 0, 0, 0);
+
+  fill(MAG);
+  rect(370, 598, 358, 409, 4);
+
+  noFill();
+  stroke(PINK);
+  strokeWeight(7.2);
+  strokeCap(SQUARE);
+  strokeJoin(ROUND);
+  [442, 496, 550, 604, 657].forEach(x => {
+    drawingContext.save();
+    drawingContext.beginPath();
+    drawingContext.rect(x - 40, 540, 80, 83.5);
+    drawingContext.clip();
+    beginShape();
+    vertex(x - 16.2, 598);
+    vertex(x - 16.2, 592);
+    bez(x - 16.2, 592, x - 16.2, 578.5, x - 8.7, 570.7, x, 570.7);
+    bez(x, 570.7, x + 9.3, 570.7, x + 16.2, 580, x + 16.2, 592);
+    vertex(x + 16.2, 602.5);
+    bez(x + 16.2, 602.5, x + 16.2, 613, x + 10.8, 620, x + 1.8, 628);
+    endShape();
+    drawingContext.restore();
+  });
+  noStroke();
+
+  fill(YEL);
+  rect(404, 657, 95, 15, 8);
+  rect(511, 657, 45, 15, 8);
+
+  fill(WHITE);
+  CELLS.forEach(([x, y]) => rect(x, y, 48, 48, 4));
+
+  noFill();
+  stroke(PINK);
+  strokeWeight(4);
+  rect(524, 933, 172, 40);
+  noStroke();
+
+  const per = 1.3, cyc = per * TICKS.length + 2;
+  const ct = t % cyc;
+  const N = TICKS.length;
+  TICKS.forEach((ci, i) => {
+    const st = i * per;
+    const p = constrain((ct - st - 0.35) / 0.55, 0, 1);
+    const fade = ct > per * N + 1.3 ? 1 - (ct - per * N - 1.3) / 0.7 : 1;
+    push();
+    if (fade < 1) drawingContext.globalAlpha = constrain(fade, 0, 1);
+    drawCheck(CELLS[ci][0], CELLS[ci][1], p);
+    pop();
+  });
+  [[462, 711], [400, 837], [525, 837]].forEach(([x, y]) => {
+    if (!TICKS.some(i => CELLS[i][0] === x && CELLS[i][1] === y)) drawCheck(x, y, 1);
+  });
+
+  const cur = min(floor(ct / per), N - 1);
+  const local = ct >= per * N ? per : ct - cur * per;
+  const prev = checkPoint(TICKS[(cur + N - 1) % N], 1);
+  const start = checkPoint(TICKS[cur], 0);
+  let tip;
+  if (local < 0.35) {
+    const k = ease(local / 0.35);
+    tip = [lerp(prev[0], start[0], k), lerp(prev[1], start[1], k)];
+  } else {
+    tip = checkPoint(TICKS[cur], constrain((local - 0.35) / 0.55, 0, 1));
+  }
+  push();
+  translate(tip[0], tip[1]);
+  rotate(-PI / 4);
+  fill(BLUE);
+  triangle(0, 0, 36, -13, 36, 13);
+  rect(30, -15, 210, 30, 12);
+  fill('#8A7DFF');
+  rect(55, -9, 120, 7, 4);
+  fill(BLUE);
+  rect(235, -11, 30, 22, 8);
+  noFill();
+  stroke(BLUE);
+  strokeWeight(10);
+  strokeCap(ROUND);
+  beginShape();
+  vertex(228, 10);
+  bez(228, 10, 268, 12, 268, 38, 228, 38);
+  vertex(150, 38);
+  endShape();
+  noStroke();
+  pop();
+  pop();
+}
+
+/* ---------- 5. stamp ---------- */
+
+function drawStamp() {
+  const sc = intro(4);
+  push();
+  xf(975, 623, sc, sin(t * 1.8) * 0.05, 0, sin(t * 2.2) * 6);
+  fill(YEL);
+  rect(857, 467, 237, 313, 2);
+  fill(BG);
+  for (let x = 869; x < 1094; x += 24) { circle(x + 6, 467, 14); circle(x + 6, 780, 14); }
+  for (let y = 479; y < 780; y += 24) { circle(857, y + 6, 14); circle(1094, y + 6, 14); }
+  fill(MAG);
+  rect(881, 492, 190, 263);
+  fill(WHITE);
+  const beat = 1 + max(0, sin(t * 3)) * 0.04;
+  push();
+  xf(978, 625, beat, 0, 0, 0);
+  heart(978, 618, 125);
+  pop();
+  pop();
+}
+
+/* ---------- 6. bandage ---------- */
+
+function drawBandage() {
+  const sc = intro(5);
+  const cx = 1265, cy = 553;
+  push();
+  xf(cx, cy, sc, 0, 0, sin(t * 2) * 14);
+
+  push();
+  translate(cx, cy);
+  rotate(PI / 4);
+  fill(BLUE);
+  rect(-100, -31, 200, 62, 31);
+  pop();
+  push();
+  translate(cx, cy);
+  rotate(-PI / 4);
+  fill(YEL);
+  rect(-100, -31, 200, 62, 31);
+  fill(WHITE);
+  rect(-26, -26, 52, 52, 8);
+  fill(MAG);
+  for (let i = 0; i < 4; i++) {
+    circle(i % 2 ? 10 : -10, i < 2 ? -10 : 10, 8);
+  }
+  pop();
+  pop();
+}
+
+/* ---------- 7. chat bubbles ---------- */
+
+function chatIn(i) {
+  if (i < 1) return max(0.0001, easeOutBack(constrain((t - 0.3 - i * 0.9) / 0.5, 0, 1)));
+  const c = t % 10;
+  const k = constrain((c - 0.3 - i * 0.9) / 0.5, 0, 1);
+  const out = constrain((c - 8.3) / 0.4, 0, 1);
+  return max(0.0001, easeOutBack(k) * (1 - ease(out)));
+}
+
+function drawChat() {
+  push();
+  xf(1390, 805, chatIn(0), 0, 0, sin(t * 2.1) * 5);
+  fill(MAG);
+  rect(1265, 740, 255, 130, 12);
+  fill(BLUE);
+  push();
+  xf(1331, 806, 1 + max(0, sin(t * 3)) * 0.05, 0, 0, 0);
+  heart(1331, 800, 64);
+  pop();
+  push();
+  noFill();
+  stroke(WHITE);
+  strokeWeight(7);
+  strokeJoin(MITER);
+  strokeCap(SQUARE);
+  rect(1384, 781, 58, 46);
+  line(1384, 785, 1413, 806);
+  line(1442, 785, 1413, 806);
+  noStroke();
+  pop();
+  push();
+  const ex = 1 + max(0, sin(t * 3 + 1)) * 0.25;
+  xf(1470, 805, ex, 0, 0, 0);
+  fill(WHITE);
+  rect(1466, 782, 7, 30);
+  rect(1466, 820, 7, 8);
+  pop();
+  pop();
+
+  push();
+  xf(1200, 918, chatIn(1), 0, 0, sin(t * 2 + 1.5) * 5);
+  fill(YEL);
+  beginShape();
+  vertex(1040, 982); vertex(1040, 884);
+  bez(1040, 884, 1040, 862, 1052, 852, 1074, 852);
+  vertex(1330, 852);
+  bez(1330, 852, 1350, 852, 1361, 862, 1361, 884);
+  vertex(1361, 950);
+  bez(1361, 950, 1361, 972, 1350, 984, 1328, 984);
+  vertex(1040, 984);
+  endShape(CLOSE);
+  fill(MAG);
+  rect(1087, 898, 120, 12, 6);
+  rect(1087, 927, 187, 12, 6);
+  push();
+  xf(1307, 930, 1 + max(0, sin(t * 3 + 1 + PI)) * 0.25, 0, 0, 0);
+  textAlign(CENTER, CENTER);
+  textStyle(BOLD);
+  textSize(58);
+  text('?', 1307, 930);
+  pop();
+  pop();
+
+  push();
+  xf(983, 938, chatIn(1.25), 0, 0, sin(t * 2.6) * 6);
+  fill('#3F34E6');
+  circle(983, 938, 76);
+  fill(MAG);
+  circle(983, 926, 26);
+  drawingContext.save();
+  drawingContext.beginPath();
+  drawingContext.arc(983, 938, 38, 0, TWO_PI);
+  drawingContext.clip();
+  ellipse(983, 975, 72, 62);
+  drawingContext.restore();
+  pop();
+
+  push();
+  xf(1457, 975, chatIn(2), 0, 0, sin(t * 2.3 + 3) * 5);
+  fill(MAG);
+  rect(1395, 920, 124, 110, 22);
+  fill(WHITE);
+  for (let i = 0; i < 3; i++) {
+    const d = -abs(sin(t * 4 - i * 0.6)) * 12;
+    rect(1436 + i * 21, 978 + d, 9, 9, 1);
+  }
+  pop();
+
+  [[1567, 838], [1567, 998]].forEach(([x, y], i) => {
+    push();
+    xf(x, y, chatIn(i * 2 + 0.25) * (1 + sin(t * 3 + i * 2) * 0.1), 0, 0, 0);
+    fill(MAG);
+    circle(x, y, 64);
+    fill(YEL);
+    push();
+    translate(x, y);
+    rotate(t * (i ? -1.5 : 1.5));
+    beginShape();
+    for (let k = 0; k < 16; k++) {
+      const a = (k * PI) / 8, r = k % 2 ? 7 : 15;
+      vertex(cos(a) * r, sin(a) * r);
+    }
+    endShape(CLOSE);
+    pop();
+    pop();
+  });
+}
+</script>
+</body>
+</html>

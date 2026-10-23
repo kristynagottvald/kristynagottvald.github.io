@@ -282,9 +282,10 @@
         "type": "vimeo"
       },
       {
-        "alt": "Postal Fix",
-        "src": "postal-fix-03.webp",
-        "type": "image"
+        "src": "postal-fix-icons-sketch.html",
+        "title": "Postal Fix animated icons",
+        "type": "sketch",
+        "noHint": true
       },
       {
         "alt": "Postal Fix",
