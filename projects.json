@@ -271,9 +271,10 @@
         "type": "vimeo"
       },
       {
-        "alt": "Postal Fix",
-        "src": "postal-fix-02.webp",
-        "type": "image"
+        "src": "postal-fix-sketch.html",
+        "title": "Postal Fix animated bandages",
+        "type": "sketch",
+        "noHint": true
       },
       {
         "id": "1215014313",

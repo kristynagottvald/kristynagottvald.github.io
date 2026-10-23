@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Postal Fix sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #DD5CF4; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+const DW = 2000;
+const DH = 1153;
+
+const PILL_LEN = 807;
+const PILL_W = 233;
+const PATCH_LEN = 205;
+const PATCH_W = 150;
+const DOT_R = 10;
+
+const DOTS = [
+  [19, -61], [-28, -19], [70, -15],
+  [-69, 22], [21, 27], [-20, 69],
+];
+
+const SPACING = 750;
+const CENTER_X = 1000;
+const CENTER_Y = 577;
+
+const START_HOLD = 0.6;
+const SLIDE = 0.9;
+const SPIN_DELAY = 0.5;
+const SPIN = 1.9;
+const HOLD = 0.3;
+const CYCLE = SPIN_DELAY + SPIN + HOLD;
+
+const PALETTES = [
+  { bg: '#DD5CF4', back: '#5F40E8', front: '#EBF77B', patch: '#FFFFFF' },
+  { bg: '#6C62F6', back: '#4033E8', front: '#EDF58C', patch: '#FFFFFF' },
+  { bg: '#EEF68A', back: '#4033E8', front: '#CD63EE', patch: '#FFFFFF' },
+  { bg: '#4033E8', back: '#CC63EE', front: '#EDF58C', patch: '#FFFFFF' },
+];
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  noStroke();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - pow(-2 * t + 2, 3) / 2;
+}
+
+function easeInOutSine(t) {
+  return -(cos(PI * t) - 1) / 2;
+}
+
+function mixPalette(a, b, t) {
+  const out = {};
+  for (const prop of ['bg', 'back', 'front', 'patch']) {
+    out[prop] = lerpColor(color(a[prop]), color(b[prop]), t);
+  }
+  return out;
+}
+
+function draw() {
+  const t = max(0, millis() / 1000 - START_HOLD);
+  const n = floor(t / CYCLE);
+  const u = t - n * CYCLE;
+
+  const moveP = easeInOutCubic(constrain(u / SLIDE, 0, 1));
+  const pos = n + moveP;
+
+  const pal = mixPalette(
+    PALETTES[n % PALETTES.length],
+    PALETTES[(n + 1) % PALETTES.length],
+    moveP
+  );
+
+  background(pal.bg);
+
+  const spinning = n + 1;
+  const spinP = constrain((u - SPIN_DELAY) / SPIN, 0, 1);
+  const spinAngle = easeInOutSine(spinP) * TWO_PI;
+
+  const s = min(width / DW, height / DH);
+  push();
+  translate(width / 2, height / 2);
+  scale(s);
+  translate(-DW / 2, -DH / 2);
+
+  const first = floor(pos) - 3;
+  const last = floor(pos) + 4;
+  for (let k = first; k <= last; k++) {
+    const d = abs(k - pos);
+    const grow = 1.2 - 0.4 * min(d, 1) - 0.2 * constrain(d - 1, 0, 1);
+    const x = CENTER_X + (k - pos) * SPACING;
+
+    drawX(
+      x, CENTER_Y, grow,
+      k === spinning ? spinAngle : 0,
+      pal.back, pal.front, pal.patch, pal.bg
+    );
+  }
+  pop();
+}
+
+function drawX(cx, cy, sc, spin, backCol, frontCol, patchCol, dotCol) {
+  rectMode(CENTER);
+
+  push();
+  translate(cx, cy);
+  scale(sc);
+
+  push();
+  rotate(QUARTER_PI + spin);
+  fill(backCol);
+  rect(0, 0, PILL_LEN, PILL_W, PILL_W / 2);
+  pop();
+
+  push();
+  rotate(-QUARTER_PI + spin);
+  fill(frontCol);
+  rect(0, 0, PILL_LEN, PILL_W, PILL_W / 2);
+
+  fill(patchCol);
+  rect(0, 0, PATCH_LEN, PATCH_W, 30);
+
+  fill(dotCol);
+  const c = cos(QUARTER_PI);
+  const sn = sin(QUARTER_PI);
+  for (const [dx, dy] of DOTS) {
+    const lx = dx * c - dy * sn;
+    const ly = dx * sn + dy * c;
+    circle(lx, ly, DOT_R * 2);
+  }
+  pop();
+
+  pop();
+}
+</script>
+</body>
+</html>
