@@ -24,9 +24,10 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261024r');
+      const res = await fetch('projects.json?v=20261024s');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
+      projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
     } catch (err) {
       console.error(err);
     }
@@ -56,7 +57,7 @@
     cardsEl.innerHTML = projects
       .map((p) => `
       <article class="card" data-pid="${esc(p.id)}">
-        <a href="#${esc(p.id)}" aria-label="${esc(p.title)}">
+        <a href="#${esc(p.slug)}" aria-label="${esc(p.title)}">
           <div class="card-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
           <div class="card-meta">
             <h3 class="card-title">${esc(p.title)}</h3>
@@ -159,7 +160,7 @@
     const i = projects.indexOf(p);
     // starts two after the current project: the one right after it is already shown as "Next up"
     return Array.from({ length: Math.min(6, projects.length - 2) }, (_, k) => projects[(i + 2 + k) % projects.length])
-      .map((q) => `<a class="tile" href="#${esc(q.id)}"><div class="tile-media"><img src="${esc(q.thumbnail)}" alt="" loading="lazy"></div><span class="tile-title">${esc(q.title)}</span></a>`)
+      .map((q) => `<a class="tile" href="#${esc(q.slug)}"><div class="tile-media"><img src="${esc(q.thumbnail)}" alt="" loading="lazy"></div><span class="tile-title">${esc(q.title)}</span></a>`)
       .join('');
   }
 
@@ -247,7 +248,7 @@
         </header>
         <div class="case-body">${hero}${blocks.join('')}</div>
         <footer class="case-end">
-          <a class="next" href="#${esc(next.id)}">
+          <a class="next" href="#${esc(next.slug)}">
             <div class="caps next-label">Next up</div>
             <div class="next-title" aria-label="${esc(next.title)}">${wave(next.title)}</div>
             <div class="next-media" data-urls="${esc(JSON.stringify(nextImages(next)))}"><img class="is-active" src="${esc(nextImages(next)[0])}" alt=""><span class="reel-hint next-hint">View project <svg class="hint-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" stroke-linecap="square"/></svg></span></div>
@@ -283,7 +284,7 @@
   }
 
   function showCase(id) {
-    const p = projects.find((x) => x.id === id);
+    const p = projects.find((x) => x.slug === id || x.id === id);
     if (!p) { location.hash = ''; return false; }
     stackEl.innerHTML = caseHTML(p);
     stackEl.querySelectorAll('.embed[data-vimeo]').forEach((box) => (embedObserver ? embedObserver.observe(box) : loadEmbed(box)));
