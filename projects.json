@@ -678,7 +678,11 @@
         "alt": "Build better demos with AI",
         "half": true,
         "src": "build-better-demos-with-ai-04.webp",
-        "type": "image"
+        "type": "image",
+        "aside": [
+          "Solve, Align, Scale and Evolve are the four brand pillars: the ideas that shape how Reprise thinks, behaves and shows up. Each pillar is paired with its own pattern style, so the principle behind the brand can be seen as well as read.",
+          "Solve builds in concentric lines, Align locks to a modular grid, Scale arcs into sweeping curves and Evolve steps forward in layered stripes. Each pattern emanates throughout the system, from campaigns and presentations to product UI."
+        ]
       },
       {
         "alt": "Build better demos with AI",

@@ -240,11 +240,18 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
+/* Brand-pillar text beside the half-width image (left column) */
+.aside-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.aside-row .block-media { width: 100%; margin: 0; }
+.aside-text { display: grid; gap: 16px; align-content: start; color: var(--grey); font-size: 17px; line-height: 24px; padding: 0 calc(var(--indent) * 1.5) 0 var(--indent); }
+.aside-text p:first-child { color: var(--ink); }
+@media (max-width: 900px) { .aside-row { grid-template-columns: 1fr; } }
+
 /* Next up: the label + title stay pinned beside the image and slide down as the page scrolls (like the home work list). */
 @media (min-width: 900px) {
-  .case-end a.next { display: grid; grid-template-columns: 1fr 50%; gap: 0 8px; align-items: start; }
+  .case-end a.next { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 12px; align-items: start; }   /* same columns as .tiles */
   .next-text { position: sticky; top: 96px; }
-  .case-end .next-media { margin-top: 0; justify-self: end; }
+  .case-end .next-media { grid-column: 2 / 4; margin-top: 0; justify-self: end; }
 }
 
 /* ---------- Consistent left indent for text on the far-left edge ---------- */

@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261024t');
+      const res = await fetch('projects.json?v=20261024u');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -134,6 +134,7 @@
       case 'text':
         return textBlock(b);
       case 'image':
+        if (b.aside) return `<div class="aside-row"><div class="aside-text">${[].concat(b.aside).map((t) => `<p>${esc(t)}</p>`).join('')}</div>${blockHTML({ ...b, aside: null, half: false })}</div>`;
         return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><img src="${esc(b.src)}" alt="${esc(b.alt)}" loading="lazy">${b.caption ? `<figcaption class="figcap">${esc(b.caption)}</figcaption>` : ''}</figure>`;
       case 'vimeo': {
         const id = String(b.id || '').replace(/\D/g, '');
@@ -171,14 +172,18 @@
     return list.filter(Boolean);
   }
 
-  // On desktop the "Next up" image grows to 50% of the page while it scrolls into view (its text column slides down beside it, see CSS), and cycles every 3 seconds.
+  // On desktop the "Next up" image grows from 25% of the page to the second tile's left edge while it scrolls into view (its text column slides down beside it, see CSS), and cycles every 3 seconds.
   let nextTimer = null;
   function stopNextMedia() { clearInterval(nextTimer); nextTimer = null; }
   function updateNextMedia() {
     const m = $('.next-media');
     if (!m || currentView !== 'case') return;
+    if (!matchMedia('(min-width: 900px)').matches) { m.style.width = ''; return; }
+    // Grows from 25% of the page to the full two-column span, whose left edge is the second tile's edge below.
+    const span = m.parentElement.clientWidth * 2 / 3 + 4;   // (A - 24) / 3 * 2 + 12 with the 12px gaps
+    const from = Math.min(1, (window.innerWidth * 0.25) / span);
     const t = Math.min(1, Math.max(0, (window.innerHeight - m.getBoundingClientRect().top) / (window.innerHeight * 0.8)));
-    m.style.width = matchMedia('(min-width: 900px)').matches ? 70 + 30 * t + '%' : '';
+    m.style.width = (from + (1 - from) * t) * 100 + '%';
   }
   function startNextMedia() {
     stopNextMedia();
