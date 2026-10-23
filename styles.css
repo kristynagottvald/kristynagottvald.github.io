@@ -181,7 +181,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .tile-title { font-size: 15px; }
 @media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .tiles { grid-template-columns: 1fr; } }
-.next-media { position: relative; width: 50%; margin: 32px 0 0 auto; aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: var(--off-black); }
+.next-media { position: relative; width: 100%; margin: 32px 0 0 auto; aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: var(--off-black); }
 .next-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .8s linear; }
 .next-media img.is-active { opacity: 1; }
 .case-end .next-title { font: 300 clamp(36px, 6vw, 96px)/1 var(--cond); letter-spacing: -0.03em; max-width: 14ch; margin-top: 12px; }
@@ -239,6 +239,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .contact-row { grid-template-columns: 1fr 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Next up: the label + title stay pinned beside the image and slide down as the page scrolls (like the home work list). */
+@media (min-width: 900px) {
+  .case-end a.next { display: grid; grid-template-columns: 1fr 50%; gap: 0 8px; align-items: start; }
+  .next-text { position: sticky; top: 96px; }
+  .case-end .next-media { margin-top: 0; justify-self: end; }
+}
 
 /* ---------- Consistent left indent for text on the far-left edge ---------- */
 .text-left { padding-left: var(--indent); }

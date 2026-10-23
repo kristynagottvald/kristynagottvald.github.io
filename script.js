@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261024s');
+      const res = await fetch('projects.json?v=20261024t');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -171,14 +171,14 @@
     return list.filter(Boolean);
   }
 
-  // The "Next up" image grows from 50% to 100% width while it scrolls into view, and cycles every 3 seconds.
+  // On desktop the "Next up" image grows to 50% of the page while it scrolls into view (its text column slides down beside it, see CSS), and cycles every 3 seconds.
   let nextTimer = null;
   function stopNextMedia() { clearInterval(nextTimer); nextTimer = null; }
   function updateNextMedia() {
     const m = $('.next-media');
     if (!m || currentView !== 'case') return;
     const t = Math.min(1, Math.max(0, (window.innerHeight - m.getBoundingClientRect().top) / (window.innerHeight * 0.8)));
-    m.style.width = 50 + 50 * t + '%';
+    m.style.width = matchMedia('(min-width: 900px)').matches ? 70 + 30 * t + '%' : '';
   }
   function startNextMedia() {
     stopNextMedia();
@@ -249,8 +249,10 @@
         <div class="case-body">${hero}${blocks.join('')}</div>
         <footer class="case-end">
           <a class="next" href="#${esc(next.slug)}">
-            <div class="caps next-label">Next up</div>
-            <div class="next-title" aria-label="${esc(next.title)}">${wave(next.title)}</div>
+            <div class="next-text">
+              <div class="caps next-label">Next up</div>
+              <div class="next-title" aria-label="${esc(next.title)}">${wave(next.title)}</div>
+            </div>
             <div class="next-media" data-urls="${esc(JSON.stringify(nextImages(next)))}"><img class="is-active" src="${esc(nextImages(next)[0])}" alt=""><span class="reel-hint next-hint">View project <svg class="hint-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" stroke-linecap="square"/></svg></span></div>
           </a>
           <div class="all-projects">
