@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261026j');
+      const res = await fetch('projects.json?v=20261026k');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -77,7 +77,8 @@
     projects.forEach((p, i) => {
       const c = i % 2, r = Math.floor(i / 2);
       const kind = (r + c) % 2 === 0 ? 'is-p' : 'is-l';
-      const right = p.clientName && p.clientName.toLowerCase() !== p.title.toLowerCase() ? p.clientName : p.category;
+      const titleCase = (t) => String(t || '').replace(/\b([a-z])/g, (m) => m.toUpperCase());   // Visual Identity, Art Direction
+      const right = p.clientName && p.clientName.toLowerCase() !== p.title.toLowerCase() ? p.clientName : titleCase(p.category);
       cols[c].push(`<a class="pj-tile ${kind}" href="#${esc(p.slug)}" style="--o:${i}" data-i="${i}" data-urls="${esc(JSON.stringify(nextImages(p)))}" aria-label="${esc(p.title)}">
         <div class="pj-media"><img class="is-active" src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
         <div class="pj-cap"><span>${esc(p.title)}</span><span class="grey">${esc(right || '')}</span></div>
