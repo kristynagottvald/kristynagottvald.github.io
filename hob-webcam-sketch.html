@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House of Balloons webcam sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #330F10; overflow: hidden; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+p5.disableFriendlyErrors = true;
+
+const BG = '#330F10';
+const FG = '#BBAE8B';
+
+let ditherMatrix;
+let barLengths = [];
+let vCapture = null;
+let camReady = false;
+let defaultImg; // stand-in luminance source shown until the webcam is on
+
+const lineHeightEl = () => document.getElementById('lineHeight');
+const spacingEl = () => document.getElementById('spacing');
+
+const UI_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap');
+  :root { --brown: #330F10; --yellow: #FFFBA0; }
+  html, body { margin: 0; background: var(--brown); overflow: hidden; font-family: 'Source Code Pro', monospace; }
+  canvas { display: block; }
+  #controls { position: fixed; top: 24px; left: 24px; width: 260px; display: flex; flex-direction: column; gap: 22px; z-index: 5; }
+  #controls label { display: block; margin-bottom: 10px; color: var(--yellow); font: 400 14px 'Source Code Pro', monospace;
+    letter-spacing: 0.22em; text-transform: uppercase; text-shadow: 0 0 6px var(--brown); }
+  #controls input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 0; background: transparent; cursor: pointer; }
+  #controls input[type=range]::-webkit-slider-runnable-track { height: 6px; background: var(--yellow); border-radius: 3px; }
+  #controls input[type=range]::-moz-range-track { height: 6px; background: var(--yellow); border-radius: 3px; }
+  #controls input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -11px;
+    border-radius: 50%; background: var(--brown); border: 3px solid var(--yellow); }
+  #controls input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--brown); border: 3px solid var(--yellow); }
+  #overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 4; pointer-events: none; }
+  #overlay.hidden { display: none; }
+  #activate { pointer-events: auto; font: 600 18px 'Source Code Pro', monospace; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--yellow); background: var(--brown); border: 3px solid var(--yellow); border-radius: 4px; padding: 18px 34px; cursor: pointer; }
+  #activate:hover { background: #4a1819; }
+  #msg { position: absolute; top: calc(50% + 56px); color: var(--yellow); font: 400 12px 'Source Code Pro', monospace;
+    letter-spacing: 0.18em; text-transform: uppercase; text-shadow: 0 0 6px var(--brown); }
+`;
+
+// Builds all DOM (styles, sliders, overlay) so the sketch works as a single file.
+function buildUI() {
+  const style = document.createElement('style');
+  style.textContent = UI_CSS;
+  document.head.appendChild(style);
+
+  const controls = document.createElement('div');
+  controls.id = 'controls';
+  controls.innerHTML = `
+    <div><label for="lineHeight">Line Height</label>
+      <input id="lineHeight" type="range" min="4" max="100" step="2" value="8"></div>
+    <div><label for="spacing">Spacing</label>
+      <input id="spacing" type="range" min="4" max="64" step="2" value="8"></div>`;
+  document.body.appendChild(controls);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'overlay';
+  overlay.innerHTML = `<button id="activate" type="button">Activate Webcam</button><div id="msg"></div>`;
+  document.body.appendChild(overlay);
+}
+
+function setup() {
+  buildUI();
+  createCanvas(windowWidth, windowHeight);
+  pixelDensity(1);
+
+  for (let i = 0; i < 150000; i++) {
+    barLengths.push(random(10, 30));
+  }
+
+  initDitheringMatrix(3);
+  defaultImg = makeDefaultImage(160, 120);
+
+  document.getElementById('activate').addEventListener('click', activateWebcam);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+// Soft glowing blob on a diagonal gradient, so the dither has something to render.
+function makeDefaultImage(w, h) {
+  const g = createGraphics(w, h);
+  g.pixelDensity(1);
+  g.loadPixels();
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const nx = x / w, ny = y / h;
+      const d = dist(nx, ny, 0.5, 0.5);
+      let v = 70 + 90 * (1 - nx * 0.6 - ny * 0.4);
+      v += 120 * exp(-pow(d / 0.22, 2));
+      v -= 70 * exp(-pow(dist(nx, ny, 0.5, 0.5) / 0.08, 2));
+      v = constrain(v, 0, 255);
+      const i = (y * w + x) * 4;
+      g.pixels[i] = g.pixels[i + 1] = g.pixels[i + 2] = v;
+      g.pixels[i + 3] = 255;
+    }
+  }
+  g.updatePixels();
+  return g;
+}
+
+// Creating the capture is what makes the browser show its camera permission prompt.
+function activateWebcam() {
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('activate');
+  btn.disabled = true;
+  msg.textContent = 'Waiting for permission...';
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    btn.disabled = false;
+    msg.textContent = 'Webcam not supported here';
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+    stream.getTracks().forEach((t) => t.stop()); // release; p5 reopens it below
+    vCapture = createCapture(VIDEO, () => {
+      camReady = true;
+      document.getElementById('overlay').classList.add('hidden');
+    });
+    vCapture.size(640, 480);
+    vCapture.hide();
+  }).catch(() => {
+    btn.disabled = false;
+    msg.textContent = 'Camera access denied - allow it in your browser and retry';
+  });
+}
+
+function draw() {
+  background(BG);
+
+  const yStep = int(lineHeightEl().value);
+  const xStep = int(spacingEl().value);
+
+  const src = camReady ? vCapture : defaultImg;
+  src.loadPixels();
+  if (src.pixels.length > 0) {
+    visualizeHybridMap(src, xStep, yStep, 1);
+  }
+}
+
+function visualizeHybridMap(src, xStep, yStep, quantize) {
+  let lengthIdx = 0;
+  fill(FG);
+  noStroke();
+
+  const sw = src.width, sh = src.height;
+  const mirror = camReady; // mirror only the live feed
+  const dn = ditherMatrix.xmat * ditherMatrix.ymat * quantize;
+
+  for (let y = 0; y < height; y += yStep) {
+    for (let x = 0; x < width; x += xStep) {
+      const sx = floor(map(x, 0, width, mirror ? sw : 0, mirror ? 0 : sw));
+      const sy = floor(map(y, 0, height, 0, sh));
+      const idx = (constrain(sy, 0, sh - 1) * sw + constrain(sx, 0, sw - 1)) * 4;
+
+      const lum = src.pixels[idx] * 0.299 + src.pixels[idx + 1] * 0.587 + src.pixels[idx + 2] * 0.114;
+      // Narrow input range (60-160) for extreme contrast
+      const bv = map(lum, 60, 160, 0, 255, true);
+
+      const xD = floor(x / xStep) % ditherMatrix.xmat;
+      const yD = floor(y / yStep) % ditherMatrix.ymat;
+      const dval = ditherMatrix.dvals[yD * ditherMatrix.xmat + xD];
+      const ditherVal = floor((min(bv / 255, 1) + dval / dn) * quantize) / quantize * 255;
+
+      if (ditherVal < 200) {
+        if (bv < 80) {
+          // dark areas: long bars
+          const baseLen = barLengths[lengthIdx % barLengths.length];
+          const thickness = map(bv, 0, 80, 1.5, 1.0);
+          rect(x, y, baseLen * thickness, yStep * 0.45);
+        } else {
+          // mid-tones: halftone squares
+          const sq = map(bv, 80, 200, yStep * 0.6, yStep * 0.2);
+          rect(x, y, sq, sq);
+        }
+      }
+      lengthIdx++;
+    }
+  }
+}
+
+class DitherMatrix {
+  constructor(matnum) {
+    this.matnum = matnum;
+    this.xmat = pow(2, matnum);
+    this.ymat = this.xmat;
+    this.dvals = [];
+    this.initOrderedDithering();
+  }
+
+  initOrderedDithering() {
+    const num = this.xmat * this.ymat;
+    for (let s = 0; s < num; s++) {
+      const i = s % this.xmat;
+      const j = floor(s / this.xmat);
+      this.dvals.push(this.dither(this.matnum, i, j));
+    }
+  }
+
+  dither(n, i, j) {
+    if (n === 1) {
+      const m = [[0, 2], [3, 1]];
+      return m[j][i];
+    }
+    const v1 = this.dither(n - 1, floor(i / 2), floor(j / 2));
+    const v2 = this.dither(1, i % 2, j % 2) * 4;
+    return v1 + v2;
+  }
+}
+
+function initDitheringMatrix(num) {
+  ditherMatrix = new DitherMatrix(num);
+}
+</script>
+</body>
+</html>
