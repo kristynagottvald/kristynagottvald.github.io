@@ -89,6 +89,20 @@
         "type": "image"
       },
       {
+        "src": "hob-bars-sketch.html",
+        "title": "House of Balloons breathing bars",
+        "type": "sketch",
+        "half": "right",
+        "aspect": "1920 / 900"
+      },
+      {
+        "src": "hob-dither-sketch.html",
+        "title": "House of Balloons dithered bars",
+        "type": "sketch",
+        "half": "right",
+        "aspect": "1.1"
+      },
+      {
         "alt": "House of Balloons",
         "src": "house-of-balloons-12.webp",
         "type": "image"

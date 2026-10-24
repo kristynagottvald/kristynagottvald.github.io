@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House of Balloons dither sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #847767; overflow: hidden; }
+  canvas { display: block; }
+  /* sliders in brand colours: cream track and dark thumb stand out against the taupe canvas */
+  input[type=range].hob-slider { -webkit-appearance: none; appearance: none; width: 160px; height: 4px; background: #FDFEA1; border-radius: 2px; outline: none; cursor: pointer; }
+  input[type=range].hob-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #330F10; border: 2px solid #FDFEA1; }
+  input[type=range].hob-slider::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #330F10; border: 2px solid #FDFEA1; }
+  .hob-label { position: absolute; left: 20px; font: 400 10px/1 "Courier New", monospace; letter-spacing: .14em; text-transform: uppercase; color: #FDFEA1; pointer-events: none; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+let resSlider, spaceSlider; // Second slider now controls vertical gaps
+let h = 650; 
+let ditherMatrix;
+let barLengths = []; 
+let staticBrightnessMap = []; 
+
+// Builds the static dithered source image for the current canvas size.
+function buildSource() {
+  randomSeed(999); 
+  staticBrightnessMap = [];
+  
+  let source = createGraphics(width, height);
+  source.pixelDensity(1);
+  // Using 230 baseline to ensure full canvas coverage including the left edge
+  source.background(230); 
+  source.noStroke();
+
+  let numPolys = 25; 
+  for (let i = 0; i < numPolys; i++) {
+    source.fill(random([0, 30, 80, 140, 190])); 
+    
+    source.push();
+    source.translate(random(-100, width), random(-50, height));
+    source.rotate(random(TWO_PI));
+    
+    source.beginShape();
+    let vertices = floor(random(3, 10));
+    let radius = random(150, 550); 
+    for (let v = 0; v < vertices; v++) {
+      let angle = TWO_PI * v / vertices;
+      let r = radius * random(0.5, 1.5);
+      source.vertex(cos(angle) * r, sin(angle) * r);
+    }
+    source.endShape(CLOSE);
+    source.pop();
+  }
+
+  source.loadPixels();
+  for (let i = 0; i < source.pixels.length; i += 4) {
+    staticBrightnessMap.push(source.pixels[i]); 
+  }
+  source.remove(); 
+
+  barLengths = [];
+  for (let i = 0; i < 150000; i++) {
+    barLengths.push(random(10, 35));
+  }
+}
+
+function setup() {
+  h = windowHeight;
+  pixelDensity(1);
+  createCanvas(windowWidth, h);
+  buildSource();
+  setupUIs();
+  initDitheringMatrix(3);
+}
+
+function windowResized() {
+  h = windowHeight;
+  resizeCanvas(windowWidth, h);
+  buildSource();
+}
+
+function draw() {
+  background('#847767'); 
+  
+  let xStep = resSlider.value();   // Horizontal resolution
+  let yStep = spaceSlider.value(); // Vertical spacing
+  let quant = 1; 
+
+  visualizeSpacedData(xStep, yStep, quant);
+}
+
+function visualizeSpacedData(xStep, yStep, quantize) {
+  let timeCycle = (frameCount * TWO_PI) / 240; 
+  let rollSpeed = frameCount * 0.015;
+  let spatialFreq = 0.0012; 
+  let lengthIdx = 0;
+  
+  fill('#330F10');
+  noStroke();
+
+  // Y loop now uses yStep (from the slider) for vertical gaps
+  for (let y = 0; y < h; y += yStep) {
+    let verticalCurve = sin(y * 0.005 + rollSpeed) * 0.45;
+
+    for (let x = 0; x < width; x += xStep) {
+      let wave = sin(x * spatialFreq + timeCycle + verticalCurve);
+      
+      if (wave > -0.95) {
+        let mapIndex = floor(y) * width + floor(x);
+        let brightnessValue = staticBrightnessMap[mapIndex] !== undefined ? staticBrightnessMap[mapIndex] : 230;
+        
+        let px = x / xStep;
+        let py = y / yStep;
+        let xD = px % ditherMatrix.xmat;
+        let yD = py % ditherMatrix.ymat;
+        let dval = ditherMatrix.dvals[yD * ditherMatrix.xmat + xD];
+
+        // Hardcoding alpha/offset to 0 for the dither logic to keep the look clean
+        let ditherVal = floor((min((brightnessValue) / 255.0, 1.0) + dval / (ditherMatrix.xmat * ditherMatrix.ymat * quantize)) * quantize) / quantize * 255;
+        
+        if (ditherVal < 255) { 
+          let baseLen = barLengths[lengthIdx % barLengths.length];
+          let currentLen = map(wave, -0.95, 1, 0, baseLen, true);
+          
+          // Fixed height of 4px, but the distance between them is now variable
+          rect(x, y, currentLen, 4); 
+        }
+      }
+      lengthIdx++;
+    }
+  }
+}
+
+class DitherMatrix {
+  constructor(matnum) {
+    this.matnum = matnum;
+    this.xmat = pow(2, matnum);
+    this.ymat = this.xmat;
+    this.dvals = [];
+    this.initOrderedDithering();
+  }
+
+  initOrderedDithering() {
+    let num = this.xmat * this.ymat;
+    for (let s = 0; s < num; s++) {
+      let i = s % this.xmat;
+      let j = floor(s / this.xmat);
+      this.dvals.push(this.dither(this.matnum, i, j));
+    }
+  }
+
+  dither(n, i, j) {
+    if (n === 1) {
+      let m = [[0, 2], [3, 1]];
+      return m[j][i];
+    }
+    let v1 = this.dither(n - 1, floor(i / 2), floor(j / 2));
+    let v2 = this.dither(1, i % 2, j % 2) * 4;
+    return v1 + v2;
+  }
+}
+
+function initDitheringMatrix(num) {
+  ditherMatrix = new DitherMatrix(num);
+}
+
+function setupUIs() {
+  // Slider 1: Horizontal Resolution
+  resSlider = createSlider(8, 64, 20, 4);
+  resSlider.addClass('hob-slider');
+  resSlider.position(20, 36);
+  createDiv('Resolution').addClass('hob-label').position(20, 18);
+  
+  // Slider 2: Vertical Spacing (Increases the gap between bars)
+  spaceSlider = createSlider(4, 50, 12, 2);
+  spaceSlider.addClass('hob-slider');
+  spaceSlider.position(20, 78);
+  createDiv('Spacing').addClass('hob-label').position(20, 60);
+}
+</script>
+</body>
+</html>

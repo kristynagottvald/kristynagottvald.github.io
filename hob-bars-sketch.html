@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House of Balloons bars sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #FDFEA1; overflow: hidden; }
+  canvas { display: block; width: 100% !important; height: auto !important; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+p5.disableFriendlyErrors = true;
+
+let hexArt_Palette = {};
+let hexArt_MainPattern;
+
+function setup() {
+  createCanvas(1920, 900, WEBGL);
+  
+  setAttributes('antialias', true);
+  angleMode(RADIANS);
+  rectMode(CENTER);
+  pixelDensity(1);
+  smooth();
+  frameRate(30);
+  noStroke();
+  
+  // Updated Palette
+  hexArt_Palette = {
+    bg: '#FDFEA1', // New requested background color
+    bar: '#330F10' // Solid dark bar color
+  };
+
+  initCamera();
+  hexArt_MainPattern = new HexArt_Pattern();
+}
+
+function initCamera() {
+  const d = 1000;
+  camera(0, 0, d, 0, 0, 0, 0, 1, 0);
+  ortho(-width/2, width/2, -height/2, height/2, -10000, 10000);
+}
+
+function draw() {
+  // Apply the new background color
+  background(hexArt_Palette.bg); 
+  hexArt_MainPattern.display();
+}
+
+class HexArt_Element {
+  constructor(id, x, y) {
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    
+    // Width properties for the "breathing" effect
+    this.baseW = 180; 
+    this.pulseAmp = random(60, 180);
+    
+    // LOCKED HEIGHT: Fixed at 35px. No 3D rotation means this never moves.
+    this.fixedH = 35; 
+  }
+
+  render() {
+    push();
+    // Calculate the horizontal length pulse
+    const currentPulse = sin(frameCount * 0.05 + this.id * 0.5) * this.pulseAmp;
+    
+    // Set bar color to solid #330F10
+    fill(hexArt_Palette.bar);
+    
+    // Position the bar
+    translate(this.x, this.y, 0);
+    
+    // Draw the rectangle
+    // width = (baseW + currentPulse), height = 35
+    rect(0, 0, this.baseW + currentPulse, this.fixedH);
+    pop();
+  }
+}
+
+class HexArt_Pattern {
+  constructor() {
+    this.elements = [];
+    
+    let cols = 8; 
+    let rows = 4;
+    let gapX = 240;
+    let gapY = 220;
+
+    for (let j = 0; j < rows; j++) {
+      for (let i = 0; i < cols; i++) {
+        const px = i * gapX - (cols * gapX) / 2 + gapX / 2;
+        const py = j * gapY - (rows * gapY) / 2 + gapY / 2;
+        this.elements.push(new HexArt_Element(i + j * cols, px, py));
+      }
+    }
+  }
+
+  display() {
+    for (let el of this.elements) {
+      el.render();
+    }
+  }
+}
+</script>
+</body>
+</html>
