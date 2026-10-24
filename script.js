@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261026h');
+      const res = await fetch('projects.json?v=20261026i');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -78,12 +78,70 @@
       const c = i % 2, r = Math.floor(i / 2);
       const kind = (r + c) % 2 === 0 ? 'is-p' : 'is-l';
       const right = p.clientName && p.clientName.toLowerCase() !== p.title.toLowerCase() ? p.clientName : p.category;
-      cols[c].push(`<a class="pj-tile ${kind}" href="#${esc(p.slug)}" style="--o:${i}" aria-label="${esc(p.title)}">
-        <div class="pj-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
+      cols[c].push(`<a class="pj-tile ${kind}" href="#${esc(p.slug)}" style="--o:${i}" data-i="${i}" data-urls="${esc(JSON.stringify(nextImages(p)))}" aria-label="${esc(p.title)}">
+        <div class="pj-media"><img class="is-active" src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
         <div class="pj-cap"><span>${esc(p.title)}</span><span class="grey">${esc(right || '')}</span></div>
       </a>`);
     });
     $('#pj-grid').innerHTML = cols.map((col) => `<div class="pj-col">${col.join('')}</div>`).join('');
+    if (currentView === 'projects') startProjectsCycle();
+  }
+
+  // Projects page: each tile cycles through its project's images every 3 seconds. Only one tile changes at a
+  // time, working through the tiles that are on screen in order, and tiles off screen are left alone.
+  const pjVisible = new Set();
+  let pjObserver = null, pjTimer = null, pjLast = -1;
+  function stopProjectsCycle() {
+    clearTimeout(pjTimer);
+    pjTimer = null;
+    if (pjObserver) pjObserver.disconnect();
+    pjObserver = null;
+    pjVisible.clear();
+  }
+  function startProjectsCycle() {
+    stopProjectsCycle();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    pjObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e) => (e.isIntersecting ? pjVisible.add(e.target) : pjVisible.delete(e.target)));
+      if (pjTimer === null) schedulePjTick();
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.pj-tile').forEach((t) => pjObserver.observe(t));
+  }
+  function schedulePjTick() {
+    clearTimeout(pjTimer);
+    pjTimer = null;
+    if (!pjVisible.size || currentView !== 'projects') return;
+    // n tiles on screen, one change per tick: each tile comes round every 3 seconds
+    pjTimer = setTimeout(pjTick, Math.max(250, 3000 / pjVisible.size));
+  }
+  function pjTick() {
+    pjTimer = null;
+    if (currentView !== 'projects') return;
+    if (!document.hidden) {
+      const shown = [...pjVisible].sort((a, b) => a.dataset.i - b.dataset.i);
+      const next = shown.find((t) => +t.dataset.i > pjLast) || shown[0];
+      if (next) { pjLast = +next.dataset.i; advanceTile(next); }
+    }
+    schedulePjTick();
+  }
+  function advanceTile(tile) {
+    const urls = JSON.parse(tile.dataset.urls || '[]');
+    if (urls.length < 2) return;
+    const media = tile.querySelector('.pj-media');
+    const i = ((+tile.dataset.idx || 0) + 1) % urls.length;
+    const probe = new Image();
+    probe.onload = () => {
+      const img = document.createElement('img');
+      img.alt = '';
+      img.src = urls[i];
+      media.appendChild(img);
+      tile.dataset.idx = i;
+      // the new image fades in over the old one, which is removed once it is fully covered
+      requestAnimationFrame(() => requestAnimationFrame(() => img.classList.add('is-active')));
+      setTimeout(() => media.querySelectorAll('img').forEach((o) => { if (o !== img) o.remove(); }), 1100);
+    };
+    probe.onerror = () => { urls.splice(i, 1); tile.dataset.urls = JSON.stringify(urls); };
+    probe.src = urls[i];
   }
   const renderServices = () => {};
 
@@ -339,6 +397,7 @@
     if (currentView === 'projects') projectsScroll = window.scrollY;
     Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
     if (name !== 'case') { stopNextMedia(); stackEl.innerHTML = ''; }
+    if (name === 'projects') startProjectsCycle(); else stopProjectsCycle();
     const navKey = name === 'case' ? 'projects' : name === 'home' ? '' : name;
     navLinks.forEach((a) => {
       const b = a.querySelector('b');
