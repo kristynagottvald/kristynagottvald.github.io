@@ -155,7 +155,7 @@ function drawStamp(st, ox, oy, sc, alpha, lt) {
 
 
 
-// Vector USPS tile (the pasted PNG logo could not be embedded intact).
+// Vector USPS tile (the pasted PNG logo could not be embedded intact); eagle only, centred.
 function uspsLogo(cx, cy, w) {
   push();
   translate(cx, cy);
@@ -169,22 +169,9 @@ function uspsLogo(cx, cy, w) {
   beginShape();
   for (const [px, py] of EAGLE) {
     const v = (py - 287.5) * 0.16;
-    vertex((px - 408) * 0.16 + 0.21 * v, v - 12);
+    vertex((px - 408) * 0.16 + 0.21 * v, v);
   }
   endShape(CLOSE);
-  fill('#4033E8');
-  drawingContext.textAlign = 'left';
-  drawingContext.textBaseline = 'middle';
-  drawingContext.font = `700 27px ${SANS}`;
-  const letters = 'USPS', track = 5;
-  let total = -track;
-  for (const c of letters) total += drawingContext.measureText(c).width + track;
-  let x = -total / 2;
-  for (const c of letters) {
-    drawingContext.fillText(c, x, 42);
-    x += drawingContext.measureText(c).width + track;
-  }
-  drawingContext.textBaseline = 'alphabetic';
   pop();
 }
 
