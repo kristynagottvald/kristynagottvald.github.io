@@ -5,7 +5,7 @@
   const TAGLINE = 'Graphic Designer';
 
   const $ = (sel, root = document) => root.querySelector(sel);
-  const views = { home: $('#view-home'), case: $('#view-case'), about: $('#view-about') };
+  const views = { home: $('#view-home'), case: $('#view-case'), projects: $('#view-projects'), about: $('#view-about') };
   const cardsEl = $('#cards');
   const stackEl = $('#case-stack');
   const footerEl = $('#contact');
@@ -14,6 +14,7 @@
   let projects = [];
   let currentView = null;
   let homeScroll = 0;
+  let projectsScroll = 0;
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -24,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261026f');
+      const res = await fetch('projects.json?v=20261026g');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -68,6 +69,21 @@
       .join('');
     $('#service-list').innerHTML = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${esc(t)}</span></li>`).join('');
     watchWork();
+    renderProjectsPage();
+  }
+  // Projects index: two columns, landscape and portrait tiles staggered so the columns never line up.
+  function renderProjectsPage() {
+    const cols = [[], []];
+    projects.forEach((p, i) => {
+      const c = i % 2, r = Math.floor(i / 2);
+      const kind = (r + c) % 2 === 0 ? 'is-p' : 'is-l';
+      const right = p.clientName && p.clientName.toLowerCase() !== p.title.toLowerCase() ? p.clientName : p.category;
+      cols[c].push(`<a class="pj-tile ${kind}" href="#${esc(p.slug)}" style="--o:${i}" aria-label="${esc(p.title)}">
+        <div class="pj-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
+        <div class="pj-cap"><span>${esc(p.title)}</span><span class="grey">${esc(right || '')}</span></div>
+      </a>`);
+    });
+    $('#pj-grid').innerHTML = cols.map((col) => `<div class="pj-col">${col.join('')}</div>`).join('');
   }
   const renderServices = () => {};
 
@@ -320,9 +336,10 @@
 
   function show(name) {
     if (currentView === 'home') homeScroll = window.scrollY;
+    if (currentView === 'projects') projectsScroll = window.scrollY;
     Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
     if (name !== 'case') { stopNextMedia(); stackEl.innerHTML = ''; }
-    const navKey = name === 'case' ? 'work' : name === 'home' ? 'work' : name;
+    const navKey = name === 'case' ? 'projects' : name === 'home' ? '' : name;
     navLinks.forEach((a) => {
       const b = a.querySelector('b');
       if (a.dataset.nav === navKey) {
@@ -333,7 +350,7 @@
       }
     });
     currentView = name;
-    lightUp($('#hb-label'), { home: 'Home', case: 'Projects', about: 'About' }[name]);
+    lightUp($('#hb-label'), { home: 'Home', case: 'Projects', projects: 'Projects', about: 'About' }[name]);
     $('#hb').classList.remove('open');
     requestAnimationFrame(updateWork);
   }
@@ -347,7 +364,12 @@
     const hash = decodeURIComponent(location.hash.slice(1));
     const returning = currentView === 'case';
 
-    if (hash === 'about') {
+    if (hash === 'projects') {
+      const back = currentView === 'case';
+      show('projects');
+      document.title = `Projects • ${SITE}`;
+      window.scrollTo(0, back ? projectsScroll : 0);
+    } else if (hash === 'about') {
       show('about');
       document.title = `About • ${SITE}`;
       window.scrollTo(0, 0);

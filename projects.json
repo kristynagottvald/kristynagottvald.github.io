@@ -144,7 +144,8 @@
     "thumbnail": "house-of-balloons.webp",
     "title": "House of Balloons",
     "year": 2026,
-    "squareThumbnail": "house-of-balloons-square.webp"
+    "squareThumbnail": "house-of-balloons-square.webp",
+    "clientName": "House of Balloons"
   },
   {
     "caseStudyContent": [
@@ -282,7 +283,8 @@
     "thumbnail": "mavenoid-is-the-ai-agent-for-product-support-b.webp",
     "title": "Mavenoid is the AI agent for product support",
     "year": 2023,
-    "squareThumbnail": "mavenoid-square.webp"
+    "squareThumbnail": "mavenoid-square.webp",
+    "clientName": "Mavenoid"
   },
   {
     "caseStudyContent": [
@@ -366,7 +368,8 @@
     "thumbnail": "postal-fix-thumb.png",
     "title": "Postal Fix",
     "year": 2026,
-    "squareThumbnail": "lob-square.webp"
+    "squareThumbnail": "lob-square.webp",
+    "clientName": "Lob"
   },
   {
     "caseStudyContent": [
@@ -455,7 +458,8 @@
     "thumbnail": "modern-marketing-guides-for-the-digital-entrepreneur-thumb.png",
     "title": "Modern marketing guides for the digital entrepreneur",
     "year": 2021,
-    "squareThumbnail": "clearco-square.webp"
+    "squareThumbnail": "clearco-square.webp",
+    "clientName": "Clearco"
   },
   {
     "caseStudyContent": [
@@ -540,7 +544,8 @@
     "thumbnail": "clearco-australia-launch.webp",
     "title": "Clearco Australia Launch",
     "year": 2021,
-    "squareThumbnail": "clearco-square.webp"
+    "squareThumbnail": "clearco-square.webp",
+    "clientName": "Clearco"
   },
   {
     "caseStudyContent": [
@@ -681,7 +686,8 @@
     "title": "Mavenoid’s Product Support Community",
     "year": 2024,
     "blurb": "A global hub where technical support leaders share real solutions.",
-    "squareThumbnail": "mavenoid-square.webp"
+    "squareThumbnail": "mavenoid-square.webp",
+    "clientName": "Mavenoid"
   },
   {
     "caseStudyContent": [
@@ -802,7 +808,8 @@
     "thumbnail": "build-better-demos-with-ai-cover.webp",
     "title": "Build better demos with AI",
     "year": 2025,
-    "squareThumbnail": "reprise-square.webp"
+    "squareThumbnail": "reprise-square.webp",
+    "clientName": "Reprise"
   },
   {
     "caseStudyContent": [
@@ -922,7 +929,8 @@
     "thumbnail": "lob.webp",
     "title": "Lob",
     "year": 2025,
-    "squareThumbnail": "lob-square.webp"
+    "squareThumbnail": "lob-square.webp",
+    "clientName": "Lob"
   },
   {
     "caseStudyContent": [
@@ -1028,7 +1036,8 @@
     "thumbnail": "tims-financial.webp",
     "title": "Tim’s Financial",
     "year": 2023,
-    "squareThumbnail": "tims-financial-square.webp"
+    "squareThumbnail": "tims-financial-square.webp",
+    "clientName": "Tim Hortons"
   },
   {
     "caseStudyContent": [
@@ -1158,7 +1167,8 @@
     "thumbnail": "clearco-cover.webp",
     "title": "Clearco",
     "year": 2021,
-    "squareThumbnail": "clearco-square.webp"
+    "squareThumbnail": "clearco-square.webp",
+    "clientName": "Clearco"
   },
   {
     "caseStudyContent": [
@@ -1277,7 +1287,8 @@
     "thumbnail": "grubclub.webp",
     "title": "GrubClub",
     "year": 2021,
-    "squareThumbnail": "grubclub-square.webp"
+    "squareThumbnail": "grubclub-square.webp",
+    "clientName": "GrubClub"
   },
   {
     "caseStudyContent": [
@@ -1480,7 +1491,8 @@
     "thumbnail": "pagemaster.webp",
     "title": "Pagemaster",
     "year": 2020,
-    "squareThumbnail": "pagemaster-square.webp"
+    "squareThumbnail": "pagemaster-square.webp",
+    "clientName": "Pagemaster"
   },
   {
     "caseStudyContent": [
@@ -1536,6 +1548,7 @@
     "thumbnail": "shopifys-bfcm-report.webp",
     "title": "Shopify’s BFCM Report",
     "year": 2020,
-    "squareThumbnail": "shopifys-bfcm-report-square-b.webp"
+    "squareThumbnail": "shopifys-bfcm-report-square-b.webp",
+    "clientName": "Shopify"
   }
 ]

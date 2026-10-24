@@ -7,12 +7,12 @@
   <meta name="description" content="Portfolio of Kristyna Gottvald: graphic design, art direction and brand systems.">
   <meta name="theme-color" content="#000000">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <script src="favicon.js?v=20261026f" defer></script>
+  <script src="favicon.js?v=20261026g" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20261026f">
-  <script src="script.js?v=20261026f" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20261026g">
+  <script src="script.js?v=20261026g" defer></script>
 </head>
 <body>
   <!-- Fixed header: logo pill that opens the menu,  -->
@@ -24,7 +24,7 @@
         <button class="hb-toggle" id="hb-toggle" type="button" aria-expanded="false" aria-controls="hb-menu"><span class="sr">Toggle menu</span><svg class="nav-ptr" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></button>
       </div>
       <nav class="hb-menu" id="hb-menu" aria-label="Main">
-        <a href="#work" data-nav="work"><b>Projects</b><span>Explore all projects</span></a>
+        <a href="#projects" data-nav="projects"><b>Projects</b><span>Explore all projects</span></a>
         <a href="#about" data-nav="about"><b>About</b><span>Who I am</span></a>
         <a href="#services" data-nav="services"><b>Services</b><span>What I do</span></a>
         <a href="#contact" data-nav="contact"><b>Contact</b><span>Reach out</span></a>
@@ -90,6 +90,17 @@
     <!-- Case study -->
     <section id="view-case" aria-label="Case study" hidden>
       <div id="case-stack"></div>
+    </section>
+
+    <!-- Projects index -->
+    <section id="view-projects" class="pj" aria-label="Projects" hidden>
+      <div class="pj-side">
+        <div class="pj-side-in">
+          <h1 class="t-condensed">Projects</h1>
+          <p class="t-condensed grey">Selected brand, campaign and creative coding work.</p>
+        </div>
+      </div>
+      <div class="pj-grid" id="pj-grid"></div>
     </section>
 
     <!-- About -->
