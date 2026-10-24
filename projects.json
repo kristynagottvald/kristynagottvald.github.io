@@ -423,7 +423,7 @@
         "type": "vimeo"
       },
       {
-        "src": "clearco-guide-sketch.html",
+        "src": "clearco-guide-sketch.html?bg=black",
         "title": "Clearco replatforming guide",
         "type": "sketch",
         "noHint": false

@@ -12,6 +12,10 @@
 </head>
 <body>
 <script>
+// charcoal (#1e1e1e) by default, pure black when embedded as clearco-guide-sketch.html?bg=black
+const BG_LEVEL = new URLSearchParams(location.search).get('bg') === 'black' ? 0 : 30;
+document.documentElement.style.background = document.body.style.background = `rgb(${BG_LEVEL},${BG_LEVEL},${BG_LEVEL})`;
+
 /* ---------------------------------------------------------------
    Timeline (seconds)
 ---------------------------------------------------------------- */
@@ -94,7 +98,7 @@ function boot() {
 }
 
 function draw() {
-  background(30); // charcoal #1e1e1e
+  background(BG_LEVEL);
   if (!L1) return; // waiting for fonts
 
   const { T, loop } = currentTime();
