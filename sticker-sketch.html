@@ -21,7 +21,7 @@ let yellowhorz, yellowsalesticker, purpblock, salestickerpale;
 let gridElements = [];
 let occupancy = []; // which grid cells are taken, shared with the click-to-slide behaviour
 let s = 100; // Fixed block size to maintain aspect ratio across varying screen sizes
-const B = 1; // blocks are drawn 1px larger on every side so neighbouring blocks overlap and no hairline gap shows
+const B = 0.5; // blocks are drawn 0.5px larger on every side so neighbouring blocks just meet and no hairline gap shows
 let cols, rows;
 
 function preload() {
