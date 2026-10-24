@@ -361,6 +361,9 @@ function generateRandomComposition() {
                if (isGiftBlock && (stk === salesticker || stk === sunsticker || stk === starburststicker)) return false;
                if (isPurpleBlock && stk === salesticker) return false;
                if (isPaleBlock && stk === salestickerpale) return false;
+               // A sticker the same colour as its block would vanish into it, and only show up when the hover fades the block
+               if (isYellowBlock && stk === sunsticker) return false;
+               if (isPaleBlock && stk === starburststicker) return false;
                return true;
              });
              
