@@ -423,6 +423,12 @@
         "type": "vimeo"
       },
       {
+        "src": "clearco-guide-sketch.html",
+        "title": "Clearco replatforming guide",
+        "type": "sketch",
+        "noHint": false
+      },
+      {
         "alt": "Modern marketing guides for the digital entrepreneur",
         "src": "modern-marketing-guides-for-the-digital-entrepreneur-05.webp",
         "type": "image"

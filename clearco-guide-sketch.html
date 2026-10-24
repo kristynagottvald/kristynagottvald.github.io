@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clearco replatforming guide sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+/* ---------------------------------------------------------------
+   Timeline (seconds)
+---------------------------------------------------------------- */
+const TL = {
+  s1In: [0.4, 1.7], s1Fade: [3.6, 4.6],
+  s2In1: [4.9, 5.9], s2In2: [6.1, 7.1], 
+  dotsIn: [9.2, 9.6], textDim: [9.2, 9.8], textOut: [9.8, 10.6],
+  terrainOut: [9.4, 10.8],
+  travel: 9.6, travelDur: 1.8, travelSpread: 0.8,
+  fadeOut: [15.5, 16.4], terrainIn: [16.2, 17.0],
+  loop: 17.0
+};
+
+const clamp01 = v => Math.min(1, Math.max(0, v));
+const prog = (T, r) => clamp01((T - r[0]) / (r[1] - r[0]));
+const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
+const easeInOutCubic = p => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const mixv = (a, b, t) => a + (b - a) * t;
+
+const reduceMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let t0 = 0;               // millis() when the sequence (re)starts
+function currentTime() {
+  const raw = (millis() - t0) / 1000;
+  return { T: raw % TL.loop, loop: Math.floor(raw / TL.loop) };
+}
+
+/* ---------------------------------------------------------------
+   Terrain (p5 WEBGL): arrows sit on elevation contours
+---------------------------------------------------------------- */
+let resolution = 14;
+const MARGIN = 120;       // terrain extends past the canvas so the camera drift never shows an edge
+let noiseScale = 0.003;
+let numLevels = 24;
+let arrowSpacing = 42;
+let arrowLenGround = 30;  // shaft length at the lowest contour
+let arrowLenPeak = 12;    // shaft length at the highest contour
+let headLen = 7;
+let headSpread = 0.45;
+let turnSpeed = 0.12;
+let terrainLevels = [];
+
+let dirX = 0.35, dirY = 1;       // smoothed pointer direction, starts down-right
+let tiltTarget = 0, camTilt = 0; // wheel-driven tilt about the x axis
+
+// Barb vectors for an arrow pointing along +x; rotated per arrow
+const LB1 = [-headLen * Math.cos(headSpread), -headLen * Math.sin(headSpread)];
+const LB2 = [-headLen * Math.cos(headSpread),  headLen * Math.sin(headSpread)];
+
+function setup() {
+  DPR = Math.min(2, displayDensity());
+  createCanvas(windowWidth, windowHeight, WEBGL);
+  pixelDensity(DPR);
+  pg = createGraphics(windowWidth, windowHeight); // 2D layer for the type and the dots
+  pg.pixelDensity(DPR);
+  fctx = pg.drawingContext;
+  generateTerrain();
+
+  // Load the fonts, then lay out the scenes and start the clock
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400&family=DM+Mono:wght@400&display=swap';
+  document.head.appendChild(link);
+  Promise.all([
+    document.fonts.load('400 40px "Instrument Sans"'),
+    document.fonts.load('400 10px "DM Mono"')
+  ]).then(boot, boot);
+}
+
+function boot() {
+  // an embed that is still unsized (or hidden) when the fonts arrive: wait, then size the canvas to the frame
+  if (!windowWidth || !windowHeight) { setTimeout(boot, 200); return; }
+  if (width !== windowWidth || height !== windowHeight) windowResized();
+  sizeFx();
+  layoutScenes();
+  t0 = millis();
+}
+
+function draw() {
+  background(0);
+  if (!L1) return; // waiting for fonts
+
+  const { T, loop } = currentTime();
+  const ta = terrainAlphaAt(T, loop);
+
+  if (ta > 0.004) {
+    push();
+    drawTerrain(ta);
+    pop();
+  }
+
+  // Composite the 2D layer on top, ignoring depth so the arrows never hide the type
+  drawFx(T, loop);
+  const gl = drawingContext;
+  gl.disable(gl.DEPTH_TEST);
+  push();
+  translate(-width / 2, -height / 2, 0);
+  image(pg, 0, 0, width, height);
+  pop();
+  gl.enable(gl.DEPTH_TEST);
+}
+
+function terrainAlphaAt(T, loop) {
+  let a = 1;
+  if (T >= TL.terrainOut[0]) a = 1 - easeInOutCubic(prog(T, TL.terrainOut));
+  if (T >= TL.terrainIn[0]) a = easeInOutCubic(prog(T, TL.terrainIn));
+  if (loop === 0 && T < 1.2) a = easeInOutCubic(prog(T, [0, 1.2]));
+  return a;
+}
+
+function updateDirection() {
+  const mx = mouseX - pmouseX, my = mouseY - pmouseY;
+  const m = Math.sqrt(mx * mx + my * my);
+  if (m > 0.5) {
+    dirX = lerp(dirX, mx / m, turnSpeed);
+    dirY = lerp(dirY, my / m, turnSpeed);
+    const n = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
+    dirX /= n; dirY /= n;
+  }
+}
+
+function mouseWheel(event) {
+  tiltTarget = constrain(tiltTarget + event.delta * 0.001, 0, PI / 2.5);
+  // no preventDefault here, so the page still scrolls when the pointer is over this embed
+}
+
+// Scene 2 starts at TL.s2In1[0]: the camera drift reverses and the arrows slowly turn to point the other way.
+const DRIFT_MAX = 25;     // px of diagonal drift
+// Ease in over `ease` seconds, then keep a constant rate (so motion never stalls mid-transition)
+function rampIn(t, ease) { return t < ease ? t * t / (2 * ease) : t - ease / 2; }
+function driftAt(T) {
+  const t2 = TL.s2In1[0], tEnd = TL.terrainOut[1];
+  if (T < t2) return DRIFT_MAX * (1 - Math.cos(Math.PI * T / t2)) / 2;                // toward the top left
+  if (T < tEnd) {                                                                      // reverses and keeps going
+    const k = 1.5 * DRIFT_MAX / rampIn(tEnd - t2, 1.2);
+    return DRIFT_MAX - k * rampIn(T - t2, 1.2);
+  }
+  return mixv(-DRIFT_MAX * 0.5, 0, easeInOutCubic(prog(T, [tEnd, TL.loop])));          // settles while the terrain is hidden
+}
+function headingOffsetAt(T) {
+  const t2 = TL.s2In1[0];
+  if (T < t2) return 0;
+  if (T < 12.5) return Math.PI * Math.min(1, rampIn(T - t2, 1.2) / rampIn(12 - t2, 1.2)); // half-turn, still turning as the terrain fades
+  return Math.PI * (1 - prog(T, [12.5, 16]));                                          // unwinds while hidden
+}
+
+function drawTerrain(ta) {
+  updateDirection();
+  camTilt = lerp(camTilt, tiltTarget, 0.1);
+  const { T: dT } = currentTime();
+  const base = Math.atan2(dirY, dirX) + (reduceMotion ? 0 : headingOffsetAt(dT));
+  const wave = reduceMotion ? 0 : 0.22;
+  const tt = millis() * 0.0007;
+
+  // Very slow diagonal camera drift toward the top left (content eases the other way);
+  // eased end to end so it never jumps
+  const drift = reduceMotion ? 0 : driftAt(dT) * 0.7071;
+  translate(drift, drift, 0);
+  rotateX(camTilt);
+  translate(-width / 2, -height / 2, 0);
+  noFill();
+
+  for (const levelData of terrainLevels) {
+    const l = levelData.level;
+    const zHeight = map(pow(l / numLevels, 2.2), 0, 1, -100, 320);
+
+    push();
+    translate(0, 0, zHeight);
+    strokeWeight(1);
+    const len = map(l, 1, numLevels - 1, arrowLenGround, arrowLenPeak); // shorter tails higher up
+    // 20% at the lowest level up to 100% at the peaks
+    stroke(255, map(l, 1, numLevels - 1, 255 * 0.2, 255) * ta);
+    beginShape(LINES);
+    for (const a of levelData.arrows) {
+      const ang = base + wave * Math.sin(a.x * 0.004 + a.y * 0.0035 + tt + l * 0.3);
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      const hx = ca * len / 2, hy = sa * len / 2;
+      const tx = a.x + hx, ty = a.y + hy;
+      vertex(a.x - hx, a.y - hy); vertex(tx, ty);
+      vertex(tx, ty); vertex(tx + LB1[0] * ca - LB1[1] * sa, ty + LB1[0] * sa + LB1[1] * ca);
+      vertex(tx, ty); vertex(tx + LB2[0] * ca - LB2[1] * sa, ty + LB2[0] * sa + LB2[1] * ca);
+    }
+    endShape();
+    pop();
+  }
+}
+
+function resamplePath(pts, spacing, phase) {
+  const out = [];
+  let next = phase, travelled = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p1 = pts[i], p2 = pts[i + 1];
+    const d = dist(p1.x, p1.y, p2.x, p2.y);
+    while (next <= travelled + d) {
+      const t = (next - travelled) / d;
+      out.push({ x: lerp(p1.x, p2.x, t), y: lerp(p1.y, p2.y, t) });
+      next += spacing;
+    }
+    travelled += d;
+  }
+  return out;
+}
+
+function generateTerrain() {
+  terrainLevels = [];
+  const cols = ceil((width + 2 * MARGIN) / resolution) + 1;
+  const rows = ceil((height + 2 * MARGIN) / resolution) + 1;
+
+  // One summit sits dead centre, in the gap between the two halves of the hook;
+  // the rest are scattered.
+  // Base noise is scaled down so the summit tops out just under the highest contour
+  // level, which keeps rings running all the way to the centre.
+  const peaks = [{ x: width / 2, y: height / 2, sigma: Math.min(width, height) * 0.24, amp: 0.58 }];
+  for (let k = 0; k < 4; k++) {
+    peaks.push({
+      x: random(width * 0.1, width * 0.9),
+      y: random(height * 0.1, height * 0.9),
+      sigma: random(110, 200),
+      amp: random(0.25, 0.4)
+    });
+  }
+
+  const field = [];
+  noiseDetail(4, 0.5);
+  for (let i = 0; i < cols; i++) {
+    field[i] = [];
+    for (let j = 0; j < rows; j++) {
+      const x = i * resolution - MARGIN, y = j * resolution - MARGIN;
+      let v = 0.75 * noise(x * noiseScale, y * noiseScale);
+      for (const p of peaks) {
+        const d2 = (x - p.x) * (x - p.x) + (y - p.y) * (y - p.y);
+        v += p.amp * Math.exp(-d2 / (2 * p.sigma * p.sigma));
+      }
+      // Soft saturation: heights stay below the top contour level, so rings run to the summit
+      field[i][j] = 0.97 * (1 - Math.exp(-2.2 * v));
+    }
+  }
+
+  for (let l = 1; l < numLevels; l++) {
+    const threshold = l / numLevels;
+    const segments = [];
+
+    for (let i = 0; i < cols - 1; i++) {
+      for (let j = 0; j < rows - 1; j++) {
+        const x = i * resolution - MARGIN, y = j * resolution - MARGIN;
+        const tl = field[i][j], tr = field[i + 1][j], br = field[i + 1][j + 1], bl = field[i][j + 1];
+
+        let state = 0;
+        if (tl > threshold) state |= 8;
+        if (tr > threshold) state |= 4;
+        if (br > threshold) state |= 2;
+        if (bl > threshold) state |= 1;
+        if (state === 0 || state === 15) continue;
+
+        const a = createVector(x + resolution * amt(tl, tr, threshold), y);
+        const b = createVector(x + resolution, y + resolution * amt(tr, br, threshold));
+        const c = createVector(x + resolution * amt(bl, br, threshold), y + resolution);
+        const d = createVector(x, y + resolution * amt(tl, bl, threshold));
+
+        switch (state) {
+          case 1: segments.push({ a: c, b: d }); break;
+          case 2: segments.push({ a: b, b: c }); break;
+          case 3: segments.push({ a: b, b: d }); break;
+          case 4: segments.push({ a: a, b: b }); break;
+          case 5: segments.push({ a: a, b: d }); segments.push({ a: b, b: c }); break;
+          case 6: segments.push({ a: a, b: c }); break;
+          case 7: segments.push({ a: a, b: d }); break;
+          case 8: segments.push({ a: a, b: d }); break;
+          case 9: segments.push({ a: a, b: c }); break;
+          case 10: segments.push({ a: a, b: b }); segments.push({ a: c, b: d }); break;
+          case 11: segments.push({ a: a, b: b }); break;
+          case 12: segments.push({ a: b, b: d }); break;
+          case 13: segments.push({ a: b, b: c }); break;
+          case 14: segments.push({ a: c, b: d }); break;
+        }
+      }
+    }
+
+    const arrows = [];
+    while (segments.length > 0) {
+      const path = [];
+      const seg = segments.pop();
+      path.push(seg.a); path.push(seg.b);
+      let head = seg.b, tail = seg.a;
+      const tol = 0.1;
+      let adding = true;
+      while (adding) {
+        adding = false;
+        for (let k = segments.length - 1; k >= 0; k--) {
+          const s = segments[k];
+          if (distSq(s.a, head) < tol) { head = s.b; path.push(head); segments.splice(k, 1); adding = true; break; }
+          else if (distSq(s.b, head) < tol) { head = s.a; path.push(head); segments.splice(k, 1); adding = true; break; }
+          else if (distSq(s.a, tail) < tol) { tail = s.b; path.unshift(tail); segments.splice(k, 1); adding = true; break; }
+          else if (distSq(s.b, tail) < tol) { tail = s.a; path.unshift(tail); segments.splice(k, 1); adding = true; break; }
+        }
+      }
+      arrows.push(...resamplePath(path, arrowSpacing, random(arrowSpacing)));
+    }
+    terrainLevels.push({ level: l, arrows });
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  pg.resizeCanvas(windowWidth, windowHeight);
+  pg.pixelDensity(DPR);
+  fctx = pg.drawingContext;
+  generateTerrain();
+  sizeFx();
+  layoutScenes();
+}
+
+function amt(v1, v2, t) { return v1 === v2 ? 0.5 : (t - v1) / (v2 - v1); }
+function distSq(v1, v2) { return (v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y); }
+
+/* ---------------------------------------------------------------
+   Type + dot logo (2D overlay)
+---------------------------------------------------------------- */
+let pg = null, fctx = null;   // 2D overlay layer and its context
+let W = 0, H = 0, DPR = 1;
+const FONT_FAMILY = '"Instrument Sans", "Helvetica Neue", Arial, sans-serif';
+
+const S1 = { text: 'Stop losing revenue.' };
+const S2 = { lines: ['Plan your e-commerce migration', 'before your next peak season.'] };
+let L1 = null, L2 = null, sources = [], targets = [], logoR = 4;
+
+function sizeFx() {
+  W = width; H = height;
+}
+
+function setFont(ctx, size) {
+  ctx.font = '400 ' + size + 'px ' + FONT_FAMILY;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (-size * 0.03) + 'px';
+}
+
+function layoutScenes() {
+  const m = fctx;
+
+  // Scene 1: the hook as one centred line
+  let s1 = Math.min(80, Math.max(20, W * 0.036)); // same size as scene 2
+  setFont(m, s1);
+  const w1 = m.measureText(S1.text).width;
+  if (w1 > W * 0.9) { s1 *= (W * 0.9) / w1; setFont(m, s1); }
+  L1 = { size: s1, y: H / 2 + s1 * 0.33 };
+
+  // Scene 2: two-line sub-headline, block centred, lines left aligned
+  let s2 = Math.min(80, Math.max(20, W * 0.036));
+  setFont(m, s2);
+  let maxW = Math.max(...S2.lines.map(t => m.measureText(t).width));
+  if (maxW > W * 0.86) {
+    s2 *= (W * 0.86) / maxW;
+    setFont(m, s2);
+    maxW = Math.max(...S2.lines.map(t => m.measureText(t).width));
+  }
+  const lh = s2 * 1.22;
+  L2 = { size: s2, lh, x: (W - maxW) / 2, y1: H / 2 - lh / 2 + s2 * 0.3 };
+
+  buildDots();
+}
+
+/* Dots: the tittles of the i's and the full stop in scene 2 are the seeds;
+   they burst into the 93 dots of the CLEARCO dot-matrix. */
+function buildDots() {
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const o = off.getContext('2d');
+  o.fillStyle = '#fff';
+  o.textBaseline = 'alphabetic';
+  setFont(o, L2.size);
+  S2.lines.forEach((t, i) => o.fillText(t, L2.x, L2.y1 + i * L2.lh));
+  const data = o.getImageData(0, 0, W, H).data;
+  const on = (x, y) => x >= 0 && y >= 0 && x < W && y < H && data[(y * W + x) * 4 + 3] > 128;
+
+  // Find the dot of every i and the full stop: isolated, roughly round, tiny blobs in the text mask.
+  // (Scanning the mask is exact, so kerning and letter-spacing can't shift the seeds.)
+  const seeds = [];
+  const bandTop = Math.max(0, Math.floor(L2.y1 - L2.size * 1.1));
+  const bandBot = Math.min(H - 1, Math.ceil(L2.y1 + L2.lh + L2.size * 0.4));
+  const seen = new Uint8Array(W * H);
+  for (let y = bandTop; y <= bandBot; y++) {
+    for (let x = 0; x < W; x++) {
+      if (seen[y * W + x] || !on(x, y)) continue;
+      // flood fill one blob
+      const stack = [x, y];
+      seen[y * W + x] = 1;
+      let n = 0, sx = 0, sy = 0, x0 = x, x1 = x, y0 = y, y1 = y;
+      while (stack.length) {
+        const py = stack.pop(), px = stack.pop();
+        n++; sx += px; sy += py;
+        if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const nx = px + dx, ny = py + dy;
+            if (nx < 0 || ny < bandTop || nx >= W || ny > bandBot || seen[ny * W + nx] || !on(nx, ny)) continue;
+            seen[ny * W + nx] = 1;
+            stack.push(nx, ny);
+          }
+        }
+      }
+      const bw = x1 - x0 + 1, bh = y1 - y0 + 1, aspect = bw / bh;
+      if (n < L2.size * L2.size * 0.03 && bh < L2.size * 0.2 && aspect > 0.65 && aspect < 1.5) {
+        seeds.push({ x: sx / n, y: sy / n, r: Math.sqrt(n / Math.PI) });
+      }
+    }
+  }
+  if (!seeds.length) seeds.push({ x: W / 2, y: H / 2, r: Math.max(2, L2.size * 0.05) });
+  seeds.sort((a, b) => a.x - b.x);
+
+  targets = logoTargets();
+  logoR = Math.max(2, LOGO_DOT_R * targets.scale);
+
+  // Each seed supplies a contiguous slice of the logo, left to right
+  const order = targets.slice().sort((a, b) => a.x - b.x);
+  sources = order.map((t, i) => {
+    const sd = seeds[Math.min(seeds.length - 1, Math.floor(i * seeds.length / order.length))];
+    return {
+      sx: sd.x, sy: sd.y, sr: sd.r, tx: t.x, ty: t.y,
+      baseA: Math.random() < 0.3 ? 1 : 0.45,
+      delay: Math.random() * TL.travelSpread,
+      swx: (Math.random() - 0.5) * 60,
+      swy: (Math.random() - 0.5) * 60
+    };
+  });
+}
+
+// Dot centres traced from the Clearco logo artwork (pixels, relative to the logo's centre).
+// [x, y, hx, hy]: centres snapped to shared stem/row lines; a non-zero (hx, hy) would mark two overlapping dots.
+const LOGO_DOTS = [[-481.7,-13.1,0,0],[-481.7,14.1,0,0],[-468.7,-34.5,0,0],[-468.7,36.5,0,0],[-445.2,-47.1,0,0],[-445.2,47.6,0,0],[-419.1,-50.5,0,0],[-419.1,51.0,0,0],[-395.3,-45.6,0,0],[-395.3,46.7,0,0],[-374.7,-32.9,0,0],[-374.7,34.3,0,0],[-334.8,-47.6,0,0],[-334.8,-23.8,0,0],[-334.8,-0.4,0,0],[-334.8,23.7,0,0],[-334.8,46.7,0,0],[-310.3,47.6,0,0],[-286.6,47.6,0,0],[-263.5,47.6,0,0],[-239.7,47.6,0,0],[-206.0,-47.6,0,0],[-206.0,-23.8,0,0],[-206.0,-0.4,0,0],[-206.0,23.7,0,0],[-206.0,47.6,0,0],[-181.3,-47.6,0,0],[-181.3,-0.4,0,0],[-181.3,47.6,0,0],[-158.0,-47.6,0,0],[-158.0,-0.4,0,0],[-158.0,47.6,0,0],[-134.5,-47.6,0,0],[-134.5,-0.4,0,0],[-134.5,47.6,0,0],[-111.2,-47.6,0,0],[-111.2,47.6,0,0],[-76.2,49.9,0,0],[-63.7,28.1,0,0],[-52.1,7.7,0,0],[-40.1,-13.1,0,0],[-40.1,28.1,0,0],[-28.5,-32.9,0,0],[-17.0,-50.5,0,0],[-17.0,28.1,0,0],[-6.2,-32.9,0,0],[5.2,-13.1,0,0],[6.8,28.1,0,0],[16.9,7.7,0,0],[28.7,28.1,0,0],[40.6,47.6,0,0],[76.9,-47.1,0,0],[76.9,-23.8,0,0],[76.9,0.4,0,0],[76.9,23.7,0,0],[76.9,47.6,0,0],[101.3,-47.6,0,0],[101.3,-0.4,0,0],[124.8,-47.6,0,0],[124.8,-0.4,0,0],[148.2,-47.6,0,0],[148.2,-0.4,0,0],[163.6,23.7,0,0],[171.0,-45.6,0,0],[172.6,-2.5,0,0],[181.5,-23.8,0,0],[181.5,47.6,0,0],[218.0,-13.1,0,0],[218.0,14.1,0,0],[231.4,-34.5,0,0],[231.4,35.4,0,0],[254.8,-47.1,0,0],[254.8,47.6,0,0],[280.8,-50.5,0,0],[280.8,51.0,0,0],[304.4,-45.6,0,0],[304.4,46.7,0,0],[325.4,-32.9,0,0],[325.4,35.4,0,0],[362.0,-11.6,0,0],[362.0,14.1,0,0],[375.2,-32.9,0,0],[375.2,35.4,0,0],[398.8,-45.6,0,0],[398.8,46.7,0,0],[424.6,-47.6,0,0],[424.6,49.9,0,0],[448.3,-44.0,0,0],[448.3,46.7,0,0],[469.0,-31.9,0,0],[469.0,34.3,0,0],[481.8,-11.6,0,0],[481.8,14.1,0,0]];
+const LOGO_SPAN = 963.5;   // distance between the outermost dot centres in the artwork
+const LOGO_DOT_R = 7.63;   // dot radius in the artwork
+
+function logoTargets() {
+  const span = Math.min(W * (W < 560 ? 0.8 : 0.48), 1100);
+  const k = span / LOGO_SPAN;
+  const pts = [];
+  for (const [x, y, hx, hy] of LOGO_DOTS) {
+    if (Math.hypot(hx, hy) > 1.5) {
+      pts.push({ x: W / 2 + (x + hx) * k, y: H / 2 + (y + hy) * k });
+      pts.push({ x: W / 2 + (x - hx) * k, y: H / 2 + (y - hy) * k });
+    } else {
+      pts.push({ x: W / 2 + x * k, y: H / 2 + y * k });
+    }
+  }
+  pts.scale = k;
+  return pts;
+}
+
+/* ---------------------------------------------------------------
+   Per-frame overlay
+---------------------------------------------------------------- */
+function drawHaloText(text, x, y, size, align, alpha, color) {
+  if (alpha <= 0.002) return;
+  fctx.save();
+  fctx.textAlign = align;
+  fctx.textBaseline = 'alphabetic';
+  fctx.globalAlpha = alpha;
+  fctx.shadowColor = 'rgba(0,0,0,0.9)';
+  fctx.shadowBlur = size * 0.6 * DPR;
+  fctx.fillStyle = color;
+  fctx.fillText(text, x, y);
+  fctx.shadowBlur = size * 0.25 * DPR;
+  fctx.fillText(text, x, y);
+  fctx.shadowColor = 'transparent';
+  fctx.fillText(text, x, y);
+  fctx.restore();
+}
+
+function drawFx(T) {
+  if (!L1 || !L2) return;
+  pg.clear();
+
+  // Scene 1: "Stop losing revenue." slides in from the right, holds, then fades out
+  if (T < TL.s1Fade[1]) {
+    const pin = easeOutCubic(prog(T, TL.s1In)), pout = easeInOutCubic(prog(T, TL.s1Fade));
+    setFont(fctx, L1.size);
+    drawHaloText(S1.text, W / 2 + 80 * (1 - pin) - 24 * pout, L1.y, L1.size, 'center', pin * (1 - pout), '#fff');
+  }
+
+  // Scene 2: sub-headline
+  if (T >= TL.s2In1[0] && T < TL.textOut[1]) {
+    let factor = 1;
+    if (T >= TL.textDim[0]) {
+      factor = T < TL.textOut[0]
+        ? mixv(1, 0.28, easeInOutCubic(prog(T, TL.textDim)))
+        : 0.28 * (1 - prog(T, TL.textOut));
+    }
+    const p1 = easeOutCubic(prog(T, TL.s2In1)), p2 = easeOutCubic(prog(T, TL.s2In2));
+    setFont(fctx, L2.size);
+    drawHaloText(S2.lines[0], L2.x + 70 * (1 - p1), L2.y1, L2.size, 'left', p1 * factor, '#fff');
+    drawHaloText(S2.lines[1], L2.x + 70 * (1 - p2), L2.y1 + L2.lh, L2.size, 'left', p2 * factor, '#fff');
+  }
+
+  // Scene 3: the dots of the i's and the period brighten, then burst out into the logo
+  if (T >= TL.dotsIn[0]) {
+    const fade = 1 - prog(T, TL.fadeOut);
+    const ap = easeOutCubic(prog(T, [TL.dotsIn[0], TL.dotsIn[0] + 0.4]));
+    fctx.fillStyle = '#fff';
+    for (const d of sources) {
+      let x, y, r, a;
+      if (T < TL.travel + d.delay) {
+        x = d.sx; y = d.sy; r = d.sr; a = ap;
+      } else {
+        const p = clamp01((T - TL.travel - d.delay) / TL.travelDur);
+        const e = easeInOutCubic(p);
+        const s = Math.sin(Math.PI * e);
+        x = mixv(d.sx, d.tx, e) + s * d.swx;
+        y = mixv(d.sy, d.ty, e) + s * d.swy;
+        r = mixv(d.sr, logoR, p * p * (3 - 2 * p)); // size eases from the i/full-stop dot to the logo dot across the whole flight
+        a = mixv(1, d.baseA, s); // dimmer in flight, solid at both ends
+      }
+      a *= fade;
+      if (a <= 0.01 || r <= 0.05) continue;
+      fctx.globalAlpha = a;
+      fctx.beginPath();
+      fctx.arc(x, y, r, 0, Math.PI * 2);
+      fctx.fill();
+    }
+    fctx.globalAlpha = 1;
+  }
+
+  // Caption, bottom centre
+  fctx.save();
+  fctx.font = '400 10px "DM Mono", ui-monospace, Menlo, monospace';
+  if ('letterSpacing' in fctx) fctx.letterSpacing = '2.4px';
+  fctx.textAlign = 'center';
+  fctx.textBaseline = 'alphabetic';
+  fctx.fillStyle = 'rgba(255,255,255,0.5)';
+  fctx.fillText('THE CLEARCO REPLATFORMING GUIDE', W / 2 + 1.2, H - 22);
+  fctx.restore();
+}
+</script>
+</body>
+</html>
