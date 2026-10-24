@@ -71,6 +71,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .reel-stick { display: contents; }
 .reel-video { position: relative; background: #1e1e1e; overflow: hidden; border-radius: 4px; }
 .reel-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; opacity: 0; visibility: hidden; transition: opacity .5s linear, visibility 0s .5s; }
+.reel-video { container-type: size; }
+/* the video fills the band like object-fit: cover (16:9 scaled up and centred, edges cropped) */
+.reel-frame.reel-cover { inset: auto; left: 50%; top: 50%; width: max(100cqw, 177.78cqh); height: max(56.25cqw, 100cqh); transform: translate(-50%, -50%); }
 .reel-frame.is-on { opacity: 1; visibility: visible; transition: opacity .5s linear; }
 .reel-dots { position: absolute; left: 12px; bottom: 12px; z-index: 2; display: flex; gap: 2px; }
 .reel-dots .dot { padding: 12px 2px; cursor: pointer; }
@@ -83,6 +86,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .embed.sketch .reel-hint { top: 12px; bottom: auto; }
 .reel-hint .ptr-svg { width: 22px; height: 22px; }
 .hint-sep { opacity: .7; }
+.reel-hint.is-plain .hint-sep, .reel-hint.is-plain .hint-cta { display: none; }
 @media (max-width: 700px) {
   /* on phones the pill only names the project; the Interactive part is hidden */
   .reel-hint { max-width: calc(100% - 172px); }
