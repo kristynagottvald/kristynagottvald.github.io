@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261025y');
+      const res = await fetch('projects.json?v=20261025z');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -398,7 +398,12 @@
     frames.forEach((f, k) => f.classList.toggle('is-on', k === slide));
     $('#hint-title').textContent = frames[slide].dataset.label || '';
     // Non-interactive slides show only the title: no dash, no "Interactive" text, no pointer.
-    $('#hint-title').closest('.reel-hint').classList.toggle('is-plain', frames[slide].dataset.plain === '1');
+    const hint = $('#hint-title').closest('.reel-hint');
+    hint.classList.toggle('is-plain', frames[slide].dataset.plain === '1');
+    // Slides tied to a project turn the whole label into a link to that project, with an arrow.
+    const href = frames[slide].dataset.href;
+    hint.classList.toggle('is-link', !!href);
+    if (href) hint.setAttribute('href', href); else hint.removeAttribute('href');
     // The dither sketch starts over each time the slideshow comes back to it.
     if (frames[slide].getAttribute('src') === 'dither-sketch.html') { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
     dots.forEach((d, k) => {

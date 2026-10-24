@@ -87,6 +87,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .reel-hint .ptr-svg { width: 22px; height: 22px; }
 .hint-sep { opacity: .7; }
 .reel-hint.is-plain .hint-sep, .reel-hint.is-plain .hint-cta { display: none; }
+.reel-hint { text-decoration: none; }
+.reel-hint .hint-go { display: none; flex: none; transition: transform .35s var(--ease); }
+.reel-hint.is-link { pointer-events: auto; cursor: pointer; }
+.reel-hint.is-link .hint-go { display: block; }
+.reel-hint.is-link:hover .hint-go { transform: translate(2px, -2px); }
 @media (min-width: 701px) { .reel-hint.is-plain { min-height: 36px; box-sizing: border-box; } }   /* same height as the labels that carry the pointer icon */
 @media (max-width: 700px) {
   /* on phones the pill only names the project; the Interactive part is hidden */
