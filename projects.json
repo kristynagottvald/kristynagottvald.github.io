@@ -19,14 +19,17 @@
         "type": "sketch"
       },
       {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-02.gif",
-        "type": "image"
-      },
-      {
-        "alt": "House of Balloons",
-        "src": "house-of-balloons-03.webp",
-        "type": "image"
+        "type": "pair",
+        "images": [
+          {
+            "src": "house-of-balloons-02.gif",
+            "alt": "House of Balloons"
+          },
+          {
+            "src": "house-of-balloons-03.webp",
+            "alt": "House of Balloons"
+          }
+        ]
       },
       {
         "alt": "House of Balloons",

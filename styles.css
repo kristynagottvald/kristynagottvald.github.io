@@ -153,6 +153,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .block-media img, .block-media video { width: 100%; height: auto; border-radius: var(--r-md); background: var(--off-black); }
 .block-media.half-right { width: calc(50% - 6px); margin-left: calc(50% + 6px); }
 .block-media.half-left { width: calc(50% - 6px); }
+.pair-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }   /* two images side by side, same split as the half-width blocks */
+.pair-row .block-media { width: 100%; margin: 0; }
+@media (max-width: 700px) { .pair-row { grid-template-columns: 1fr; gap: var(--pad); } }
 .figcap { color: var(--grey); padding-top: 8px; }
 .embed { position: relative; aspect-ratio: 16 / 9; background: var(--off-black); border-radius: var(--r-md); overflow: hidden; }
 .embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
