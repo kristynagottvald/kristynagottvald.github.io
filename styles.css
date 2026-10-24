@@ -43,7 +43,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hb-pill { position: relative; width: 200px; background: transparent; border-radius: var(--r-sm); transition: width .4s cubic-bezier(.65,0,.35,1); overflow: hidden; }
 .hb-pill::before { content: ""; position: absolute; inset: 0; background: var(--bg); border-radius: var(--r-md); opacity: 1; }
 .hb-bar { position: relative; display: flex; align-items: center; height: 44px; padding: 0 12px 0 14px; gap: 20px; white-space: nowrap; }
-.logo { flex: none; display: inline-flex; align-items: baseline; gap: 2px; font: 700 17px/1 var(--sans); letter-spacing: -0.4px; color: #fff; transform: translateY(-2px); margin-right: -8px; }
+.logo { flex: none; display: inline-flex; align-items: baseline; gap: 2px; font: 700 15px/1 var(--sans); letter-spacing: -0.9px; color: #fff; transform: translateY(-2px); }
 .logo-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .hb-label { color: var(--grey); --lu-to: var(--grey); margin-right: -17px; }
 .hb-toggle { margin-left: 0; width: 15px; height: 24px; position: relative; display: flex; align-items: center; }

@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261026c');
+      const res = await fetch('projects.json?v=20261026d');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
