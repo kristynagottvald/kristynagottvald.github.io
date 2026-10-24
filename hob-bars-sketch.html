@@ -18,7 +18,8 @@ let hexArt_Palette = {};
 let hexArt_MainPattern;
 
 function setup() {
-  createCanvas(1920, 900, WEBGL);
+  // Fixed 1920-wide world; the height follows the embed so extra rows of bars fill the frame.
+  createCanvas(1920, round(1920 * windowHeight / windowWidth), WEBGL);
   
   setAttributes('antialias', true);
   angleMode(RADIANS);
@@ -34,6 +35,12 @@ function setup() {
     bar: '#330F10' // Solid dark bar color
   };
 
+  initCamera();
+  hexArt_MainPattern = new HexArt_Pattern();
+}
+
+function windowResized() {
+  resizeCanvas(1920, round(1920 * windowHeight / windowWidth));
   initCamera();
   hexArt_MainPattern = new HexArt_Pattern();
 }
@@ -87,7 +94,7 @@ class HexArt_Pattern {
     this.elements = [];
     
     let cols = 8; 
-    let rows = 4;
+    let rows = max(4, ceil(height / 220) + 1);
     let gapX = 240;
     let gapY = 220;
 

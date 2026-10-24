@@ -24,7 +24,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261025f');
+      const res = await fetch('projects.json?v=20261025g');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -130,11 +130,11 @@
   }
 
   function blockHTML(b) {
+    if (b.aside) return `<div class="aside-row"><div class="aside-text">${[].concat(b.aside).map((t) => `<p>${esc(t)}</p>`).join('')}</div>${blockHTML({ ...b, aside: null, half: false })}</div>`;
     switch (b.type) {
       case 'text':
         return textBlock(b);
       case 'image':
-        if (b.aside) return `<div class="aside-row"><div class="aside-text">${[].concat(b.aside).map((t) => `<p>${esc(t)}</p>`).join('')}</div>${blockHTML({ ...b, aside: null, half: false })}</div>`;
         return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><img src="${esc(b.src)}" alt="${esc(b.alt)}" loading="lazy">${b.caption ? `<figcaption class="figcap">${esc(b.caption)}</figcaption>` : ''}</figure>`;
       case 'vimeo': {
         const id = String(b.id || '').replace(/\D/g, '');

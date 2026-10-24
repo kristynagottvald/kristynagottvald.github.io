@@ -92,8 +92,11 @@
         "src": "hob-bars-sketch.html",
         "title": "House of Balloons breathing bars",
         "type": "sketch",
-        "half": "right",
-        "aspect": "1920 / 900"
+        "noHint": true,
+        "aspect": "1.1",
+        "aside": [
+          "To scale HOB’s asset production, I built a custom generative motion tool utilizing p5.js. The tool automated the creation of complex motion graphics and looping patterns, delivering ready-to-use reels and video content for social media."
+        ]
       },
       {
         "src": "hob-dither-sketch.html",
@@ -115,7 +118,6 @@
       {
         "body": [
           "For HOB, I created a new visual identity called Arrangement. Deeply rooted in the modern DAW workflow, improvisation, and the raw creative process, it uses fluid warped typography and a sleek layered grid system as a supportive foundation—one that gives today’s producers and studio artists the perfect frame to shape limitless ideas into focused, powerful sound. The logo features a stylized “o” that serves as a minimalist representation of the balloon at the heart of the studio’s name. More than a simple letterform, it subtly evokes euphoria and heightened states while paying quiet homage to the House of Balloons origin story—The Weeknd’s seminal 2011 debut mixtape.",
-          "To scale HOB’s asset production, I built a custom generative motion tool utilizing p5.js. The tool automated the creation of complex motion graphics and looping patterns, delivering ready-to-use reels and video content for social media.",
           "Role: Creative direction, creative concepts, brand guidelines, illustration system, creative coding, motion design"
         ],
         "heading": "Where improvisation becomes identity.",
