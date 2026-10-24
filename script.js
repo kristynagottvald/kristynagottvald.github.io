@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261026r');
+      const res = await fetch('projects.json?v=20261026s');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -488,13 +488,15 @@
     hint.classList.toggle('is-link', !!href);
     if (href) hint.setAttribute('href', href); else hint.removeAttribute('href');
     // The dither sketch starts over each time the slideshow comes back to it.
-    if (frames[slide].getAttribute('src') === 'dither-sketch.html') { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
+    if (['dither-sketch.html', 'clearco-guide-sketch.html'].includes(frames[slide].getAttribute('src'))) { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
     dots.forEach((d, k) => {
       d.classList.remove('is-on');
       if (k === slide) { void d.offsetWidth; d.classList.add('is-on'); }
     });
     clearTimeout(slideTimer);
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) slideTimer = setTimeout(() => showSlide(slide + 1), 4000);
+    const dwell = +frames[slide].dataset.duration || 4000;   // the replatforming sketch plays its whole 17s sequence
+    dots[slide].style.setProperty('--dur', dwell + 'ms');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) slideTimer = setTimeout(() => showSlide(slide + 1), dwell);
   }
   dots.forEach((d, k) => d.addEventListener('click', () => showSlide(k)));
   showSlide(0);

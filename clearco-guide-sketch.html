@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Clearco replatforming guide sketch</title>
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #1e1e1e; overflow: hidden; }
   canvas { display: block; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
@@ -81,6 +81,9 @@ function setup() {
   ]).then(boot, boot);
 }
 
+// the page's slideshow asks the sketch to start over each time it comes back around
+window.addEventListener('message', (e) => { if (e.data === 'reset') t0 = millis(); });
+
 function boot() {
   // an embed that is still unsized (or hidden) when the fonts arrive: wait, then size the canvas to the frame
   if (!windowWidth || !windowHeight) { setTimeout(boot, 200); return; }
@@ -91,7 +94,7 @@ function boot() {
 }
 
 function draw() {
-  background(0);
+  background(30); // charcoal #1e1e1e
   if (!L1) return; // waiting for fonts
 
   const { T, loop } = currentTime();
@@ -531,16 +534,6 @@ function drawFx(T) {
     }
     fctx.globalAlpha = 1;
   }
-
-  // Caption, bottom centre
-  fctx.save();
-  fctx.font = '400 10px "DM Mono", ui-monospace, Menlo, monospace';
-  if ('letterSpacing' in fctx) fctx.letterSpacing = '2.4px';
-  fctx.textAlign = 'center';
-  fctx.textBaseline = 'alphabetic';
-  fctx.fillStyle = 'rgba(255,255,255,0.5)';
-  fctx.fillText('THE CLEARCO REPLATFORMING GUIDE', W / 2 + 1.2, H - 22);
-  fctx.restore();
 }
 </script>
 </body>
