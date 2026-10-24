@@ -338,9 +338,10 @@
         "type": "image"
       },
       {
-        "id": "1215035720",
-        "title": "44% of the world’s mail",
-        "type": "vimeo"
+        "src": "postal-fix-stack-sketch.html",
+        "title": "The USPS delivers 44% of the entire world’s mail",
+        "type": "sketch",
+        "noHint": true
       },
       {
         "alt": "Postal Fix",

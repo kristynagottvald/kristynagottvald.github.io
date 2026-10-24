@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Postal Fix stack sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #EBF77B; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+const W = 1920, H = 1080, MARGIN = 160;
+const BG = '#EBF77B', FG = '#4A3AF0';
+
+const WORD_START = 0.2, WORD_GAP = 0.3, WORD_IN = 0.7;
+const T1 = 4.6, HOLD = 2.4, TD = 1.2;
+const T2 = T1 + TD + HOLD;
+const T3 = T2 + TD + 5.0;
+const STAG = 0.08;
+const DUR = T3 + TD + 0.4, END_HOLD = 0.2;
+
+const DISP = 'Shrikhand, "Cooper Black", Georgia, serif';
+const SANS = 'Inter, "Helvetica Neue", Arial, sans-serif';
+const DISP_LEAD = 0.92, DISP_TRACK = -0.03, DISP_SPACE = 0.14;
+const SANS_RATIO = 0.486, SANS_LEAD = 1.2, SANS_TRACK = -0.01, SANS_SPACE = 0.26;
+const MAX_W = (W - 70 - 420) - MARGIN - 40, MAX_H = H - 2 * 140, MAX_SIZE = 179;
+
+// postcard column: scrolls up forever, cards spaced apart, drawn over the text
+const CARD_W = 420, CARD_H = 294, CARD_R = 10;
+const CARD_GAP_Y = 56, PITCH = CARD_H + CARD_GAP_Y;
+const CARD_X = W - 70 - CARD_W;
+const SCROLL_SPEED = 90;
+const CARD_START = 0.2, CARD_GAP = 0.18, CARD_IN = 0.8;
+const CARDS = [
+  { bg: '#5B3FE8', ink: '#EBF77B', layout: 0 },
+  { bg: '#E879F9', ink: '#FFFFFF', layout: 1 },
+  { bg: '#EEB4F4', ink: '#5B3FE8', layout: 2 },
+  { bg: '#C84FE0', ink: '#EBF77B', layout: 3 },
+  { bg: '#6A48E8', ink: '#EBF77B', layout: 4 },
+];
+
+const SCENES = [
+  { lines: [['The USPS delivers', 's'], ['44% of', 'd'], ['the entire', 'd'], ['world’s mail', 'd']] },
+  { lines: [['Is your', 'd'], ['mail part', 'd'], ['of the stack?', 'd']] },
+  { lines: [['Optimize with Lob’s', 's'], ['Postal Fix', 'd']] },
+];
+const SIZE_GROUPS = [[0, 1, 2]];
+
+
+let ready = false, t0 = 0;
+
+const segProg = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+const easeInOutCubic = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const easeOutCubic = x => 1 - Math.pow(1 - x, 3);
+const easeOutBack = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+
+// 0 -> 1 on the first slide, 1 -> 2 on the second, 2 -> 3 slides everything out for the loop; d staggers each line
+const slidePos = (t, d) =>
+  easeInOutCubic(segProg(t, T1 + d, T1 + d + TD)) + easeInOutCubic(segProg(t, T2 + d, T2 + d + TD)) + easeInOutCubic(segProg(t, T3 + d, T3 + d + TD));
+
+const SW = 3; // one stroke weight for every line on a postcard (card units)
+
+// postmark stamp: rounded outline with wavy lines that run out past its right edge (units of a 200x140 card)
+function drawStampMark(x, y) {
+  const w = 22, h = 25;
+  push(); translate(x, y); scale(1.4); translate(-x, -y);
+  noFill(); strokeWeight(SW / 1.4); strokeCap(SQUARE);
+  rect(x, y, w, h, 2.4);
+  for (let i = 0; i < 4; i++) {
+    const by = y + 9.5 + i * 4.1;
+    beginShape();
+    for (let u = 0; u <= 1.001; u += 0.04) {
+      const px = x + 7.8 + u * ((200 - x) / 1.4 - 7.8);
+      vertex(px, by - 2.4 * Math.sin(Math.PI * u * 1.5));
+    }
+    endShape();
+  }
+  pop();
+}
+
+function drawPostcard(c) {
+  push();
+  noStroke(); fill(c.bg);
+  rect(0, 0, CARD_W, CARD_H, CARD_R);
+  drawingContext.save();
+  drawingContext.beginPath(); drawingContext.roundRect(0, 0, CARD_W, CARD_H, CARD_R); drawingContext.clip();
+  scale(CARD_W / 200);
+  fill(c.ink); noStroke();
+  rect(100 - SW / 2, 8, SW, 124);                                   // center line on every card
+  const bar = (x, y, w) => rect(x, y, w, SW, SW / 2);
+  const L = c.layout;
+  noFill(); stroke(c.ink); strokeWeight(SW);
+  const frame = (x, y, w, h, r, dotted) => {
+    noFill(); stroke(c.ink); strokeWeight(SW);
+    if (dotted) { strokeCap(ROUND); drawingContext.setLineDash([SW * 0.9, SW * 1.6]); }
+    rect(x, y, w, h, r || 0);
+    drawingContext.setLineDash([]);
+    noStroke(); fill(c.ink);
+  };
+  // QR target: corner brackets only
+  const qr = (x, y, z) => {
+    const a = z * 0.36;
+    noFill(); stroke(c.ink); strokeWeight(SW); strokeCap(SQUARE);
+    [[x, y, 1, 1], [x + z, y, -1, 1], [x, y + z, 1, -1], [x + z, y + z, -1, -1]].forEach(([px, py, dx, dy]) => {
+      line(px, py + dy * a, px, py); line(px, py, px + dx * a, py);
+    });
+    strokeCap(ROUND); noStroke(); fill(c.ink);
+  };
+  noStroke(); fill(c.ink);
+  if (L === 0) {
+    bar(13, 16, 28); bar(13, 27, 18); rect(13, 50, 73, 40, 1); rect(43, 102, 43, 14, 1); frame(13, 102, 14, 14);
+    bar(118, 64, 40); bar(118, 75, 26); frame(115, 100, 71, 22, 5, true);
+  } else if (L === 1) {
+    rect(13, 14, 73, 44, 1); bar(13, 68, 52); bar(13, 79, 34); bar(13, 90, 44); qr(13 + SW / 2, 99, 21);
+    bar(118, 20, 56); bar(118, 32, 40); bar(118, 44, 64); bar(118, 56, 30); frame(115, 80, 71, 40, 5);
+  } else if (L === 2) {
+    bar(13, 18, 60); bar(13, 30, 72); bar(13, 42, 48); bar(13, 54, 66); bar(13, 66, 38); qr(13 + SW / 2, 98, 22);
+    bar(118, 64, 50); bar(118, 76, 30); rect(118, 96, 68, 22, 3);
+  } else if (L === 3) {
+    frame(13, 14, 32, 32, 16); bar(54, 22, 28); bar(54, 34, 18); rect(13, 62, 73, 24, 1); bar(13, 98, 54); bar(13, 109, 36);
+    frame(115, 14, 71, 52, 6, true); bar(118, 80, 44); bar(118, 91, 62); bar(118, 102, 26);
+  } else if (L === 5) {
+    fill(c.ink); rect(13, 12, 70, 20, 3);
+    fill(c.bg); drawingContext.font = `700 8.5px ${SANS}`; drawingContext.textBaseline = 'alphabetic';
+    drawingContext.fillText('YOUR BRAND', 19, 25.6);
+    fill(c.ink); bar(13, 46, 60); bar(13, 57, 42); rect(13, 78, 73, 40, 1);
+    bar(118, 64, 54); bar(118, 75, 34); frame(115, 96, 71, 24, 5, true);
+  } else {
+    rect(13, 16, 34, 34, 1); rect(52, 16, 34, 34, 1); rect(13, 58, 73, 14, 1); bar(13, 84, 56); bar(13, 95, 40); frame(13, 108, 73, 14, 3, true);
+    bar(118, 62, 56); bar(118, 73, 36); bar(118, 84, 62); qr(118 + SW / 2, 100, 20);
+  }
+  if (L === 0 || L === 2 || L === 4 || L === 5) { stroke(c.ink); drawStampMark(158, 10); }
+  drawingContext.restore();
+  pop();
+}
+
+const cardY = (i, t) => {
+  const span = CARDS.length * PITCH;
+  return ((i * PITCH - t * SCROLL_SPEED) % span + span) % span - CARD_H - 40;
+};
+
+// "YOUR BRAND" card: slides in from the right while "Is your mail part of the stack?" arrives, the column parts,
+// and from then on it is a sixth card in the column, scrolling up with the rest
+const BRAND_CARD = { bg: '#C84FE0', ink: '#FFFFFF', layout: 5 };
+const BRAND_IN = T1 + TD + 0.1, BRAND_OPEN = 0.7;
+const BRAND_PART = (CARD_H + CARD_GAP_Y) / 2;
+const SPAN6 = (CARDS.length + 1) * PITCH;
+const wrap6 = y => (((y + CARD_H + 40) % SPAN6) + SPAN6) % SPAN6 - CARD_H - 40;
+const BRAND_K = (() => {
+  const ts = T1 + TD;
+  let best = 0, bestD = 1e9;
+  for (let i = 0; i < CARDS.length; i++) {
+    const d = Math.abs(cardY(i, ts) + CARD_H + CARD_GAP_Y / 2 - (H / 2 + PITCH));
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+})();
+const slotAt = t => {
+  const ts = T1 + TD;
+  return cardY(BRAND_K, ts) + CARD_H + CARD_GAP_Y / 2 - (t - ts) * SCROLL_SPEED;
+};
+
+function drawOneCard(card, cx, cy, p, rot) {
+  drawingContext.globalAlpha = p;
+  push();
+  translate(cx, cy);
+  rotate(rot || 0);
+  scale(1.12 - 0.12 * p);
+  translate(-CARD_W / 2, -CARD_H / 2);
+  drawPostcard(card);
+  pop();
+  drawingContext.globalAlpha = 1;
+}
+
+function drawCards(t) {
+  const n = CARDS.length;
+  const slot = slotAt(t);
+  const tFull = BRAND_IN + BRAND_OPEN;
+  const open = easeInOutCubic(segProg(t, BRAND_IN, tFull));
+  for (let i = 0; i < n; i++) {
+    let y;
+    if (t < tFull) {
+      y = cardY(i, t);
+      y += (y + CARD_H / 2 < slot ? -1 : 1) * BRAND_PART * open;
+    } else {
+      const m = ((i - BRAND_K - 1 + n) % n) + 1;
+      y = wrap6(slot - CARD_H / 2 + m * PITCH);
+    }
+    const s = CARD_START + i * CARD_GAP;
+    const out = easeInOutCubic(segProg(t, T3 + 0.06 * i, T3 + 0.06 * i + TD));
+    const p = easeOutCubic(segProg(t, s, s + CARD_IN)) * (1 - out);
+    if (p > 0) drawOneCard(CARDS[i], CARD_X + CARD_W / 2, y + CARD_H / 2, p);
+  }
+
+  const k = easeOutCubic(segProg(t, BRAND_IN + 0.3, BRAND_IN + 1.3));
+  const out = easeInOutCubic(segProg(t, T3 + 0.06 * n, T3 + 0.06 * n + TD));
+  if (k > 0.001 && out < 1) {
+    const cy = wrap6(slot - CARD_H / 2) + CARD_H / 2;
+    drawOneCard(BRAND_CARD, CARD_X + CARD_W / 2 + (1 - k) * (W - CARD_X + 60), cy, 1 - out, (1 - k) * 0.14);
+  }
+}
+
+// exact bandaid mark: pink pill behind, blue pill over it, white pad with six pink dots (extent +-135 at s = 270)
+function drawLogo(cx, cy, s, rot) {
+  push();
+  translate(cx, cy); rotate(rot); scale(s / 270);
+  strokeCap(ROUND); noFill();
+  stroke('#DD5CF4'); strokeWeight(100); line(-88, -88, 88, 88);
+  stroke('#4033F2'); strokeWeight(100); line(-88, 88, 88, -88);
+  noStroke();
+  push();
+  rotate(-QUARTER_PI);
+  fill('#FFFFFF'); rectMode(CENTER); rect(0, 0, 84, 62, 16);
+  fill('#DD5CF4');
+  [[-22, -12], [0, -12], [22, -12], [-22, 12], [0, 12], [22, 12]].forEach(([x, y]) => circle(x + (y > 0 ? 8 : -8) * 0, y, 9));
+  rectMode(CORNER);
+  pop();
+  pop();
+}
+
+function fontStr(st, size) { return st === 'd' ? `400 ${size}px ${DISP}` : `500 ${size}px ${SANS}`; }
+
+function loadFonts() {
+  return new Promise(res => {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Shrikhand&family=Inter:wght@400;500&display=swap';
+    l.onload = res; l.onerror = res;
+    document.head.appendChild(l);
+    setTimeout(res, 4000);
+  }).then(() => Promise.all([
+    document.fonts.load('100px Shrikhand'), document.fonts.load('500 100px Inter'), document.fonts.load('400 100px Inter'),
+  ]).catch(() => {}));
+}
+
+function lineWidth(ctx, text, st, size) {
+  const track = (st === 'd' ? DISP_TRACK : SANS_TRACK) * size;
+  const space = (st === 'd' ? DISP_SPACE : SANS_SPACE) * size;
+  ctx.font = fontStr(st, size);
+  ctx.letterSpacing = '0px';
+  const words = text.split(' ');
+  return words.reduce((a, w) => a + ctx.measureText(w).width + track * w.length, 0) + space * (words.length - 1);
+}
+
+function drawLine(ctx, text, st, size, x, y, wordFx) {
+  const track = (st === 'd' ? DISP_TRACK : SANS_TRACK) * size;
+  const space = (st === 'd' ? DISP_SPACE : SANS_SPACE) * size;
+  ctx.font = fontStr(st, size);
+  ctx.letterSpacing = track + 'px';
+  text.split(' ').forEach((w, i) => {
+    const fx = wordFx ? wordFx(i) : null;
+    if (!fx || fx.alpha > 0.001) {
+      ctx.globalAlpha = fx ? fx.alpha : 1;
+      ctx.fillText(w, x, y + (fx ? fx.dy : 0));
+    }
+    x += ctx.measureText(w).width + space;
+  });
+  ctx.globalAlpha = 1;
+}
+
+function layoutScenes() {
+  const ctx = drawingContext;
+  const sizeOf = (st, S) => (st === 'd' ? S : S * SANS_RATIO);
+  const lead = st => (st === 'd' ? DISP_LEAD : SANS_LEAD);
+  const gapAfter = (sc, i, S) => (sc.lines[i][1] === 's' && sc.lines[i + 1] && sc.lines[i + 1][1] === 'd' ? sizeOf('s', S) * 0.3 : 0);
+  const blockH = (sc, S) => sc.lines.reduce((a, [t, st], i) => a + sizeOf(st, S) * lead(st) + gapAfter(sc, i, S), 0);
+  const fitsScene = (sc, S) => blockH(sc, S) <= MAX_H &&
+    sc.lines.every(([t, st]) => lineWidth(ctx, t, st, sizeOf(st, S)) <= MAX_W);
+  SIZE_GROUPS.forEach(group => {
+    let S = MAX_SIZE;
+    while (S > 20 && !group.every(i => fitsScene(SCENES[i], S))) S -= 2;
+    group.forEach(i => {
+      const sc = SCENES[i];
+      let y = (H - blockH(sc, S)) / 2;
+      let wordIndex = 0;
+      sc.items = sc.lines.map(([t, st], li) => {
+        const size = sizeOf(st, S), lh = size * lead(st);
+        const item = { t, st, size, x: MARGIN, y: y + lh / 2 + size * 0.3, w0: wordIndex };
+        wordIndex += t.split(' ').length;
+        y += lh + gapAfter(sc, li, S);
+        return item;
+      });
+    });
+  });
+  SCENES[2].logo = { size: 130, x: MARGIN + 65, y: H - 180 - 65 };
+  ctx.letterSpacing = '0px';
+}
+
+function fitCanvas() {
+  const el = drawingContext.canvas;
+  const s = Math.min(window.innerWidth / W, window.innerHeight / H);
+  el.style.width = Math.floor(W * s) + 'px';
+  el.style.height = Math.floor(H * s) + 'px';
+}
+
+function setup() {
+  createCanvas(W, H);
+  pixelDensity(1);
+  frameRate(60);
+  noStroke();
+  fitCanvas();
+  background(BG);
+  loadFonts().then(() => { layoutScenes(); ready = true; t0 = millis(); });
+}
+function windowResized() { fitCanvas(); }
+function mousePressed() { t0 = millis(); }
+function keyPressed() { if (key === 'r' || key === 'R') t0 = millis(); }
+
+function draw() {
+  if (!ready) return;
+  const fixed = new URLSearchParams(location.search).get('t');
+  if (fixed !== null) { renderSpot(+fixed); noLoop(); return; }
+  let el = (millis() - t0) / 1000;
+  if (el > DUR + END_HOLD) { t0 = millis(); el = 0; }
+  renderSpot(Math.min(el, DUR));
+}
+
+function renderSpot(t) {
+  resetMatrix();
+  rectMode(CORNER);
+  noStroke();
+  fill(BG);
+  rect(0, 0, W, H);
+
+  const ctx = drawingContext;
+  ctx.textBaseline = 'alphabetic';
+
+  drawCards(t);
+
+  drawSceneText(t);
+  drawCards(t);
+  drawLogoReveal(t);
+  ctx.letterSpacing = '0px';
+}
+
+function drawSceneText(t) {
+  const ctx = drawingContext;
+  SCENES.forEach((sc, k) => {
+    fill(FG);
+    sc.items.forEach((it, i) => {
+      const d = STAG * i;
+      const off = (k - slidePos(t, d)) * W;
+      if (off > W || off < -W) return;
+      const build = k === 0 ? (wi => {
+        const s0 = WORD_START + WORD_GAP * (it.w0 + wi);
+        const p = easeOutCubic(segProg(t, s0, s0 + WORD_IN));
+        return { alpha: p, dy: (1 - p) * 70 };
+      }) : null;
+      drawLine(ctx, it.t, it.st, it.size, it.x + off, it.y, build);
+    });
+  });
+  ctx.letterSpacing = '0px';
+}
+
+// bandaid bottom-left: spins in after the last slide lands, holds a beat, then a "GET ACCESS" pill grows out of it
+function drawLogoReveal(t) {
+  const lg = SCENES[2].logo, ctx = drawingContext;
+  const inP = segProg(t, T2 + TD + 0.1, T2 + TD + 1.0);
+  const outP = segProg(t, T3 - 0.2, T3 + 0.5);
+  const p = easeOutBack(inP) * (1 - easeInOutCubic(outP));
+  if (p <= 0.001) return;
+
+  const pillE = easeInOutCubic(segProg(t, T2 + TD + 1.6, T2 + TD + 2.4)) * (1 - easeInOutCubic(segProg(t, T3 - 0.5, T3 + 0.1)));
+  if (pillE > 0.001) {
+    const h = lg.size * 0.667, L = lg.size * 2.87, w = L * pillE;
+    noStroke(); fill('#EEB4F4');
+    rect(lg.x, lg.y - h / 2, w, h, Math.min(h / 2, w / 2));
+    ctx.save();
+    ctx.beginPath(); ctx.rect(lg.x, lg.y - h, w, h * 2); ctx.clip();
+    const fs = lg.size * 0.23;
+    ctx.globalAlpha = easeOutCubic(segProg(t, T2 + TD + 2.0, T2 + TD + 2.6));
+    fill('#4033F2');
+    ctx.font = `500 ${fs}px ${SANS}`; ctx.letterSpacing = (fs * 0.12) + 'px'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('GET ACCESS', lg.x + lg.size * 0.74, lg.y + fs * 0.36);
+    ctx.restore();
+    ctx.letterSpacing = '0px';
+  }
+
+  const spin = (1 - easeOutCubic(inP)) * -TWO_PI * 1.25 + easeInOutCubic(outP) * TWO_PI;
+  noStroke();
+  drawLogo(lg.x, lg.y, lg.size * p, spin);
+}
+
+function restart() { t0 = millis(); }
+</script>
+</body>
+</html>
