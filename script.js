@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261026i');
+      const res = await fetch('projects.json?v=20261026j');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -398,7 +398,7 @@
     Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
     if (name !== 'case') { stopNextMedia(); stackEl.innerHTML = ''; }
     if (name === 'projects') startProjectsCycle(); else stopProjectsCycle();
-    const navKey = name === 'case' ? 'projects' : name === 'home' ? '' : name;
+    const navKey = name === 'case' ? 'projects' : name;
     navLinks.forEach((a) => {
       const b = a.querySelector('b');
       if (a.dataset.nav === navKey) {
