@@ -30,22 +30,23 @@ const UI_CSS = `
   :root { --brown: #330F10; --yellow: #FFFBA0; }
   html, body { margin: 0; background: var(--brown); overflow: hidden; font-family: 'Source Code Pro', monospace; }
   canvas { display: block; }
-  #controls { position: fixed; top: 24px; left: 24px; width: 260px; display: flex; flex-direction: column; gap: 22px; z-index: 5; }
-  #controls label { display: block; margin-bottom: 10px; color: var(--yellow); font: 400 14px 'Source Code Pro', monospace;
-    letter-spacing: 0.22em; text-transform: uppercase; text-shadow: 0 0 6px var(--brown); }
-  #controls input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 0; background: transparent; cursor: pointer; }
-  #controls input[type=range]::-webkit-slider-runnable-track { height: 6px; background: var(--yellow); border-radius: 3px; }
-  #controls input[type=range]::-moz-range-track { height: 6px; background: var(--yellow); border-radius: 3px; }
-  #controls input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -11px;
-    border-radius: 50%; background: var(--brown); border: 3px solid var(--yellow); }
-  #controls input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--brown); border: 3px solid var(--yellow); }
+  /* sized to match the sliders in the sketch above */
+  #controls { position: fixed; top: 18px; left: 20px; width: 160px; display: flex; flex-direction: column; gap: 24px; z-index: 5; }
+  #controls label { display: block; margin-bottom: 8px; color: var(--yellow); font: 400 10px/1 'Source Code Pro', monospace;
+    letter-spacing: 0.14em; text-transform: uppercase; }
+  #controls input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; margin: 0; background: transparent; cursor: pointer; outline: none; }
+  #controls input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--yellow); border-radius: 2px; }
+  #controls input[type=range]::-moz-range-track { height: 4px; background: var(--yellow); border-radius: 2px; }
+  #controls input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px;
+    border-radius: 50%; background: var(--brown); border: 2px solid var(--yellow); box-sizing: border-box; }
+  #controls input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--brown); border: 2px solid var(--yellow); }
   #overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 4; pointer-events: none; }
   #overlay.hidden { display: none; }
-  #activate { pointer-events: auto; font: 600 18px 'Source Code Pro', monospace; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--yellow); background: var(--brown); border: 3px solid var(--yellow); border-radius: 4px; padding: 18px 34px; cursor: pointer; }
+  #activate { pointer-events: auto; font: 600 10px/1 'Source Code Pro', monospace; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--yellow); background: var(--brown); border: 2px solid var(--yellow); border-radius: 4px; padding: 9px 14px; cursor: pointer; }
   #activate:hover { background: #4a1819; }
-  #msg { position: absolute; top: calc(50% + 56px); color: var(--yellow); font: 400 12px 'Source Code Pro', monospace;
-    letter-spacing: 0.18em; text-transform: uppercase; text-shadow: 0 0 6px var(--brown); }
+  #msg { position: absolute; top: calc(50% + 28px); color: var(--yellow); font: 400 9px/1 'Source Code Pro', monospace;
+    letter-spacing: 0.14em; text-transform: uppercase; text-shadow: 0 0 6px var(--brown); }
 `;
 
 // Builds all DOM (styles, sliders, overlay) so the sketch works as a single file.
