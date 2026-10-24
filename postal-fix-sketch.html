@@ -26,7 +26,8 @@ const DOTS = [
   [-69, 22], [21, 27], [-20, 69],
 ];
 
-const SPACING = 750;
+const GAP = 24;                                   // equal gap between neighbouring bandages
+const X_EXTENT = (PILL_LEN + PILL_W) * Math.SQRT1_2; // width of one X at scale 1
 const CENTER_X = 1000;
 const CENTER_Y = 577;
 
@@ -95,15 +96,28 @@ function draw() {
   scale(s);
   translate(-DW / 2, -DH / 2);
 
+  // Lay the row out edge to edge with one fixed GAP between neighbours, whatever their size,
+  // then shift it so the point at `pos` sits on the centre.
   const first = floor(pos) - 3;
   const last = floor(pos) + 4;
-  for (let k = first; k <= last; k++) {
+  const growOf = k => {
     const d = abs(k - pos);
-    const grow = 1.2 - 0.4 * min(d, 1) - 0.2 * constrain(d - 1, 0, 1);
-    const x = CENTER_X + (k - pos) * SPACING;
+    return 1.2 - 0.4 * min(d, 1) - 0.2 * constrain(d - 1, 0, 1);
+  };
+  const xs = {};
+  let cursor = 0;
+  for (let k = first; k <= last; k++) {
+    const half = X_EXTENT * growOf(k) / 2;
+    cursor += k === first ? 0 : half;
+    xs[k] = cursor;
+    cursor += half + GAP;
+  }
+  const f = floor(pos);
+  const anchor = lerp(xs[f], xs[f + 1], pos - f);
 
+  for (let k = first; k <= last; k++) {
     drawX(
-      x, CENTER_Y, grow,
+      CENTER_X + xs[k] - anchor, CENTER_Y, growOf(k),
       k === spinning ? spinAngle : 0,
       pal.back, pal.front, pal.patch, pal.bg
     );
