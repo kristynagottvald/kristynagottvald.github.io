@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lob template sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #F8E0F9; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; width: 100% !important; height: auto !important; max-height: 100%; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+const LW = 4;
+
+const C = {
+  bg: '#F8E0F9',
+  shadow: '#F1B9F0',
+  editor: '#1F2149',
+  tabBar: '#2B2D6D',
+  tabEnd: '#30327A',
+  tabSep: '#3C3E8C',
+  pillTab: '#6459DB',
+  num: '#5C51D2',
+  mag: '#B042C2',
+  lime: '#C9DA6A',
+  blue: '#5049BC',
+  blue2: '#4B49B2',
+  card: '#D244DE',
+  panel: '#E084E9',
+  line: '#E176EA',
+  pale: '#E88EEE',
+  yellow: '#EAF265',
+  btn: '#4534F2',
+  btnDown: '#2A1BC4',
+  plus: '#9382F4',
+  mark: '#D048DB',
+  chip: '#D489E4',
+  chipInk: '#8F1A96'
+};
+
+const codeLines = [
+  [[276, 312, 'mag'], [317, 515, 'blue']],
+  [[276, 351, 'mag'], [357, 399, 'lime']],
+  [[300, 328, 'mag'], [333, 370, 'lime'], [375, 445, 'lime'], [450, 478, 'mag'], [484, 560, 'lime']],
+  [[276, 308, 'blue2']],
+  [[292, 319, 'mag'], [325, 388, 'lime'], [394, 488, 'lime'], [494, 521, 'mag'], [527, 598, 'lime']],
+  [[311, 331, 'blue'], [336, 356, 'mag'], [362, 446, 'lime']],
+  [[326, 353, 'blue'], [358, 431, 'blue']],
+  [[326, 394, 'blue'], [400, 483, 'blue']]
+];
+
+const codeY = [215, 245, 275, 306, 336, 366, 396, 425];
+const numY = [213, 245, 276, 335, 366, 396, 423];
+const numLabel = ['1', '2', '3', '4', '5', '6', '7'];
+const numOfLine = [0, 1, 2, -1, 3, 4, 5, 6];
+const tabPills = [[243, 297], [353, 402], [434, 480], [504, 549], [576, 620]];
+
+const segs = [];
+let typeEnd = 0;
+let urlStart = 0;
+let offerStart = 0;
+let cycleLen = 0;
+
+function setup() {
+  createCanvas(1400, 890);
+  textFont('Arial');
+  let at = 0.4;
+  codeLines.forEach((line, i) => {
+    line.forEach((seg, j) => {
+      const dur = (seg[1] - seg[0]) / 420 + 0.05;
+      const swap = i === 4 && (j === 1 || j === 2) ? 'B' : null;
+      segs.push({ line: i, first: j === 0, x1: seg[0], x2: seg[1], col: seg[2], s: at, d: dur, swap: swap });
+      at += dur;
+    });
+    at += 0.14;
+  });
+  typeEnd = at;
+  urlStart = typeEnd + 2.4;
+  offerStart = urlStart + 3.4;
+  cycleLen = offerStart + 4;
+}
+
+function pill(x1, x2, y, h, col, a) {
+  noStroke();
+  const c = color(col);
+  c.setAlpha(a === undefined ? 255 : a);
+  fill(c);
+  rect(x1, y - h / 2, x2 - x1, h, min(h / 2, (x2 - x1) / 2));
+}
+
+function blend01(x) {
+  return x * x * (3 - 2 * x);
+}
+
+function drawGooey(m) {
+  const y = codeY[4];
+  const e = 3 * blend01(constrain(m * 2, 0, 1));
+  const t = 6 * blend01(m);
+  noStroke();
+  fill(C.lime);
+  rect(325, y - 6, 388 + e - 325, 12, 6);
+  rect(394 - e, y - 6, 488 - (394 - e), 12, 6);
+  if (m > 0) {
+    const ctx = drawingContext;
+    ctx.fillStyle = C.lime;
+    ctx.beginPath();
+    ctx.moveTo(380, y - 6);
+    ctx.bezierCurveTo(386, y - 6, 387, y - t, 391, y - t);
+    ctx.bezierCurveTo(395, y - t, 396, y - 6, 402, y - 6);
+    ctx.lineTo(402, y + 6);
+    ctx.bezierCurveTo(396, y + 6, 395, y + t, 391, y + t);
+    ctx.bezierCurveTo(387, y + t, 386, y + 6, 380, y + 6);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawEditor(lt, m, kB) {
+  noStroke();
+  fill(C.shadow);
+  rect(186, 146, 514, 354);
+
+  fill(C.editor);
+  rect(212, 121, 531, 353);
+
+  fill(C.tabBar);
+  rect(331, 121, 412, 53);
+  fill(C.tabEnd);
+  rect(634, 121, 109, 53);
+  fill(C.tabSep);
+  [421, 490, 562, 634].forEach(x => rect(x - LW / 2, 121, LW, 53));
+  fill(C.editor);
+  rect(212, 121, 119, 53);
+
+  tabPills.forEach((p, i) => pill(p[0], p[1], 146.5, 13, C.pillTab, i === 0 ? 255 : 235));
+
+  textAlign(LEFT, CENTER);
+  textSize(25);
+  textStyle(BOLD);
+  noStroke();
+  segs.forEach(sg => {
+    if (sg.first && numOfLine[sg.line] >= 0 && lt >= sg.s) {
+      const c = color(C.num);
+      c.setAlpha(255 * constrain((lt - sg.s) / 0.2, 0, 1));
+      fill(c);
+      text(numLabel[numOfLine[sg.line]], 243, numY[numOfLine[sg.line]]);
+    }
+  });
+
+  segs.forEach(sg => {
+    if (lt < sg.s) return;
+    const p = constrain((lt - sg.s) / sg.d, 0, 1);
+    const w = (sg.x2 - sg.x1) * p;
+    if (sg.swap === 'B' && m > 0) return;
+    if (w > 1) pill(sg.x1, sg.x1 + w, codeY[sg.line], 12, C[sg.col], 255 * min(1, p * 2.5));
+  });
+
+  if (m > 0) drawGooey(m);
+  pill(325, 488, codeY[4], 12, C.mag, 255 * kB);
+}
+
+function drawCropMarks() {
+  stroke(C.mark);
+  strokeWeight(LW);
+  strokeCap(SQUARE);
+  line(684, 351, 684, 372);
+  line(1177, 351, 1177, 372);
+  line(684, 752, 684, 772);
+  line(1177, 752, 1177, 772);
+  line(642, 389, 664, 389);
+  line(1197, 389, 1218, 389);
+  line(642, 730, 664, 730);
+  line(1197, 730, 1218, 730);
+}
+
+function drawHandle(x, y, s) {
+  fill(C.card);
+  stroke(C.yellow);
+  strokeWeight(LW);
+  rect(x - s / 2, y - s / 2, s, s);
+}
+
+function drawPostcard(t) {
+  noStroke();
+  fill(C.card);
+  rect(682, 388, 495, 344);
+
+  fill(C.line);
+  rect(930 - LW / 2, 411, LW, 287);
+
+  fill(C.panel);
+  rect(712, 512, 185, 196);
+
+  pill(717, 850, 434, 14, C.pale, 200);
+  pill(717, 800, 464, 14, C.pale, 200);
+
+  noFill();
+  stroke(C.yellow);
+  strokeWeight(LW);
+  rect(712, 420, 143, 60);
+  drawHandle(712, 420, 13);
+  drawHandle(855, 420, 13);
+  drawHandle(712, 480, 13);
+  drawHandle(855, 480, 13);
+
+  noFill();
+  stroke(C.yellow);
+  strokeWeight(LW);
+  rect(1087, 416, 61, 75, 3);
+
+  strokeWeight(LW);
+  for (let r = 0; r < 4; r++) {
+    beginShape();
+    for (let x = 1108; x <= 1177; x += 3) {
+      const y = 437 + r * 13 + 5.5 * sin((x - 1108) * TWO_PI / 69);
+      vertex(x, y);
+    }
+    endShape();
+  }
+
+  pill(971, 1112, 568, 14, C.pale, 200);
+  pill(971, 1061, 592, 14, C.pale, 200);
+
+  noFill();
+  stroke(C.yellow);
+  strokeWeight(LW);
+  drawingContext.setLineDash([8, 10]);
+  drawingContext.lineDashOffset = -t * 20;
+  strokeCap(ROUND);
+  rect(967, 628, 166, 59, 8);
+  drawingContext.setLineDash([]);
+  drawingContext.lineDashOffset = 0;
+}
+
+function easeOutBack(x) {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * pow(x - 1, 3) + c1 * pow(x - 1, 2);
+}
+
+function easeInOut(x) {
+  return x * x * (3 - 2 * x);
+}
+
+function pressAmount(u) {
+  if (u < 0 || u > 0.34) return 0;
+  if (u < 0.16) return easeInOut(u / 0.16);
+  return 1 - easeInOut((u - 0.16) / 0.18);
+}
+
+function flight(u, pop) {
+  if (u < 0.3 || u > 3.25) return 0;
+  if (u < 0.95) return pop ? easeOutBack((u - 0.3) / 0.65) : easeInOut((u - 0.3) / 0.65);
+  if (u < 2.6) return 1;
+  return 1 - easeInOut((u - 2.6) / 0.65);
+}
+
+function spacedWidth(str, sp) {
+  let w = 0;
+  for (let i = 0; i < str.length; i++) w += textWidth(str[i]) + (i < str.length - 1 ? sp : 0);
+  return w;
+}
+
+function spacedText(str, x, y, sp) {
+  let cx = x;
+  for (let i = 0; i < str.length; i++) {
+    text(str[i], cx, y);
+    cx += textWidth(str[i]) + sp;
+  }
+}
+
+function drawLinkIcon(cx, cy, col) {
+  push();
+  translate(cx, cy);
+  rotate(-QUARTER_PI);
+  scale(LW / 75);
+  noFill();
+  stroke(col);
+  strokeWeight(75);
+  strokeCap(ROUND);
+  line(81, -127, 151, -127);
+  arc(151, 0, 254, 254, -HALF_PI, HALF_PI);
+  line(151, 127, 81, 127);
+  line(-81, -127, -151, -127);
+  arc(-151, 0, 254, 254, HALF_PI, PI + HALF_PI);
+  line(-151, 127, -81, 127);
+  line(-117, 0, 124, 0);
+  pop();
+}
+
+function drawLabel(x, y, ow, oh, label, textX, u, kind) {
+  const bcx = x + ow / 2;
+  const bcy = y + oh / 2;
+  textStyle(BOLD);
+  textSize(26);
+  const tw0 = spacedWidth(label, 3.5);
+  const w = 56 + tw0 + 26;
+  const h = 66;
+  const f = flight(u, false);
+  const fs = flight(u, true);
+  const press = pressAmount(u);
+  const cx = lerp(bcx, 1050, f);
+  const bob = 3 * sin(millis() / 1000 * 2.2 + (kind === 'url' ? 0 : PI)) * (1 - constrain(f, 0, 1));
+  const cy = lerp(bcy, 657.5, f) - 70 * sin(PI * constrain(f, 0, 1)) + bob;
+  const cw = lerp(w, 170, fs);
+  const ch = lerp(h, 63, fs);
+  const a1 = 1 - constrain(f / 0.45, 0, 1);
+  const a2 = constrain((f - 0.55) / 0.45, 0, 1);
+  push();
+  translate(cx, cy);
+  scale(1 - 0.06 * press);
+  noStroke();
+  fill(lerpColor(lerpColor(color(C.btn), color(C.btnDown), press), color(C.yellow), constrain(f, 0, 1)));
+  rect(-cw / 2, -ch / 2, cw, ch, 10);
+
+  if (a1 > 0) {
+    drawingContext.globalAlpha = a1;
+    stroke(C.plus);
+    strokeWeight(LW);
+    strokeCap(SQUARE);
+    line(-w / 2 + 17, 0, -w / 2 + 39, 0);
+    line(-w / 2 + 28, -11, -w / 2 + 28, 11);
+    noStroke();
+    fill(255);
+    textStyle(BOLD);
+    textSize(26);
+    textAlign(LEFT, CENTER);
+    spacedText(label, -w / 2 + 56, 1, 3.5);
+  }
+
+  if (a2 > 0) {
+    drawingContext.globalAlpha = a2;
+    textAlign(LEFT, CENTER);
+    noStroke();
+    fill(C.card);
+    if (kind === 'url') {
+      textStyle(BOLD);
+      textSize(25);
+      const tw = spacedWidth('/', 5) + 10 + spacedWidth('URL', 5);
+      const left = -(46 + tw) / 2;
+      drawLinkIcon(left + 15, 0, C.card);
+      noStroke();
+      fill(C.card);
+      spacedText('/', left + 46, 1, 5);
+      spacedText('URL', left + 46 + spacedWidth('/', 5) + 5 + 5, 1, 5);
+    } else {
+      textStyle(BOLD);
+      textSize(25);
+      const tw = spacedWidth('20% OFF', 4);
+      spacedText('20% OFF', -tw / 2, 1, 4);
+    }
+  }
+  drawingContext.globalAlpha = 1;
+  pop();
+}
+
+function draw() {
+  const t = millis() / 1000;
+  const lt = t % cycleLen;
+  const fu = flight(lt - urlStart, false);
+  const fo = flight(lt - offerStart, false);
+  background(C.bg);
+  const fm = max(fu, fo);
+  drawEditor(lt, constrain((fm - 0.35) / 0.5, 0, 1), constrain((fm - 0.86) / 0.14, 0, 1));
+  drawCropMarks();
+  drawPostcard(t);
+  drawLabel(620, 589, 185, 72, '{{URL}}', 676, lt - urlStart, 'url');
+  drawLabel(761, 699, 220, 72, '{{OFFER}}', 817, lt - offerStart, 'offer');
+}
+</script>
+</body>
+</html>

@@ -847,9 +847,11 @@
         "type": "image"
       },
       {
-        "alt": "Lob",
-        "src": "lob-04.webp",
-        "type": "image"
+        "src": "lob-template-sketch.html",
+        "title": "Lob template editor",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1400 / 890"
       },
       {
         "alt": "Lob",
