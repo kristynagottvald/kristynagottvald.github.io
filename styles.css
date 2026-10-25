@@ -264,7 +264,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .aside-row .block-media { width: 100%; margin: 0; }
 .aside-text { display: grid; gap: 16px; align-content: start; color: var(--grey); font-size: 17px; line-height: 24px; padding: 0 calc(var(--indent) * 1.5) 0 var(--indent); }
 .aside-text p:first-child { color: var(--ink); }
-@media (max-width: 900px) { .aside-row { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .aside-row { grid-template-columns: 1fr; } }   /* two columns down to tablet, stacked on phones */
 
 /* Next up: the label + title stay pinned beside the image and slide down as the page scrolls (like the home work list). */
 @media (min-width: 900px) {
@@ -331,7 +331,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .pj-tile { position: relative; display: block; transition: opacity .3s linear; }
 .pj-media { position: relative; overflow: hidden; border-radius: var(--r-md); background: var(--off-black); }
 .pj-tile.is-l .pj-media { aspect-ratio: 757 / 337; }
-.pj-tile.is-p .pj-media { aspect-ratio: 757 / 913; }
+.pj-tile.is-p .pj-media { aspect-ratio: 1 / 1; }   /* the alternating tall tile is square */
 .pj-media img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .8s linear, transform 1s var(--ease); }
 .pj-media img.is-active { opacity: 1; }
 .pj-tile:hover .pj-media img { transform: scale(1.03); }
