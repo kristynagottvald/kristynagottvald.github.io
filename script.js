@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261026z');
+      const res = await fetch('projects.json?v=20261027a');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -494,7 +494,7 @@
       if (k === slide) { void d.offsetWidth; d.classList.add('is-on'); }
     });
     clearTimeout(slideTimer);
-    const dwell = +frames[slide].dataset.duration || 4000;   // the replatforming sketch gets 16s (its sequence runs 17s, the next slide cuts in a second early)
+    const dwell = +frames[slide].dataset.duration || 4000;   // the replatforming sketch gets 15s (its sequence runs 17s, the next slide cuts in early)
     dots[slide].style.setProperty('--dur', dwell + 'ms');
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) slideTimer = setTimeout(() => showSlide(slide + 1), dwell);
   }
