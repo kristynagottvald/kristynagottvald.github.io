@@ -906,19 +906,11 @@
         "type": "image"
       },
       {
-        "alt": "Lob",
-        "src": "lob-13.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-14.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-15.webp",
-        "type": "image"
+        "type": "pair",
+        "images": [
+          { "src": "lob-13.webp", "alt": "Lob" },
+          { "src": "lob-14.webp", "alt": "Lob" }
+        ]
       },
       {
         "body": [
