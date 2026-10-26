@@ -823,13 +823,14 @@ function sceneFour(t) {
   const sc = idx > 0 && idx < last ? 0.92 + 0.08 * popIn((t - 0.4 - (idx - 1) * 0.14) / 0.1) : 1;
   const fly = easeIO((t - 2.0) / 0.9);
   const px = lerp(A.slotCx, W + pw, fly * fly);
-  roundImg(img, px - (pw * sc) / 2, A.pieceY - (ph * sc) / 2, pw * sc, ph * sc, MAIL_R);
   const q = easeIO((t - 2.2) / 0.9);
   textSize(FS);
   fill('#ffffff');
   text('Send', lerp(A.sendX, B.sendX, q), A.y);
   text('with', lerp(A.withX, B.withX, q), A.y);
   drawingContext.drawImage(LOGO.canvas, lerp(A.logoX, B.logoX, q), A.y + 1 - A.logoH, A.logoW, A.logoH);
+  // drawn last, so the mail piece flies over "with Lob" on its way off to the right
+  roundImg(img, px - (pw * sc) / 2, A.pieceY - (ph * sc) / 2, pw * sc, ph * sc, MAIL_R);
 }
 </script>
 </body>
