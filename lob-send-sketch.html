@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lob send sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #2b2d83; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; width: 100% !important; height: auto !important; max-height: 100%; }
+</style>
+<script>window.ASSET_DIR = 'lob-send/';</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+const W = 1200;
+const H = 675;
+const DUR = [3, 6, 5.4, 5.3, 4.3, 4.2];
+const UI_W = 509;
+const TEXT_SIZE = 43;
+const GAP = 48;
+const FADE = 0.5;
+const FONT = 'Inter, Helvetica, Arial, sans-serif';
+let P5_FONT = 'Helvetica';
+const MAIL_R = 4;
+const UI_R = 6;
+const ASSET_DIR = window.ASSET_DIR || '';
+const MAIL_FILES = ['mail-1.webp', 'mail-2.webp', 'mail-3.webp', 'mail-4.webp', 'mail-5.webp', 'mail-6.webp', 'mail-7.webp', 'mail-8.webp', 'mail-9.webp', 'mail-10.webp', 'mail-11.webp'];
+const TOTAL = DUR.reduce((a, b) => a + b, 0);
+const PURPLE = '#3f33f2';
+const NAVY = '#2b2d83';
+
+let IMGS = [];
+let UI = null;
+let UI2 = null;
+let UI3 = null;
+let LOGO = null;
+let ready = false;
+let startMs = 0;
+
+function loadOne(name) {
+  return new Promise((resolve) => loadImage(ASSET_DIR + name, resolve, () => resolve(null)));
+}
+
+function addInter() {
+  return new Promise((resolve) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap';
+    link.onload = () => {
+      if (!document.fonts) return resolve();
+      Promise.all([document.fonts.load('400 32px Inter', 'Abc'), document.fonts.load('700 32px Inter', 'Abc')]).then(resolve, resolve);
+    };
+    link.onerror = resolve;
+    document.head.appendChild(link);
+    setTimeout(resolve, 4000);
+  });
+}
+
+async function setup() {
+  createCanvas(W, H);
+  textFont(P5_FONT);
+  textAlign(LEFT, BASELINE);
+  await addInter();
+  if (document.fonts && document.fonts.check('400 32px Inter')) P5_FONT = 'Inter';
+  IMGS = await Promise.all(MAIL_FILES.map(loadOne));
+  UI = await loadOne('ui-audience.webp');
+  UI2 = await loadOne('ui-creative.webp');
+  UI3 = await loadOne('ui-review.webp');
+  LOGO = await loadOne('logo.png');
+  startMs = millis();
+  ready = true;
+}
+
+function ease(x) {
+  x = constrain(x, 0, 1);
+  return 1 - pow(1 - x, 3);
+}
+
+function hash(a, b) {
+  const s = sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return abs(s - floor(s));
+}
+
+function setAlpha(a) {
+  drawingContext.globalAlpha = a;
+}
+
+function setBlur(px) {
+  drawingContext.filter = px > 0.2 ? 'blur(' + (px * pixelDensity()).toFixed(1) + 'px)' : 'none';
+}
+
+function draw() {
+  if (!ready) return;
+  textFont(P5_FONT);
+  const raw = (millis() - startMs) / 1000;
+  const t = raw % TOTAL;
+  let start = 0;
+  let i = 0;
+  while (i < 5 && t >= start + DUR[i]) {
+    start += DUR[i];
+    i++;
+  }
+  const lt = t - start;
+  if (lt < FADE && i !== 0) {
+    const prev = (i + 5) % 6;
+    drawScene(prev, DUR[prev] + lt, 1);
+    drawScene(i, lt, i >= 2 ? 1 : lt / FADE);
+  } else {
+    drawScene(i, lt, 1);
+  }
+  setAlpha(1);
+  setBlur(0);
+}
+
+function drawScene(i, lt, a) {
+  setAlpha(a);
+  if (i === 0) sceneOne(lt);
+  if (i === 1) sceneTwo(lt);
+  if (i === 2) sceneThree(lt);
+  if (i === 3) sceneUiTwo(lt);
+  if (i === 4) sceneUiThree(lt);
+  if (i === 5) sceneFour(lt);
+  setAlpha(1);
+  setBlur(0);
+}
+
+function sceneOne(t) {
+  fill(PURPLE);
+  noStroke();
+  rect(0, 0, W, H);
+  const words = ['Go', 'from', 'idea', 'to', 'mailbox', 'faster'];
+  drawWords(words, W / 2, H / 2 + 13, TEXT_SIZE, '#ffffff', t, 0.3, 0.3, 2.7, 2.35);
+}
+
+function drawWords(words, cx, y, size, col, t, t0, stag, exitAt, italicAt) {
+  textSize(size);
+  const baseAlpha = drawingContext.globalAlpha;
+  const gap = size * 0.3;
+  let total = -gap;
+  const widths = words.map((w) => textWidth(w));
+  widths.forEach((w) => (total += w + gap));
+  let x = cx - total / 2;
+  const ex = exitAt === undefined ? -1 : t - exitAt;
+  for (let k = 0; k < words.length; k++) {
+    const e = ease((t - t0 - k * stag) / 0.6);
+    let a = e;
+    let dx = 0;
+    if (ex > 0) {
+      if (k === words.length - 1) dx = easeIO(ex / 1.0) * W;
+      else a = e * (1 - ease(ex / 0.4));
+    }
+    setAlpha(baseAlpha * a);
+    setBlur((1 - e) * 8);
+    fill(col);
+    noStroke();
+    const lean = italicAt !== undefined && k === words.length - 1 ? ease((t - italicAt) / 0.35) : 0;
+    drawingContext.save();
+    drawingContext.translate(x + dx, y + (1 - e) * 19);
+    drawingContext.transform(1, 0, -0.21 * lean, 1, 0, 0);
+    text(words[k], 0, 0);
+    drawingContext.restore();
+    x += widths[k] + gap;
+  }
+  setBlur(0);
+}
+
+function popIn(x) {
+  x = constrain(x, 0, 1);
+  if (x <= 0) return 0;
+  const c1 = 1.70158;
+  return 1 + (c1 + 1) * pow(x - 1, 3) + c1 * pow(x - 1, 2);
+}
+
+function groupShift() {
+  textSize(TEXT_SIZE);
+  const lw = max(textWidth('Create'), textWidth('Import'), textWidth('Send'));
+  const rw = textWidth('in a few clicks');
+  return (lw - rw) / 2;
+}
+
+function pieceImg(j, k) {
+  return IMGS[((j + 10) * 2 + (k + 10) * 5 + 8) % IMGS.length];
+}
+
+function fillZone(x, y, w, h, r, frac) {
+  const ctx = drawingContext;
+  ctx.save();
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+  else ctx.rect(x, y, w, h);
+  ctx.clip();
+  ctx.fillStyle = '#e4ee5c';
+  ctx.fillRect(x, y, w * frac, h);
+  ctx.restore();
+}
+
+function roundImg(img, x, y, w, h, r) {
+  const ctx = drawingContext;
+  ctx.save();
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, min(r, w / 2, h / 2));
+  else ctx.rect(x, y, w, h);
+  ctx.clip();
+  ctx.drawImage(img.canvas, x, y, w, h);
+  ctx.restore();
+}
+
+function easeIO(x) {
+  x = constrain(x, 0, 1);
+  return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
+}
+
+function sceneTwo(t) {
+  fill(NAVY);
+  noStroke();
+  rect(0, 0, W, H);
+  const cx = W / 2;
+  const cy = H / 2;
+  const enter = ease((t - 0.05) / 0.7);
+  const spread = ease((t - 1.7) / 0.7);
+  const lift = easeIO((t - 2.0) / 0.8);
+  const zoom = ease((t - 2.8) / 0.6);
+  const colStep = lerp(368, 351, zoom);
+  const rowStep = lerp(415, 228, zoom);
+  const pw = lerp(335, 311, zoom);
+  const exitAt = 3.4;
+  const flipAt = 4.9;
+  const baseAlpha = drawingContext.globalAlpha;
+  const words = ['Be part', 'of', 'the stack'];
+  textSize(TEXT_SIZE);
+  const gap = TEXT_SIZE * 0.3;
+  const widths = words.map((w) => textWidth(w));
+  const total = widths[0] + widths[1] + widths[2] + gap * 2;
+  let x0 = cx - total / 2;
+  for (let k = 0; k < 3; k++) {
+    const centered = x0;
+    const col = cx + (k - 1) * colStep - widths[k] / 2;
+    x0 += widths[k] + gap;
+    if (lift >= 0.999) continue;
+    const dy = (k === 1 ? 1 : -1) * lift * 188;
+    setAlpha(1 - ease((lift - 0.6) / 0.4));
+    setBlur((1 - enter) * 5);
+    fill('#ffffff');
+    text(words[k], lerp(centered, col, spread) + (1 - enter) * W, cy + 13 + dy);
+  }
+  setBlur(0);
+  setAlpha(baseAlpha);
+  for (let j = -5; j <= 5; j++) {
+    for (let k = -1; k <= 1; k++) {
+      if (j === 5 && k === 0 && t >= flipAt) continue;
+      const rowIdx = k < 0 ? -k - 1 : k;
+      const ring = max(abs(j) - 1, rowIdx, 0);
+      const delay = ring === 0 ? 0.1 + hash(j, k) * 0.6 : 2.1 + hash(j, k) * 0.6;
+      const e = popIn((t - delay) / 0.3);
+      if (e <= 0) continue;
+      const bob = 0;
+      const w = pw;
+      const dir = abs(k) % 2 === 0 ? -1 : 1;
+      const slide = easeIO((t - exitAt - 0.05 * abs(k)) / 1.35);
+      const base = cx + j * colStep;
+      const x = k === 0 ? cx + (j - 5 * ease((t - exitAt) / 1.55)) * colStep + (j === 5 ? groupShift() * ease((t - exitAt) / 1.55) : 0) - (j === 5 ? 0 : easeIO((t - exitAt - 0.3) / 1.15) * 1340) : base + dir * 2800 * slide;
+      const y = cy + (k + 0.5 - 0.5 * zoom) * rowStep + bob;
+      setAlpha(baseAlpha);
+      const img = pieceImg(j, k);
+      const ih = pw / 1.8;
+      const iw = (ih * img.width) / img.height;
+      roundImg(img, x - (iw * e) / 2, y - (ih * e) / 2, iw * e, ih * e, MAIL_R);
+    }
+  }
+  setAlpha(baseAlpha);
+  if (t >= flipAt) flipPiece((t - flipAt) / 0.9, cx + groupShift(), cy, 311);
+}
+
+function flipPiece(f, cx, cy, startW) {
+  const mail = pieceImg(5, 0);
+  const startH = startW / 1.8;
+  const sW = (startH * mail.width) / mail.height;
+  const endW = UI_W;
+  const endH = (UI_W * UI.height) / UI.width;
+  const g = easeIO(f);
+  const wFull = lerp(sW, endW, g);
+  const hFull = lerp(startH, endH, g);
+  const squeeze = abs(cos(PI * g));
+  const img = g < 0.5 ? mail : UI;
+  const dh = max(hFull * squeeze, 1);
+  roundImg(img, cx - wFull / 2, cy - dh / 2, wFull, dh, lerp(MAIL_R, UI_R, g));
+}
+
+function sceneThree(t) {
+  fill(NAVY);
+  noStroke();
+  rect(0, 0, W, H);
+  const cx = W / 2 + groupShift();
+  const cy = H / 2;
+  const e = ease((t - 0.2) / 1.1);
+  const w = UI_W;
+  const h = (UI_W * UI.height) / UI.width;
+  const baseAlpha = drawingContext.globalAlpha;
+  roundImg(UI, cx - w / 2, cy - h / 2, w, h, UI_R);
+  uploadDemo(t, cx - w / 2, cy - h / 2, w / 1980);
+  textSize(TEXT_SIZE);
+  const left = 'Create';
+  const right = 'in a few clicks';
+  const lw = textWidth(left);
+  const slide = (1 - e) * 67;
+  const ta = ease((t - 0.5) / 0.7);
+  setAlpha(baseAlpha * ta);
+  setBlur((1 - ta) * 7);
+  fill('#ffffff');
+  text(left, cx - w / 2 - GAP - lw + slide, cy + 13);
+  text(right, cx + w / 2 + GAP - slide, cy + 13);
+  setBlur(0);
+  setAlpha(baseAlpha);
+}
+
+function uploadDemo(t, ox, oy, u, cfg) {
+  const ctx = drawingContext;
+  const kind = Object.assign({ name: 'Audience.CVS', img: null, wipe: true, cursor: true }, cfg || {});
+  const baseAlpha = ctx.globalAlpha;
+  const px = (v) => ox + (v - 10) * u;
+  const py = (v) => oy + (v - 10) * u;
+  const k = u / 0.1313;
+  const dropX = px(1305);
+  const dropY = py(790);
+  const fileH0 = 42 * k;
+  const wipe = ease((t - 2.2) / 0.3);
+  if (wipe > 0 && kind.wipe) {
+    setAlpha(baseAlpha * wipe);
+    fill(241, 246, 181);
+    noStroke();
+    rect(px(790), py(535), 1032 * u, 565 * u);
+    setAlpha(baseAlpha);
+  }
+  const rowL = px(876);
+  const rowT = py(716);
+  const rowW = 860 * u;
+  const rowH = 200 * u;
+  const tileS = 150 * u;
+  const tileX = rowL + 28 * u + tileS / 2;
+  const tileY = py(816);
+  const rowA = ease((t - 2.4) / 0.3);
+  const prog = constrain((t - 2.9) / 1.5, 0, 1);
+  const done = ease((t - 4.4) / 0.25);
+  const dzL = px(755);
+  const dzT = py(500);
+  const dzW = 1102 * u;
+  const dzH = 632 * u;
+  if (prog > 0) {
+    ctx.save();
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(dzL, dzT, dzW, dzH, 38 * u);
+    else ctx.rect(dzL, dzT, dzW, dzH);
+    ctx.clip();
+    ctx.fillStyle = '#e4ee5c';
+    ctx.fillRect(dzL, dzT, dzW * prog, dzH);
+    ctx.restore();
+  }
+  if (rowA > 0) {
+    setAlpha(baseAlpha * rowA);
+    fill(255);
+    noStroke();
+    rect(rowL, rowT, rowW, rowH, 50 * u);
+    drawTracked(kind.name.toUpperCase(), rowL + 56 * u + tileS, tileY + 15 * u, 42 * u, '#1e2245', 42 * u * 0.1, true);
+    if (done > 0) {
+      const bs = 120 * u;
+      const bx = rowL + rowW - 28 * u - bs / 2;
+      setAlpha(baseAlpha * rowA * done);
+      fill(228, 238, 92);
+      rect(bx - bs / 2, tileY - bs / 2, bs, bs, 30 * u);
+      stroke(30, 34, 69);
+      strokeWeight(max(1.9, 12 * u));
+      strokeCap(ROUND);
+      noFill();
+      line(bx - bs * 0.22, tileY + bs * 0.02, bx - bs * 0.05, tileY + bs * 0.19);
+      line(bx - bs * 0.05, tileY + bs * 0.19, bx + bs * 0.24, tileY - bs * 0.14);
+      noStroke();
+    }
+    setAlpha(baseAlpha);
+  }
+  const travel = easeIO((t - 1.0) / 1.2);
+  const startX = dropX + 90 * k;
+  const startY = H + 94;
+  const hoverX = dropX;
+  const hoverY = dropY - 14 * k;
+  const settle = ease((t - 2.2) / 0.3);
+  let fx = lerp(startX, hoverX, travel);
+  let fy = lerp(startY, hoverY, travel) - sin(PI * travel) * 18 * k;
+  fy = lerp(fy, dropY, settle);
+  const held = t < 2.2 ? 1 : 1 - settle;
+  const grow = 1 + sin(PI * constrain((t - 2.2) / 0.4, 0, 1)) * 0.12;
+  const into = easeIO((t - 2.5) / 0.4);
+  const cursorX = fx;
+  const cursorY = fy;
+  const fh = lerp(fileH0 * grow, (kind.img ? 78 : 105) * u, into);
+  fx = lerp(fx, tileX, into);
+  fy = lerp(fy, tileY, into);
+  if (t > 1.0) {
+    if (kind.img) drawThumb(kind.img, fx, fy, fh, held);
+    else drawFileIcon(fx, fy, fh, held);
+  }
+  if (kind.cursor && t > 1.0) {
+    const rest = cursorRest(ox, oy, u, 1308 * u);
+    const mv = easeIO((t - 2.45) / 0.8);
+    const p0x = cursorX + 8 * k;
+    const p0y = cursorY + fileH0 / 2 - 8 * k;
+    drawCursor(lerp(p0x, rest.x, mv), lerp(p0y, rest.y, mv), k, 1);
+  }
+}
+
+function drawTracked(str, x, y, size, color, tracking, bold) {
+  const ctx = drawingContext;
+  ctx.save();
+  ctx.font = (bold ? 'bold ' : '') + size + 'px ' + FONT;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  let cx = x;
+  for (const ch of str) {
+    ctx.fillText(ch, cx, y);
+    cx += ctx.measureText(ch).width + tracking;
+  }
+  ctx.restore();
+}
+
+function drawFileIcon(cx, cy, h, shadow) {
+  const ctx = drawingContext;
+  const pw = h * 0.74;
+  const ear = h * 0.3;
+  const x0 = cx - pw / 2 - h * 0.08;
+  const y0 = cy - h / 2;
+  const x1 = x0 + pw;
+  const y1 = cy + h / 2;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1 - ear, y0);
+  ctx.lineTo(x1, y0 + ear);
+  ctx.lineTo(x1, y1);
+  ctx.lineTo(x0, y1);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = max(1.6, h * 0.035);
+  ctx.strokeStyle = '#5547d9';
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x1 - ear, y0);
+  ctx.lineTo(x1, y0 + ear);
+  ctx.lineTo(x1 - ear, y0 + ear);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.stroke();
+  const lw = h * 0.64;
+  const lh = h * 0.3;
+  const lx = x1 - lw + h * 0.12;
+  const ly = cy - h * 0.02;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(lx, ly, lw, lh, h * 0.06);
+  else ctx.rect(lx, ly, lw, lh);
+  ctx.fillStyle = '#c943dd';
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold ' + h * 0.16 + 'px ' + FONT;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('CVS', lx + lw / 2, ly + lh / 2 + h * 0.01);
+  ctx.restore();
+}
+
+function drawThumb(img, cx, cy, h, shadow) {
+  const ctx = drawingContext;
+  const w = (h * img.width) / img.height;
+  ctx.save();
+  if (shadow > 0.01) {
+    ctx.shadowColor = 'rgba(0, 0, 0, ' + (0.28 * shadow).toFixed(2) + ')';
+    ctx.shadowBlur = 13 * pixelDensity();
+    ctx.shadowOffsetY = 7 * pixelDensity();
+  }
+  ctx.drawImage(img.canvas, cx - w / 2, cy - h / 2, w, h);
+  ctx.restore();
+}
+
+function cursorRest(ox, oy, u, h) {
+  return { x: ox + 1980 * u + 86, y: oy + h * 0.78 };
+}
+
+function drawCursor(x, y, k, alpha) {
+  const ctx = drawingContext;
+  const sz = 24 * k;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.beginPath();
+  ctx.moveTo(sz * 0.03, sz * 0.03);
+  ctx.lineTo(sz * 0.99, sz * 0.43);
+  ctx.lineTo(sz * 0.56, sz * 0.54);
+  ctx.lineTo(sz * 0.44, sz * 0.99);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#4333f0';
+  ctx.lineWidth = sz * 0.07;
+  ctx.lineJoin = 'round';
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawUploadButton(x, y, u, sc, alpha, pressed) {
+  const ctx = drawingContext;
+  const bw = 378 * u;
+  const bh = 112 * u;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.scale(sc, sc);
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(-bw / 2, -bh / 2, bw, bh, 20 * u);
+  else ctx.rect(-bw / 2, -bh / 2, bw, bh);
+  ctx.fillStyle = pressed > 0.5 ? '#2c22c8' : '#3f33f2';
+  ctx.fill();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = max(1.3, 6 * u);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  const ix = -bw * 0.25;
+  ctx.beginPath();
+  const f = 0.72;
+  ctx.moveTo(ix, -bh * 0.22 * f);
+  ctx.lineTo(ix, bh * 0.12 * f);
+  ctx.moveTo(ix - bh * 0.13 * f, -bh * 0.08 * f);
+  ctx.lineTo(ix, -bh * 0.24 * f);
+  ctx.lineTo(ix + bh * 0.13 * f, -bh * 0.08 * f);
+  ctx.moveTo(ix - bh * 0.2 * f, bh * 0.1 * f);
+  ctx.lineTo(ix - bh * 0.2 * f, bh * 0.24 * f);
+  ctx.lineTo(ix + bh * 0.2 * f, bh * 0.24 * f);
+  ctx.lineTo(ix + bh * 0.2 * f, bh * 0.1 * f);
+  ctx.stroke();
+  drawTracked('UPLOAD', ix + bh * 0.3, bh * 0.02 + 40 * u * 0.35, 40 * u, '#ffffff', 40 * u * 0.12, true);
+  ctx.restore();
+}
+
+function drawPostcardIcon(x, y, u, sc, alpha, prog) {
+  const ctx = drawingContext;
+  const cw = 604 * u;
+  const ch = 400 * u;
+  const lav = '#e7e5fb';
+  const ink = '#3f33f2';
+  const rr = (rx, ry, rw, rh, r) => {
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(rx, ry, rw, rh, r);
+    else ctx.rect(rx, ry, rw, rh);
+  };
+  const part = (a, b, ex, ey, fn) => {
+    const r = popIn((prog - a) / (b - a));
+    if (r <= 0) return;
+    ctx.save();
+    ctx.translate(ex, ey);
+    ctx.scale(r, r);
+    ctx.translate(-ex, -ey);
+    fn();
+    ctx.restore();
+  };
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.scale(sc, sc);
+  ctx.translate(-cw / 2, -ch / 2);
+  ctx.lineJoin = 'round';
+  part(0, 0.2, cw / 2, ch / 2, () => {
+    rr(0, 0, cw, ch, 8 * u);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.lineWidth = max(1.9, 7 * u);
+    ctx.strokeStyle = ink;
+    ctx.stroke();
+  });
+  const block = (a, b, bx, by, bw, bh) =>
+    part(a, b, bx + bw / 2, by + bh / 2, () => {
+      rr(bx, by, bw, bh, 4 * u);
+      ctx.fillStyle = lav;
+      ctx.fill();
+    });
+  block(0.2, 0.32, cw * 0.084, ch * 0.148, cw * 0.362, ch * 0.163);
+  block(0.3, 0.42, cw * 0.084, ch * 0.352, cw * 0.362, ch * 0.286);
+  const bx = cw * 0.084;
+  const by = ch * 0.72;
+  const bs = cw * 0.102;
+  const bl = bs * 0.32;
+  part(0.4, 0.52, bx + bs / 2, by + bs / 2, () => {
+    ctx.lineWidth = max(1.6, 6 * u);
+    ctx.strokeStyle = ink;
+    ctx.beginPath();
+    ctx.moveTo(bx, by + bl);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(bx + bl, by);
+    ctx.moveTo(bx + bs - bl, by);
+    ctx.lineTo(bx + bs, by);
+    ctx.lineTo(bx + bs, by + bl);
+    ctx.moveTo(bx, by + bs - bl);
+    ctx.lineTo(bx, by + bs);
+    ctx.lineTo(bx + bl, by + bs);
+    ctx.moveTo(bx + bs - bl, by + bs);
+    ctx.lineTo(bx + bs, by + bs);
+    ctx.lineTo(bx + bs, by + bs - bl);
+    ctx.stroke();
+  });
+  block(0.5, 0.62, cw * 0.21, ch * 0.73, cw * 0.236, ch * 0.137);
+  part(0.6, 0.72, cw * 0.524, ch * 0.5, () => {
+    ctx.lineWidth = max(1.6, 6 * u);
+    ctx.strokeStyle = ink;
+    ctx.beginPath();
+    ctx.moveTo(cw * 0.524, ch * 0.087);
+    ctx.lineTo(cw * 0.524, ch * 0.918);
+    ctx.stroke();
+  });
+  part(0.7, 0.82, cw * 0.87, ch * 0.215, () => {
+    ctx.lineWidth = max(1.6, 6 * u);
+    ctx.strokeStyle = ink;
+    ctx.setLineDash([cw * 0.0135, cw * 0.0135]);
+    ctx.strokeRect(cw * 0.794, ch * 0.087, cw * 0.152, ch * 0.255);
+  });
+  block(0.82, 0.94, cw * 0.581, ch * 0.648, cw * 0.362, ch * 0.204);
+  ctx.restore();
+}
+
+function sceneUiTwo(t) {
+  fill(NAVY);
+  noStroke();
+  rect(0, 0, W, H);
+  const cx = W / 2 + groupShift();
+  const cy = H / 2;
+  const w = UI_W;
+  const h = (UI_W * UI.height) / UI.width;
+  const u = w / 1980;
+  const k = u / 0.1313;
+  const ox = cx - w / 2;
+  const oy = cy - h / 2;
+  const px = (v) => ox + (v - 10) * u;
+  const py = (v) => oy + (v - 10) * u;
+  const ctx = drawingContext;
+  const f = ease((t - 0.5) / 0.4);
+  if (f < 1) {
+    roundImg(UI, ox, oy, w, h, UI_R);
+    uploadDemo(6, ox, oy, u, { cursor: false });
+  }
+  if (f > 0) {
+    ctx.save();
+    ctx.globalAlpha = f;
+    roundImg(UI2, ox, oy, w, h, UI_R);
+    ctx.restore();
+  }
+  const bx = px(1306);
+  const by = py(816);
+  const bIn = ease((t - 0.9) / 0.3);
+  const press = constrain((t - 2.6) / 0.25, 0, 1);
+  const dip = sin(PI * press);
+  const bOut = ease((t - 2.95) / 0.25);
+  const build = constrain((t - 3.05) / 1.4, 0, 1);
+  if (bIn > 0 && bOut < 1) {
+    drawUploadButton(bx, by, u, (1 - 0.07 * dip) * (1 - 0.15 * bOut), bIn * (1 - bOut), dip > 0.5 ? 1 : 0);
+  }
+  const fillP = constrain((t - 3.05) / 1.4, 0, 1);
+  if (fillP > 0) {
+    fillZone(px(755), py(500), 1102 * u, 632 * u, 38 * u, fillP);
+  }
+  if (build > 0) drawPostcardIcon(bx, by, u, 1, 1, build);
+  const rest = cursorRest(ox, oy, u, h);
+  const toBtn = easeIO((t - 1.5) / 1.0);
+  const back = easeIO((t - 3.0) / 0.7);
+  let cxp = lerp(rest.x, bx + 6 * k, toBtn);
+  let cyp = lerp(rest.y, by + 56 * u - 3 * k, toBtn);
+  cxp = lerp(cxp, rest.x, back);
+  cyp = lerp(cyp, rest.y, back) + dip * 2 * k;
+  drawCursor(cxp, cyp, k, 1);
+  textSize(TEXT_SIZE);
+  fill('#ffffff');
+  noStroke();
+  const edge = cx - w / 2 - GAP;
+  const swapOut = ease((t - 0.5) / 0.4);
+  const swapIn = ease((t - 0.8) / 0.4);
+  const baseAlpha = ctx.globalAlpha;
+  setAlpha(baseAlpha * (1 - swapOut));
+  setBlur(swapOut * 5);
+  text('Create', edge - textWidth('Create'), cy + 13 - swapOut * 21);
+  setAlpha(baseAlpha * swapIn);
+  setBlur((1 - swapIn) * 5);
+  text('Import', edge - textWidth('Import'), cy + 13 + (1 - swapIn) * 21);
+  setBlur(0);
+  setAlpha(baseAlpha);
+  text('in a few clicks', cx + w / 2 + GAP, cy + 13);
+}
+
+const FS = TEXT_SIZE;
+const SLOT_H = 164;
+
+function finalLayout(withSlot) {
+  textSize(FS);
+  const logoH = FS * 1.15;
+  const logoW = (logoH * LOGO.width) / LOGO.height;
+  const sw = textWidth('Send');
+  const ww = textWidth('with');
+  const g1 = withSlot ? FS * 0.65 : FS * 0.42;
+  const slot = withSlot ? SLOT_H * 1.68 : 0;
+  const gap2 = withSlot ? FS * 0.65 : 0;
+  const g2 = FS * 0.6;
+  const total = sw + g1 + slot + gap2 + ww + g2 + logoW;
+  const x0 = W / 2 - total / 2;
+  const withX = x0 + sw + g1 + slot + gap2;
+  return { sendX: x0, slotCx: x0 + sw + g1 + slot / 2, withX, logoX: withX + ww + g2, y: H / 2 + 13, pieceY: H / 2, logoW, logoH };
+}
+
+function drawCropMarks(cx, cy, w, h, u, alpha) {
+  const ctx = drawingContext;
+  const gap = 18 * u;
+  const len = 27 * u;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = '#3f33f2';
+  ctx.lineWidth = max(1.5, 4.5 * u);
+  ctx.beginPath();
+  for (const sx of [-1, 1]) {
+    for (const sy of [-1, 1]) {
+      const ex = cx + (sx * w) / 2;
+      const ey = cy + (sy * h) / 2;
+      ctx.moveTo(ex, ey + sy * gap);
+      ctx.lineTo(ex, ey + sy * (gap + len));
+      ctx.moveTo(ex + sx * gap, ey);
+      ctx.lineTo(ex + sx * (gap + len), ey);
+    }
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function sceneUiThree(t) {
+  fill(NAVY);
+  noStroke();
+  rect(0, 0, W, H);
+  const cx = W / 2 + groupShift();
+  const cy = H / 2;
+  const w = UI_W;
+  const h = (UI_W * UI.height) / UI.width;
+  const u = w / 1980;
+  const ox = cx - w / 2;
+  const oy = cy - h / 2;
+  const px = (v) => ox + (v - 10) * u;
+  const py = (v) => oy + (v - 10) * u;
+  const ctx = drawingContext;
+  const k = u / 0.1313;
+  const bx = px(1306);
+  const by = py(816);
+  const L = finalLayout(true);
+  const fo = 1 - ease((t - 2.9) / 0.35);
+  const mv = easeIO((t - 2.9) / 1.0);
+  setAlpha(fo);
+  const f = ease((t - 0.4) / 0.4);
+  if (f < 1) {
+    roundImg(UI2, ox, oy, w, h, UI_R);
+    fillZone(px(755), py(500), 1102 * u, 632 * u, 38 * u, 1);
+    drawPostcardIcon(bx, by, u, 1, fo, 1);
+  }
+  if (f > 0) {
+    ctx.save();
+    ctx.globalAlpha = f * fo;
+    roundImg(UI3, ox, oy, w, h, UI_R);
+    ctx.restore();
+  }
+  const popA = popIn((t - 0.9) / 0.45);
+  if (popA > 0) {
+    const mail = pieceImg(5, 0);
+    const mw0 = 820 * u * popA;
+    const mh0 = (mw0 * mail.height) / mail.width;
+    const mw = lerp(mw0, (SLOT_H * mail.width) / mail.height, mv);
+    const mh = lerp(mh0, SLOT_H, mv);
+    drawCropMarks(bx, by, mw0, mh0, u, fo);
+    setAlpha(1);
+    roundImg(mail, lerp(bx, L.slotCx, mv) - mw / 2, lerp(by, L.pieceY, mv) - mh / 2, mw, mh, MAIL_R);
+    setAlpha(fo);
+  }
+  const rest = cursorRest(ox, oy, u, h);
+  drawCursor(rest.x, rest.y, k, fo);
+  textSize(TEXT_SIZE);
+  fill('#ffffff');
+  noStroke();
+  const outA = ease((t - 0.4) / 0.4);
+  const inA = ease((t - 0.7) / 0.4);
+  const edge = cx - w / 2 - GAP;
+  setAlpha(1 - outA);
+  setBlur(outA * 5);
+  text('Import', edge - textWidth('Import'), cy + 13 - outA * 21);
+  setAlpha(inA);
+  setBlur((1 - inA) * 5);
+  const sendStart = edge - textWidth('Send');
+  textSize(lerp(TEXT_SIZE, FS, mv));
+  text('Send', lerp(sendStart, L.sendX, mv), lerp(cy + 13, L.y, mv) + (1 - inA) * 21);
+  textSize(TEXT_SIZE);
+  setBlur(0);
+  setAlpha(fo);
+  text('in a few clicks', cx + w / 2 + GAP, cy + 13);
+  setAlpha(1);
+  if (mv > 0) {
+    const off = (1 - mv) * (W - L.withX + 107);
+    textSize(FS);
+    text('with', L.withX + off, L.y);
+    ctx.drawImage(LOGO.canvas, L.logoX + off, L.y + 1 - L.logoH, L.logoW, L.logoH);
+  }
+}
+
+function sceneFour(t) {
+  fill(NAVY);
+  noStroke();
+  rect(0, 0, W, H);
+  const A = finalLayout(true);
+  const B = finalLayout(false);
+  const last = IMGS.length - 1;
+  const idx = t < 0.4 ? 0 : min(1 + floor((t - 0.4) / 0.14), last);
+  const img = IMGS[idx];
+  const ph = SLOT_H;
+  const pw = (ph * img.width) / img.height;
+  const sc = idx > 0 && idx < last ? 0.92 + 0.08 * popIn((t - 0.4 - (idx - 1) * 0.14) / 0.1) : 1;
+  const fly = easeIO((t - 2.0) / 0.9);
+  const px = lerp(A.slotCx, W + pw, fly * fly);
+  roundImg(img, px - (pw * sc) / 2, A.pieceY - (ph * sc) / 2, pw * sc, ph * sc, MAIL_R);
+  const q = easeIO((t - 2.2) / 0.9);
+  textSize(FS);
+  fill('#ffffff');
+  text('Send', lerp(A.sendX, B.sendX, q), A.y);
+  text('with', lerp(A.withX, B.withX, q), A.y);
+  drawingContext.drawImage(LOGO.canvas, lerp(A.logoX, B.logoX, q), A.y + 1 - A.logoH, A.logoW, A.logoH);
+}
+</script>
+</body>
+</html>

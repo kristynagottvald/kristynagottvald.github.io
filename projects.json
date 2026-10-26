@@ -837,6 +837,13 @@
         "type": "text"
       },
       {
+        "src": "lob-send-sketch.html",
+        "title": "Send direct mail with Lob",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1200 / 675"
+      },
+      {
         "alt": "Lob",
         "src": "lob-02.webp",
         "type": "image"
