@@ -46,12 +46,12 @@ const PALETTES = [
 ];
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(innerWidth, innerHeight);
   noStroke();
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(innerWidth, innerHeight);
 }
 
 function easeInOutCubic(t) {
@@ -70,7 +70,17 @@ function mixPalette(a, b, t) {
   return out;
 }
 
+// If the frame had a different size when p5 set up (the hero band grows and settles after load), the canvas would
+// stay small in the corner. Once the frame size has been steady for a moment, fit the canvas to it.
+let szSeen = '', szSince = 0;
+function syncSize() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
+  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) windowResized();
+}
+
 function draw() {
+  syncSize();
   const t = max(0, millis() / 1000 - START_HOLD);
   const n = floor(t / CYCLE);
   const u = t - n * CYCLE;

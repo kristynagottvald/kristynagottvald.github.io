@@ -44,7 +44,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(innerWidth, innerHeight);
   calculateGrid();
   
   // Populate groups for the randomizer
@@ -55,7 +55,7 @@ function setup() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(innerWidth, innerHeight);
   calculateGrid();
   generateRandomComposition();
 }
@@ -119,7 +119,17 @@ function slideToEmpty(el, w) {
   el.gridY = t.y;
 }
 
+// If the frame had a different size when p5 set up (the hero band grows and settles after load), the canvas would
+// stay small in the corner. Once the frame size has been steady for a moment, fit the canvas to it.
+let szSeen = '', szSince = 0;
+function syncSize() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
+  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) windowResized();
+}
+
 function draw() {
+  syncSize();
   background('#232746');
   
   // -- RENDER LOOP --

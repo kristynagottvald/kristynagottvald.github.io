@@ -51,7 +51,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(innerWidth, innerHeight);
   textAlign(CENTER, CENTER);
   textStyle(NORMAL); 
   textFont('Arial'); 
@@ -287,7 +287,17 @@ function hasBinaryCells() {
   return false;
 }
 
+// If the frame had a different size when p5 set up (the hero band grows and settles after load), the canvas would
+// stay small in the corner. Once the frame size has been steady for a moment, fit the canvas to it.
+let szSeen = '', szSince = 0;
+function syncSize() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
+  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) windowResized();
+}
+
 function draw() {
+  syncSize();
   // 1. Process Mimic Animation States (BEFORE rendering)
   // Loop backwards to allow safe removal of finished mimics
   for (let i = activeMimics.length - 1; i >= 0; i--) {
@@ -716,7 +726,7 @@ function applyMimicPlacement(state) {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(innerWidth, innerHeight);
   updateGridDimensions();
   autoStartChain();
 }

@@ -24,7 +24,7 @@ var currentDegree = 0;
 var lastFrequency = 130.81;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(innerWidth, innerHeight);
   rectMode(CENTER);
 
   lpFilter = new p5.LowPass();
@@ -94,7 +94,17 @@ function findEmptySpace(w, h) {
   return { x: x, y: y || height/2 };
 }
 
+// If the frame had a different size when p5 set up (the hero band grows and settles after load), the canvas would
+// stay small in the corner. Once the frame size has been steady for a moment, fit the canvas to it.
+let szSeen = '', szSince = 0;
+function syncSize() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
+  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) windowResized();
+}
+
 function draw() {
+  syncSize();
   background('#1E1E1E');
 
   let filterCutoff = map(mouseY, height, 0, 200, 1600);
@@ -246,7 +256,7 @@ function collideRectCircle(rx, ry, rw, rh, cx, cy, cd) {
 
 // When the screen changes size, bars are re-spread across the new canvas and the count follows its area.
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(innerWidth, innerHeight);
   relayoutBars();
 }
 
