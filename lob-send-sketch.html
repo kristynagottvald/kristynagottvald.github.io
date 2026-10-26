@@ -6,7 +6,7 @@
 <title>Lob send sketch</title>
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: #2b2d83; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-  canvas { display: block; width: 100% !important; height: auto !important; max-height: 100%; }
+  canvas { display: block; width: 100% !important; height: 100% !important; object-fit: contain; }
 </style>
 <script>window.ASSET_DIR = 'lob-send/';</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
@@ -27,6 +27,10 @@ const UI_R = 6;
 const ASSET_DIR = window.ASSET_DIR || '';
 const MAIL_FILES = ['mail-1.webp', 'mail-2.webp', 'mail-3.webp', 'mail-4.webp', 'mail-5.webp', 'mail-6.webp', 'mail-7.webp', 'mail-8.webp', 'mail-9.webp', 'mail-10.webp', 'mail-11.webp'];
 const TOTAL = DUR.reduce((a, b) => a + b, 0);
+// ?hero=1 (home page slideshow): play only "Be part of the stack" through the end of the "Create ... in a few clicks" scene
+const HERO = new URLSearchParams(location.search).get('hero') === '1';
+const HERO_FROM = DUR[0];
+const HERO_TO = DUR[0] + DUR[1] + DUR[2];
 const PURPLE = '#3f33f2';
 const NAVY = '#2b2d83';
 
@@ -56,6 +60,9 @@ function addInter() {
     setTimeout(resolve, 4000);
   });
 }
+
+// the page's slideshow asks the sketch to start over each time it comes back around
+window.addEventListener('message', (e) => { if (e.data === 'reset') startMs = millis(); });
 
 async function setup() {
   createCanvas(W, H);
@@ -94,7 +101,7 @@ function draw() {
   if (!ready) return;
   textFont(P5_FONT);
   const raw = (millis() - startMs) / 1000;
-  const t = raw % TOTAL;
+  const t = HERO ? HERO_FROM + (raw % (HERO_TO - HERO_FROM)) : raw % TOTAL;
   let start = 0;
   let i = 0;
   while (i < 5 && t >= start + DUR[i]) {
@@ -102,7 +109,7 @@ function draw() {
     i++;
   }
   const lt = t - start;
-  if (lt < FADE && i !== 0) {
+  if (lt < FADE && i !== 0 && !(HERO && i === 1)) {
     const prev = (i + 5) % 6;
     drawScene(prev, DUR[prev] + lt, 1);
     drawScene(i, lt, i >= 2 ? 1 : lt / FADE);
