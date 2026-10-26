@@ -67,9 +67,9 @@ const LB2 = [-headLen * Math.cos(headSpread),  headLen * Math.sin(headSpread)];
 
 function setup() {
   DPR = Math.min(2, displayDensity());
-  createCanvas(windowWidth, windowHeight, WEBGL);
+  createCanvas(innerWidth, innerHeight, WEBGL);
   pixelDensity(DPR);
-  pg = createGraphics(windowWidth, windowHeight); // 2D layer for the type and the dots
+  pg = createGraphics(innerWidth, innerHeight); // 2D layer for the type and the dots
   pg.pixelDensity(DPR);
   fctx = pg.drawingContext;
   generateTerrain();
@@ -88,10 +88,19 @@ function setup() {
 // the page's slideshow asks the sketch to start over each time it comes back around
 window.addEventListener('message', (e) => { if (e.data === 'reset') t0 = millis(); });
 
+// If the frame was a different size when p5 set up (the hero band grows and settles after load), the canvas would
+// stay small in the corner. Once the frame size has been steady for a moment, fit the canvas to it.
+let szSeen = '', szSince = 0;
+function syncSize() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
+  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) windowResized();
+}
+
 function boot() {
   // an embed that is still unsized (or hidden) when the fonts arrive: wait, then size the canvas to the frame
-  if (!windowWidth || !windowHeight) { setTimeout(boot, 200); return; }
-  if (width !== windowWidth || height !== windowHeight) windowResized();
+  if (!innerWidth || !innerHeight) { setTimeout(boot, 200); return; }
+  if (width !== innerWidth || height !== innerHeight) windowResized();
   sizeFx();
   layoutScenes();
   t0 = millis();
@@ -100,6 +109,7 @@ function boot() {
 function draw() {
   background(BG_LEVEL);
   if (!L1) return; // waiting for fonts
+  syncSize();
 
   const { T, loop } = currentTime();
   const ta = terrainAlphaAt(T, loop);
@@ -322,8 +332,8 @@ function generateTerrain() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  pg.resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(innerWidth, innerHeight);
+  pg.resizeCanvas(innerWidth, innerHeight);
   pg.pixelDensity(DPR);
   fctx = pg.drawingContext;
   generateTerrain();
