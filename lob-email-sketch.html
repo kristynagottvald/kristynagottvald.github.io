@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lob email sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #D047DE; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+const BLUE = '#4533F3';
+const PINK = '#F6DCF6';
+const MAGENTA = '#D047DE';
+const PINKMID = '#EE8FE6';
+let hBtn = 0;
+let hRead = 0;
+let hLog = 0;
+let gearA = 0;
+let hFoot = 0;
+const US = 1.18;
+const UAX = 1002;
+const UAY = 490;
+
+function ux(x) {
+  return UAX + (x - UAX) * US;
+}
+
+function uy(y) {
+  return UAY + (y - UAY) * US;
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  textFont('Arial');
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function fitText(str, x, y, w, bold) {
+  textStyle(bold ? BOLD : NORMAL);
+  textSize(100);
+  const k = w / textWidth(str);
+  textSize(100 * k);
+  text(str, x, y);
+}
+
+function arrowPointer(x, y, rot, fillCol, strokeCol, bob, gap) {
+  push();
+  translate(x + gap * sin(rot), y - gap * cos(rot) + bob);
+  rotate(rot);
+  scale(1.05);
+  fill(fillCol);
+  stroke(strokeCol);
+  strokeWeight(1.6);
+  strokeJoin(ROUND);
+  beginShape();
+  vertex(0, -13);
+  vertex(10, 12);
+  vertex(0, 6);
+  vertex(-10, 12);
+  endShape(CLOSE);
+  pop();
+}
+
+function wander(time, seed, xr, yr, L, mv, delay) {
+  const t = max(0, time - delay);
+  const n = floor(t / L);
+  const p = constrain((t - n * L) / mv, 0, 1);
+  const e = p * p * p * (p * (p * 6 - 15) + 10);
+  const tgt = function (k) {
+    if (k < 0) return [0, 0];
+    return [
+      xr[0] + noise(k * 3.7, seed) * (xr[1] - xr[0]),
+      yr[0] + noise(k * 5.1, seed + 10) * (yr[1] - yr[0])
+    ];
+  };
+  const a = tgt(n - 1);
+  const b = tgt(n);
+  const swing = sin(PI * e) * 14;
+  return [lerp(a[0], b[0], e) + swing * 0.5, lerp(a[1], b[1], e) - swing];
+}
+
+function readPath(t, pts, rx, ry) {
+  let total = 0;
+  for (const k of pts) total += k[0];
+  let u = t % total;
+  for (let i = 1; i < pts.length; i++) {
+    if (u <= pts[i][0]) {
+      const f = pts[i][0] === 0 ? 1 : u / pts[i][0];
+      const sm = f * f * (3 - 2 * f);
+      const e = pts[i][3] ? 0.5 * f + 0.5 * sm : sm;
+      return [lerp(pts[i - 1][1], pts[i][1], e) - rx, lerp(pts[i - 1][2], pts[i][2], e) - ry];
+    }
+    u -= pts[i][0];
+  }
+  return [0, 0];
+}
+
+function labelW(str) {
+  push();
+  textStyle(BOLD);
+  textSize(10);
+  drawingContext.letterSpacing = '1px';
+  const w = textWidth(str) + 28;
+  drawingContext.letterSpacing = '0px';
+  pop();
+  return w;
+}
+
+function label(str, cx, y, h, bg, fg, bob, ty) {
+  push();
+  translate(0, bob);
+  textStyle(BOLD);
+  textSize(10);
+  drawingContext.letterSpacing = '1px';
+  const w = textWidth(str) + 28;
+  noStroke();
+  fill(bg);
+  rect(cx - w / 2, y, w, h, 2.5);
+  fill(fg);
+  textAlign(CENTER, CENTER);
+  text(str, cx, y + h / 2 + ty);
+  drawingContext.letterSpacing = '0px';
+  pop();
+}
+
+function logo(x, y, s, col) {
+  const c = drawingContext;
+  c.save();
+  c.translate(x, y);
+  c.scale(s, s);
+  c.translate(-97, -89);
+  c.fillStyle = col;
+  c.beginPath();
+  c.moveTo(97, 89);
+  c.lineTo(246, 89);
+  c.lineTo(246, 643);
+  c.lineTo(466, 643);
+  c.lineTo(421, 782);
+  c.lineTo(97, 782);
+  c.closePath();
+  c.fill();
+  c.beginPath();
+  c.ellipse(779.5, 510, 299.5, 284, 0, 0, TWO_PI);
+  c.ellipse(779.5, 508.5, 155.5, 152.5, 0, 0, TWO_PI);
+  c.fill('evenodd');
+  c.beginPath();
+  c.moveTo(1138, 89);
+  c.lineTo(1287, 89);
+  c.lineTo(1287, 305);
+  c.lineTo(1273, 305);
+  c.lineTo(1273, 706);
+  c.lineTo(1281, 706);
+  c.lineTo(1256, 782);
+  c.lineTo(1138, 782);
+  c.closePath();
+  c.fill();
+  c.beginPath();
+  c.ellipse(1461, 510, 271, 284, 0, 0, TWO_PI);
+  c.ellipse(1430, 508, 157, 153, 0, 0, TWO_PI);
+  c.fill('evenodd');
+  c.restore();
+}
+
+function hero(t) {
+  noStroke();
+  fill('#5C2468');
+  rect(650, 231, 700, 259, 8);
+  drawingContext.save();
+  drawingContext.beginPath();
+  drawingContext.roundRect(650, 231, 700, 259, 8);
+  drawingContext.clip();
+  stroke('#6E3379');
+  strokeWeight(1);
+  for (let x = 650 + 24; x < 1350; x += 47) line(x, 231, x, 490);
+  for (let y = 231 + 12; y < 490; y += 47) line(650, y, 1350, y);
+  drawingContext.restore();
+
+  push();
+  translate(UAX, UAY);
+  scale(US);
+  translate(-UAX, -UAY);
+  noStroke();
+  fill('#1F2250');
+  rect(831, 301, 98, 189, 6, 0, 0, 0);
+  logo(842, 311, 0.011, '#FFFFFF');
+  noFill();
+  stroke('#8C8EA8');
+  strokeWeight(1);
+  circle(912, 317, 9);
+  stroke('#C6C7D2');
+  strokeWeight(0.8);
+  line(910, 317, 914, 317);
+  line(910, 317, 912, 315.5);
+  line(910, 317, 912, 318.5);
+  stroke('#8C8EA8');
+  line(910.5, 410.5, 912, 412.2);
+  line(912, 412.2, 913.5, 410.5);
+  line(910.5, 425.5, 912, 427.2);
+  line(912, 427.2, 913.5, 425.5);
+
+  const widths = [34, 38, 45, 44, 52, 61, 40, 37];
+  const ys = [337, 352, 367, 382, 397, 412, 427, 442];
+  noStroke();
+  for (let i = 0; i < widths.length; i++) {
+    fill(i === 0 ? '#C6C7D2' : '#565B7C');
+    rect(842, ys[i] - 2.7, widths[i], 5.4, 2.7);
+  }
+  fill('#565B7C');
+  rect(842, 477.3, 44, 5.4, 2.7);
+
+  fill('#FAFAFA');
+  stroke('#E2E2E8');
+  strokeWeight(1);
+  rect(929, 301, 244, 189, 0, 6, 0, 0);
+  noStroke();
+  fill('#FFFFFF');
+  rect(930, 302, 242, 18, 0, 5, 0, 0);
+  stroke('#E2E2E8');
+  line(929, 320, 1173, 320);
+  noFill();
+  rect(939, 306, 149, 10);
+  rect(1103, 306, 47, 10, 5);
+  noStroke();
+  fill('#E4E4EA');
+  rect(946, 328, 28, 6, 3);
+  fill('#FFFFFF');
+  stroke('#E2E2E8');
+  rect(946, 344, 101, 29, 4);
+  rect(1053, 344, 101, 29, 4);
+  noStroke();
+  fill('#D3D3DB');
+  rect(951, 349, 15, 3.5, 1.7);
+  rect(1058, 349, 15, 3.5, 1.7);
+  const aq = t % 500;
+  const smo = function (v) {
+    const u = constrain(v, 0, 1);
+    return u * u * (3 - 2 * u);
+  };
+  const act1 = smo((aq - 100) / 14) - smo((aq - 160) / 14);
+  const act2 = smo((aq - 195) / 14) - smo((aq - 255) / 14);
+  fill(222, 222, 228, 255 * act1);
+  rect(951, 358, 60, 8, 4);
+  fill(222, 222, 228, 255 * act2);
+  rect(1058, 358, 60, 8, 4);
+
+  fill('#FFFFFF');
+  stroke('#E2E2E8');
+  rect(946, 379, 208, 111, 4, 4, 0, 0);
+  noStroke();
+  fill('#F6F6F7');
+  rect(966, 415, 187, 16);
+  rect(966, 447, 187, 16);
+  stroke('#E2E2E8');
+  for (let i = 0; i < 5; i++) line(966, 415 + i * 16, 1153, 415 + i * 16);
+  noStroke();
+  fill('#D3D3DB');
+  rect(1064, 386.5, 15, 3.5, 1.7);
+  rect(1108, 386.5, 15, 3.5, 1.7);
+  noFill();
+  stroke('#E2E2E8');
+  rect(1064, 391, 41, 11);
+  rect(1108, 391, 41, 11);
+  noStroke();
+  fill('#D3D3DB');
+  rect(1067, 395, 18, 3, 1.5);
+  rect(1111, 395, 18, 3, 1.5);
+  const cyc = t < 80 ? -1000 : (t - 80) % 310;
+  const win = [[0, 60], [90, 150], [180, 260]];
+  const nodeX = [2, 3, 3];
+  const nodeY = [1, 2, 1];
+  const actX = [0, 0, 0, 0];
+  const actY = [0, 0, 0, 0, 0];
+  for (let n = 0; n < 3; n++) {
+    const sm = function (v) {
+      const u = constrain(v, 0, 1);
+      return u * u * (3 - 2 * u);
+    };
+    const a = sm((cyc - win[n][0]) / 12) - sm((cyc - win[n][1]) / 12);
+    actX[nodeX[n]] = max(actX[nodeX[n]], a);
+    actY[nodeY[n]] = max(actY[nodeY[n]], a);
+  }
+  const greyTick = color('#D9D9E0');
+  const pinkTick = color('#E253DB');
+  for (let i = 0; i < 4; i++) {
+    fill(lerpColor(greyTick, pinkTick, actX[i]));
+    rect(966 + i * 50, 483.5, 13, 2.5, 1.2);
+  }
+  for (let i = 0; i < 5; i++) {
+    fill(lerpColor(greyTick, pinkTick, i < 5 ? actY[i] : 0));
+    rect(958, 414 + i * 16, 6, 2.5, 1.2);
+  }
+
+  const pts = [[972, 470], [994, 455], [1016, 461], [1039, 444], [1061, 447], [1084, 428], [1106, 444], [1125, 431]];
+  noFill();
+  stroke('#C830D0');
+  strokeWeight(1);
+  beginShape();
+  for (const p of pts) vertex(p[0], p[1]);
+  endShape();
+  noStroke();
+  fill('#C830D0');
+  for (let i = 0; i < pts.length; i++) {
+    const r = 3.6 + 1.2 * max(0, sin(t * 0.08 - i * 0.7));
+    circle(pts[i][0], pts[i][1], r);
+  }
+  pop();
+
+  const rest = [894.4, 271.2];
+  const bt = [ux(850), ux(854), ux(852)];
+  const by3 = [uy(352), uy(367), uy(382)];
+  const sideIntro = [
+    [0, rest[0], rest[1], 0],
+    [60, bt[0], by3[0], 0]
+  ];
+  const sidebar = [
+    [0, bt[0], by3[0], 0],
+    [45, bt[0], by3[0], 0],
+    [35, bt[1], by3[1], 0],
+    [45, bt[1], by3[1], 0],
+    [35, bt[2], by3[2], 0],
+    [45, bt[2], by3[2], 0],
+    [50, bt[0], by3[0], 0]
+  ];
+  const n1 = [ux(1084), uy(428)];
+  const n2 = [ux(1106), uy(444)];
+  const n3 = [ux(1125), uy(431)];
+  const intro = [
+    [0, 1164, 393, 0],
+    [90, n1[0], n1[1], 0]
+  ];
+  const nodes = [
+    [0, n1[0], n1[1], 0],
+    [40, n1[0], n1[1], 0],
+    [50, n2[0], n2[1], 0],
+    [40, n2[0], n2[1], 0],
+    [50, n3[0], n3[1], 0],
+    [60, n3[0], n3[1], 0],
+    [70, n1[0], n1[1], 0]
+  ];
+  const A = t < 60 ? readPath(t, sideIntro, rest[0], rest[1]) : readPath(t - 60, sidebar, rest[0], rest[1]);
+  const W = t < 90 ? readPath(t, intro, 1164, 393) : readPath(t - 90, nodes, 1164, 393);
+  const ax = A[0];
+  const ay = A[1];
+  const wx = W[0];
+  const wy = W[1];
+  const roW = labelW('READ-ONLY USER');
+  push();
+  translate(ax, ay);
+  label('READ-ONLY USER', 911 + roW / 2, 231, 19, PINKMID, '#3A1745', 0, -0.1);
+  arrowPointer(904, 261.5, -2.356, '#FFFFFF', PINKMID, 0, 0);
+  pop();
+  push();
+  translate(wx, wy);
+  label('READ & WRITE USER', 1257, 353, 19, '#CDD63A', '#2A2A10', 0, -0.1);
+  arrowPointer(1180, 377, -2.356, '#F4F07A', '#B8B820', 0, 9);
+  pop();
+  const arest = [740.4, 450.2];
+  const c1 = [ux(1000), uy(366)];
+  const c2 = [ux(1085), uy(366)];
+  const c3 = [ux(1050), uy(440)];
+  const adLoop = [
+    [0, arest[0], arest[1], 0],
+    [110, c1[0], c1[1], 0],
+    [45, c1[0], c1[1], 0],
+    [50, c2[0], c2[1], 0],
+    [45, c2[0], c2[1], 0],
+    [55, c3[0], c3[1], 0],
+    [45, c3[0], c3[1], 0],
+    [100, arest[0], arest[1], 0],
+    [50, arest[0], arest[1], 0]
+  ];
+  const D = readPath(t, adLoop, arest[0], arest[1]);
+  push();
+  translate(D[0], D[1]);
+  const adW = labelW('ADMIN');
+  label('ADMIN', 757 + adW / 2, 410, 19, MAGENTA, '#FFFFFF', 0, -0.8);
+  arrowPointer(750, 440.5, -2.356, '#FFFFFF', MAGENTA, 0, 0);
+  pop();
+}
+
+function icon(cx, cy, kind, t, phase) {
+  push();
+  noStroke();
+  fill('#EBBEF0');
+  circle(cx + 12, cy, 44);
+  fill('#FFFFFF');
+  circle(cx, cy, 44);
+  noFill();
+  stroke('#111111');
+  strokeWeight(2);
+  strokeCap(ROUND);
+  strokeJoin(ROUND);
+  if (kind === 0) {
+    strokeWeight(2.2);
+    const g = t % 260;
+    const sm = function (v) {
+      const u = constrain(v, 0, 1);
+      return u * u * (3 - 2 * u);
+    };
+    const side = floor(t / 260) % 2 === 0 ? 1 : -1;
+    const spin = side * QUARTER_PI * (sm(g / 70) - sm((g - 130) / 70));
+    push();
+    translate(cx, cy);
+    rotate(spin);
+    circle(0, 0, 19);
+    ellipse(0, 0, 7.5, 19);
+    line(-9.5, 0, 9.5, 0);
+    pop();
+  } else if (kind === 1) {
+    strokeWeight(2.2);
+    strokeCap(SQUARE);
+    strokeJoin(MITER);
+    const ss = function (v) {
+      const u = constrain(v, 0, 1);
+      return u * u * (3 - 2 * u);
+    };
+    const tt = t + 30;
+    const n = floor(tt / 150);
+    const q = tt % 150;
+    const lefts = [1.5, -1.8, 5.1];
+    const write = ss((q - 30) / 60);
+    let px = lerp(0.25, -4.65, write);
+    if (n > 0 && q < 30) px = lerp(-4.65, 0.25, ss(q / 30));
+    strokeWeight(1.9);
+    strokeCap(SQUARE);
+    for (let k = max(0, n - 3); k <= n; k++) {
+      let row = 0;
+      let al = 1;
+      let lf = lefts[k % 3];
+      if (k < n) {
+        row = n - k - 1 + ss(q / 30);
+        al = 1 - constrain(row - 2, 0, 1);
+      } else {
+        lf = lerp(7.9, lefts[k % 3], write);
+        al = ss((q - 15) / 15);
+      }
+      if (al > 0) {
+        stroke(17, 17, 17, 255 * al);
+        const ly = cy + 6 - 5.9 * row;
+        line(cx + lf, ly, cx + 11.4, ly);
+      }
+    }
+    stroke('#111111');
+    strokeWeight(2.2);
+    push();
+    translate(px, 1.8);
+    fill('#FFFFFF');
+    beginShape();
+    vertex(cx - 4.4, cy - 7.6);
+    vertex(cx + 3, cy - 0.2);
+    vertex(cx + 3, cy + 3);
+    vertex(cx - 0.3, cy + 3);
+    vertex(cx - 7.7, cy - 4.5);
+    endShape(CLOSE);
+    line(cx - 0.3, cy + 3, cx + 3, cy - 0.2);
+    pop();
+  } else {
+    const k = 1 - 0.9 * pow(max(0, sin(t * 0.04 + phase)), 30);
+    bezier(cx - 11, cy, cx - 5, cy - 8 * k, cx + 5, cy - 8 * k, cx + 11, cy);
+    bezier(cx + 11, cy, cx + 5, cy + 8 * k, cx - 5, cy + 8 * k, cx - 11, cy);
+    circle(cx, cy, 6 * k + 0.1);
+  }
+  pop();
+}
+
+function card(x, kind, title, lines, t, phase) {
+  noStroke();
+  fill(PINK);
+  rect(x, 813, x > 1100 ? 227 : 228, 266, 8);
+  icon(x + 53, 866, kind, t, phase);
+  fill('#111111');
+  textAlign(LEFT, CENTER);
+  textStyle(BOLD);
+  textSize(20.5);
+  text(title, x + 34, 929);
+  textStyle(NORMAL);
+  textSize(20.5);
+  for (let i = 0; i < lines.length; i++) text(lines[i], x + 34, 965 + i * 23.8);
+}
+
+function draw() {
+  const t = frameCount;
+  background(MAGENTA);
+  push();
+  const fit = min(width / 2000, height / 1271);
+  scale(fit);
+  translate((width / fit - 2000) / 2, 0);
+  const mxr = mouseX / fit - (width / fit - 2000) / 2;
+  const myr = mouseY / fit;
+
+  noStroke();
+  fill('#FFFFFF');
+  rect(428, 97, 1144, 4000, 10, 10, 0, 0);
+  fill(BLUE);
+  rect(428, 97, 1144, 87, 10, 10, 0, 0);
+
+  fill('#FFFFFF');
+  textAlign(LEFT, CENTER);
+  textStyle(NORMAL);
+  textSize(15);
+  drawingContext.letterSpacing = '1.6px';
+  const roW2 = drawingContext.measureText('READ ONLINE').width - 1.6;
+  const liW = drawingContext.measureText('LOG IN').width - 1.6;
+  text('READ ONLINE', 650, 142);
+  text('LOG IN', 1351 - liW, 142);
+  const overRead = mxr >= 640 && mxr <= 660 + roW2 && myr >= 126 && myr <= 158;
+  const overLog = mxr >= 1341 - liW && mxr <= 1361 && myr >= 126 && myr <= 158;
+  hRead = lerp(hRead, overRead ? 1 : 0, 0.2);
+  hLog = lerp(hLog, overLog ? 1 : 0, 0.2);
+  strokeWeight(1.4);
+  strokeCap(SQUARE);
+  stroke(255, 255, 255, 255 * hRead);
+  line(650, 149, 650 + roW2, 149);
+  stroke(255, 255, 255, 255 * hLog);
+  line(1351 - liW, 149, 1351, 149);
+  drawingContext.letterSpacing = '0px';
+
+  noStroke();
+  fill('#FFFFFF');
+  textAlign(CENTER, CENTER);
+  logo(965.9, 126.4, 0.0422, '#FFFFFF');
+
+  hero(t);
+
+  fill('#000000');
+  noStroke();
+  textAlign(LEFT, BASELINE);
+  fitText('Better ROI starts with teamwork', 651, 590, 678, true);
+  fill('#111111');
+  fitText('Direct mail works better when your whole team is in the loop.', 651, 638, 538, false);
+  fitText('And the data backs it up — only 39% of teams have full visibility', 651, 667, 566, false);
+  fitText('into their campaigns, but those that do report higher ROI.*', 651, 696, 513, false);
+  fill('#000000');
+  fitText('Choose the right level of access for everyone on your team', 651, 772, 643, true);
+
+  card(651, 0, 'Admin', ['Full account', 'access for those', 'who run the show'], t, 0);
+  card(888, 1, 'Read & Write', ['For teammates', 'who work with the', 'API or manage', 'campaigns'], t, 1.5);
+  card(1124, 2, 'Read', ['For stakeholders', 'who just need', 'visibility'], t, 3);
+
+  const overBtn = mxr >= 651 && mxr <= 1351 && myr >= 1100 && myr <= 1157;
+  hBtn = lerp(hBtn, overBtn ? 1 : 0, 0.2);
+  noStroke();
+  const btnCol = lerpColor(color(BLUE), color('#3827E0'), hBtn);
+  fill(btnCol);
+  rect(651, 1100 - 2 * hBtn, 700, 57, 3);
+  textStyle(NORMAL);
+  textSize(17.5);
+  gearA += 0.012 + 0.03 * hBtn;
+  if (hBtn > 0.005) {
+    const slide = (1 - hBtn) * 58;
+    drawingContext.save();
+    drawingContext.beginPath();
+    drawingContext.roundRect(651, 1100 - 2 * hBtn, 700, 57, 3);
+    drawingContext.clip();
+    noStroke();
+    fill('#2314B8');
+    rect(1293 + slide, 1100 - 2 * hBtn, 58, 57);
+    push();
+    translate(1322 + slide, 1128.5 - 2 * hBtn);
+    scale(0.8);
+    fill(255);
+    push();
+    rotate(gearA);
+    for (let i = 0; i < 8; i++) {
+      push();
+      rotate(i * QUARTER_PI);
+      rect(-3, -15, 6, 6, 1.2);
+      pop();
+    }
+    circle(0, 0, 25);
+    fill('#2314B8');
+    circle(0, 0, 18);
+    pop();
+    fill(255);
+    circle(0, -2.8, 6);
+    arc(0, 7, 13, 12, PI, TWO_PI);
+    pop();
+    drawingContext.restore();
+  }
+  fill('#FFFFFF');
+  textAlign(CENTER, CENTER);
+  text('Add to your team', 1000, 1129 - 2 * hBtn);
+
+  fill('#000000');
+  textAlign(LEFT, BASELINE);
+  textStyle(NORMAL);
+  textSize(16);
+  text('*From ', 651, 1221);
+  const fw = drawingContext.measureText('*From ').width;
+  fill(BLUE);
+  textStyle(BOLD);
+  text('The State of Direct Mail: Business Insights 2026', 651 + fw, 1221);
+  const linkW = textWidth('The State of Direct Mail: Business Insights 2026');
+  const overFoot = mxr >= 651 + fw - 4 && mxr <= 651 + fw + linkW + 4 && myr >= 1203 && myr <= 1230;
+  hFoot = lerp(hFoot, overFoot ? 1 : 0, 0.2);
+  stroke(69, 51, 243, 255 * hFoot);
+  strokeWeight(1.4);
+  strokeCap(SQUARE);
+  line(651 + fw, 1225, 651 + fw + linkW, 1225);
+  cursor(overBtn || overRead || overLog || overFoot ? 'pointer' : 'default');
+
+  pop();
+}
+</script>
+</body>
+</html>

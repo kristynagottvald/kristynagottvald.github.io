@@ -885,9 +885,11 @@
         "type": "image"
       },
       {
-        "alt": "Lob",
-        "src": "lob-11.webp",
-        "type": "image"
+        "src": "lob-email-sketch.html",
+        "title": "Lob team access email",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1271"
       },
       {
         "body": [
