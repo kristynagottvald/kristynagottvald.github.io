@@ -469,6 +469,7 @@ function setup() {
   loadFonts().then(() => { layoutScenes(); ready = true; t0 = millis(); });
 }
 function windowResized() { fitCanvas(); }
+addEventListener('message', e => { if (e.data === 'reset') t0 = millis(); });
 function mousePressed() { t0 = millis(); }
 function keyPressed() { if (key === 'r' || key === 'R') t0 = millis(); }
 
