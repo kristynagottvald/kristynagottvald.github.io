@@ -98,7 +98,20 @@ function setBlur(px) {
 }
 
 function draw() {
-  if (!ready) return;
+  if (!ready) {
+    // home page slideshow: show "Be part of the stack" in the middle straight away, while the images and font still load
+    if (HERO) {
+      background(NAVY);
+      noStroke();
+      fill('#ffffff');
+      textFont(P5_FONT);
+      textSize(TEXT_SIZE);
+      textAlign(CENTER, BASELINE);
+      text('Be part of the stack', W / 2, H / 2 + 13);
+      textAlign(LEFT, BASELINE);
+    }
+    return;
+  }
   textFont(P5_FONT);
   const raw = (millis() - startMs) / 1000;
   const t = HERO ? HERO_FROM + (raw % (HERO_TO - HERO_FROM)) : raw % TOTAL;
