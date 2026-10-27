@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261027w');
+      const res = await fetch('projects.json?v=20261027x');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -52,7 +52,7 @@
   /* ---------- Home: work list ---------- */
 
   const ARROW = '<svg class="card-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor"/></svg>';
-  const SERVICES = ['Brand identity', 'Creative coding', 'Creative direction', 'Art direction', 'Campaigns', 'Illustration & motion'];
+  const SERVICES = ['Brand Identity', 'Creative Coding', 'Creative Direction', 'Art Direction', 'Campaigns', 'Motion Design', 'Interactive Tool Development & AI'];
 
   function renderGrid() {
     cardsEl.innerHTML = projects
@@ -67,7 +67,9 @@
         </a>
       </article>`)
       .join('');
-    $('#service-list').innerHTML = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${esc(t)}</span></li>`).join('');
+    const serviceItems = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${esc(t)}</span></li>`).join('');
+    $('#service-list').innerHTML = serviceItems;
+    $('#about-service-list').innerHTML = serviceItems;
     watchWork();
     renderProjectsPage();
   }

@@ -280,6 +280,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .case-end .next-label, .case-end .next-title, .all-projects h2 { padding-left: var(--indent); }
 .row-head { padding-left: var(--indent); padding-right: var(--indent); }
 .service-list li { padding-left: var(--indent); }
+.about-services { padding: 0; margin-top: 24px; }   /* the about page already carries the indent */
+.about-services .row-head, .about-services .service-list li { padding-left: 0; padding-right: 0; }
 .contact-row h3 { padding-left: var(--indent); }
 .foot span, .widget { margin-left: 0; }
 .foot { padding-left: var(--indent); }
