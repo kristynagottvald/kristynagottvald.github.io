@@ -29,7 +29,7 @@ const MAIL_FILES = ['mail-1.webp', 'mail-2.webp', 'mail-3.webp', 'mail-4.webp', 
 const TOTAL = DUR.reduce((a, b) => a + b, 0);
 // ?hero=1 (home page slideshow): play only "Be part of the stack" through the end of the "Create ... in a few clicks" scene
 const HERO = new URLSearchParams(location.search).get('hero') === '1';
-const HERO_FROM = DUR[0] + 1;   // skips the first second of the stack scene (just the background and the first pop-ins)
+const HERO_FROM = DUR[0];   // starts at the top of the stack scene so the mail pieces pop in
 const HERO_TO = DUR[0] + DUR[1] + DUR[2] - 1.5;   // stops 1.5s before the end of the Create scene
 const PURPLE = '#3f33f2';
 const NAVY = '#2b2d83';
@@ -237,7 +237,7 @@ function sceneTwo(t) {
   rect(0, 0, W, H);
   const cx = W / 2;
   const cy = H / 2;
-  const enter = ease((t - 0.05) / 0.7);
+  const enter = HERO ? 1 : ease((t - 0.05) / 0.7);   // hero: the text is already centred from the loading frame, only the mail pops in
   const spread = ease((t - 1.7) / 0.7);
   const lift = easeIO((t - 2.0) / 0.8);
   const zoom = ease((t - 2.8) / 0.6);
