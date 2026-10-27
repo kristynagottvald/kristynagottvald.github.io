@@ -157,9 +157,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .service-list li { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); font: 300 clamp(30px, 5vw, 72px)/1 var(--cond); letter-spacing: -0.03em; }
 .service-list li:last-child { border-bottom: 1px solid var(--line); }
 .service-list .n { color: var(--grey); }
+.service-list .svc-link { color: inherit; text-decoration: none; }
 .service-list .svc-go { display: inline-block; margin-left: .3em; vertical-align: top; color: var(--grey); transition: color .2s, transform .35s var(--ease); }
 .service-list .svc-go svg { display: block; width: .42em; height: .42em; margin-top: .12em; }   /* the same arrow as the hero label */
-.service-list .svc-go:hover { color: var(--ink); transform: translate(2px, -2px); }
+.service-list .svc-link:hover .svc-go { color: var(--ink); transform: translate(2px, -2px); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- Case study ---------- */
 .case-top { padding: 110px var(--pad) 40px 31.5px; display: grid; gap: 24px; }   /* 31.5px = left edge of the kg logo */

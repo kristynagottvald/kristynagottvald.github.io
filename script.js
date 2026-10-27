@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261028c');
+      const res = await fetch('projects.json?v=20261028d');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -68,7 +68,7 @@
         </a>
       </article>`)
       .join('');
-    const serviceItems = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${esc(t)}${SERVICE_LINKS[t] ? `<a class="svc-go" href="${SERVICE_LINKS[t]}" target="_blank" rel="noopener noreferrer" aria-label="${esc(t)} (opens in a new tab)"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/></svg></a>` : ''}</span></li>`).join('');
+    const serviceItems = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${SERVICE_LINKS[t] ? `<a class="svc-link" href="${SERVICE_LINKS[t]}" target="_blank" rel="noopener noreferrer">${esc(t)}<span class="svc-go" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/></svg></span><span class="sr-only"> (opens in a new tab)</span></a>` : esc(t)}</span></li>`).join('');
     $('#service-list').innerHTML = serviceItems;
     $('#about-service-list').innerHTML = serviceItems;
     watchWork();
