@@ -909,7 +909,7 @@
         "type": "pair",
         "images": [
           { "sketch": "lob-template-gallery-sketch.html", "title": "Lob Template Gallery", "aspect": "2000 / 1271", "bg": "#5B4DF4" },
-          { "src": "lob-14.webp", "alt": "Lob" }
+          { "src": "lob-letter.webp", "alt": "Lob" }
         ]
       },
       {
