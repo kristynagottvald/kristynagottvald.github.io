@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lob template gallery sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #5B4DF4; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; border-radius: 6px; }
+</style>
+<script>window.ASSET_DIR = 'lob-send/';</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+const W = 720;
+const H = 720;
+const TOTAL = 16.8;
+const BG = '#4131F1';
+const WHITE = '#ffffff';
+const CAP_L = 56;
+const CAP_Y = H - 76;
+const SW = 2;
+const ASSET_DIR = window.ASSET_DIR || '';
+
+const TPL = [
+  { L: 0, bg: '#ffffff', st: '#4131f1', soft: '#efedfe' },
+  { L: 1, bg: '#f8ff9a', st: '#4131f1', soft: '#4131f1' },
+  { L: 2, bg: '#ffffff', st: '#4131f1' },
+  { L: 3, bg: '#fbdbfd', st: '#d246e0' },
+  { L: 1, bg: '#cc40dc', st: '#ffc84a', soft: '#ffc84a' },
+  { L: 3, bg: '#a28bff', st: '#4131f1' },
+  { L: 2, bg: '#ffc84a', st: '#4131f1', solid: true },
+  { L: 0, bg: '#fbdbfd', st: '#4a1d5e', soft: '#4a1d5e' },
+  { L: 3, bg: '#f8ff9a', st: '#4131f1' },
+  { L: 4, bg: '#f8ff9a', st: '#d246e0' },
+  { L: 5, bg: '#ffc84a', st: '#4131f1' },
+  { L: 5, bg: '#cc40dc', st: '#4131f1' },
+  { L: 0, bg: '#cc40dc', st: '#f8ff9a', soft: '#f8ff9a' }
+];
+
+const LAYOUT = [
+  { w: 250, h: 322, el: [['h', 0.092, 0.075, 0.38, 0.171], ['s', 0.608, 0.075, 0.296, 0.053], ['b', 0.1, 0.332, 0.48, 0.078], ['b', 0.1, 0.447, 0.768, 0.214], ['b', 0.1, 0.823, 0.768, 0.078]] },
+  { w: 366, h: 244, el: [['b', 0.079, 0.086, 0.15, 0.074], ['s', 0.074, 0.311, 0.445, 0.34], ['h', 0.582, 0, 0.418, 0.52], ['b', 0.077, 0.713, 0.44, 0.168], ['b', 0.631, 0.79, 0.281, 0.078]] },
+  { w: 258, h: 345, el: [['b', 0.527, 0.049, 0.395, 0.128], ['x', 0.07, 0.133, 0.399, 0.296], ['h', 0.523, 0.226, 0.407, 0.209], ['l', 0.07, 0.493, 0.86, 0], ['b', 0.12, 0.588, 0.519, 0.101], ['b', 0.12, 0.733, 0.752, 0.18]] },
+  { w: 366, h: 244, el: [['b', 0.615, 0.11, 0.325, 0.164], ['b', 0.077, 0.316, 0.23, 0.332], ['b', 0.077, 0.713, 0.44, 0.168], ['h', 0.582, 0.49, 0.418, 0.51]] },
+  { w: 258, h: 345, el: [['b', 0.527, 0.049, 0.395, 0.128], ['b', 0.07, 0.133, 0.399, 0.296], ['h', 0.523, 0.226, 0.407, 0.209], ['l', 0.07, 0.493, 0.86, 0], ['f', 0.12, 0.588, 0.519, 0.101], ['b', 0.12, 0.733, 0.752, 0.18]] },
+  { w: 366, h: 244, el: [['f', 0.615, 0.11, 0.325, 0.164], ['b', 0.077, 0.316, 0.23, 0.332], ['b', 0.077, 0.713, 0.44, 0.168], ['h', 0.582, 0.49, 0.418, 0.51]] }
+];
+
+const ORDER_T = [6, 5, 0, 3, 2, 4, 12];
+const ROW_SPEED = 210;
+const ROWS = [
+  { y: 165, dir: 1, d0: -840, R: 1680, slots: [{ x: 120, id: 3 }, { x: 360, id: 6 }, { x: 600, id: 0 }, { x: -120, tpl: 10 }, { x: -360, tpl: 7 }, { x: -600, tpl: 8 }, { x: -840, tpl: 11 }] },
+  { y: 375, dir: -1, d0: -120, R: 1440, slots: [{ x: 120, id: 4 }, { x: 360, id: 5 }, { x: 600, id: 1 }, { x: 840, tpl: 9 }, { x: 1080, id: 2 }, { x: -120, tpl: 1 }] }
+];
+
+let P5_FONT = 'Helvetica';
+let ready = false;
+let startMs = 0;
+let LOGO = null;
+
+function addInter() {
+  return new Promise((resolve) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:ital,wght@1,400&display=swap';
+    link.onload = () => {
+      if (!document.fonts) return resolve();
+      Promise.all([document.fonts.load('400 32px Inter', 'Abc'), document.fonts.load('500 32px Inter', 'Abc'), document.fonts.load('italic 400 32px "Fraunces"', 'Abc')]).then(resolve, resolve);
+    };
+    link.onerror = resolve;
+    document.head.appendChild(link);
+    setTimeout(resolve, 4000);
+  });
+}
+
+window.addEventListener('message', (e) => { if (e.data === 'reset') startMs = millis(); });
+
+async function setup() {
+  createCanvas(W, H);
+  await addInter();
+  LOGO = await new Promise((resolve) => loadImage(ASSET_DIR + 'logo.png', resolve, () => resolve(null)));
+  if (document.fonts && document.fonts.check('400 32px Inter')) P5_FONT = 'Inter';
+  startMs = millis();
+  ready = true;
+}
+
+function ease(x) {
+  x = constrain(x, 0, 1);
+  return 1 - pow(1 - x, 3);
+}
+
+function popIn(x) {
+  x = constrain(x, 0, 1);
+  if (x <= 0) return 0;
+  const c1 = 1.70158;
+  return 1 + (c1 + 1) * pow(x - 1, 3) + c1 * pow(x - 1, 2);
+}
+
+function span(t, a, b) {
+  return constrain((t - a) / (b - a), 0, 1);
+}
+
+function setAlpha(a) {
+  drawingContext.globalAlpha = a;
+}
+
+function setBlur(px) {
+  drawingContext.filter = px > 0.2 ? 'blur(' + (px * pixelDensity()).toFixed(1) + 'px)' : 'none';
+}
+
+function rr(x, y, w, h, r) {
+  const ctx = drawingContext;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, max(0, min(r, w / 2, h / 2)));
+  else ctx.rect(x, y, w, h);
+}
+
+function hatch(x, y, w, h, col, gap) {
+  const ctx = drawingContext;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  ctx.strokeStyle = col;
+  ctx.lineWidth = SW;
+  ctx.beginPath();
+  for (let d = -h; d < w; d += gap) {
+    ctx.moveTo(x + d, y + h);
+    ctx.lineTo(x + d + h, y);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawTemplate(tpl, w, h, cx, cy, sc, rot) {
+  const ctx = drawingContext;
+  const lay = LAYOUT[tpl.L];
+  const x = -w / 2;
+  const y = -h / 2;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rot || 0);
+  ctx.scale(sc, sc);
+  rr(x, y, w, h, 4);
+  ctx.fillStyle = tpl.bg;
+  ctx.fill();
+  ctx.save();
+  rr(x, y, w, h, 4);
+  ctx.clip();
+  for (const e of lay.el) {
+    const ex = x + e[1] * w;
+    const ey = y + e[2] * h;
+    const ew = e[3] * w;
+    const eh = e[4] * h;
+    if (e[0] === 'b') {
+      ctx.strokeStyle = tpl.st;
+      ctx.lineWidth = SW;
+      ctx.strokeRect(ex, ey, ew, eh);
+    } else if (e[0] === 'x') {
+      if (tpl.solid) {
+        ctx.fillStyle = tpl.st;
+        ctx.fillRect(ex, ey, ew, eh);
+      } else {
+        ctx.strokeStyle = tpl.st;
+        ctx.lineWidth = SW;
+        ctx.strokeRect(ex, ey, ew, eh);
+      }
+    } else if (e[0] === 'f') {
+      ctx.fillStyle = tpl.st;
+      ctx.fillRect(ex, ey, ew, eh);
+    } else if (e[0] === 's') {
+      if (tpl.soft) {
+        ctx.fillStyle = tpl.soft;
+        ctx.fillRect(ex, ey, ew, eh);
+      }
+    } else if (e[0] === 'h') {
+      hatch(ex, ey, ew, eh, tpl.st, w * 0.036);
+    } else if (e[0] === 'l') {
+      ctx.strokeStyle = tpl.st;
+      ctx.lineWidth = SW;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex + ew, ey);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  rr(x, y, w, h, 4);
+  ctx.strokeStyle = tpl.st;
+  ctx.lineWidth = SW;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function easeIO(x) {
+  x = constrain(x, 0, 1);
+  return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
+}
+
+function fitSize(n, size) {
+  const lay = LAYOUT[TPL[n].L];
+  const k = size / max(lay.w, lay.h);
+  return { w: lay.w * k, h: lay.h * k };
+}
+
+function wrapX(x, d0, R) {
+  return d0 + ((((x - d0) % R) + R) % R);
+}
+
+function pilePose(id, p) {
+  return { x: W / 2 + (((id * 37) % 9) - 4) * 2.5, y: 265 + p * 0.6 + (((id * 23) % 7) - 3) * 2.5, rot: (((id * 13) % 7) - 3) * 0.02 };
+}
+
+function fanPose(id, sway) {
+  const ang = (id - 2.5) * 0.34 + sway * (id - 2.5) * 0.5;
+  return { x: W / 2 + sin(ang) * 290, y: 545 - cos(ang) * 290, rot: ang };
+}
+
+function shuffleState(t) {
+  const order = [0, 1, 2, 3, 4, 5, 6];
+  const f = (t - 4.5) / 0.55;
+  const moves = constrain(floor(f), 0, 2);
+  for (let m = 0; m < moves; m++) order.unshift(order.pop());
+  const moving = f >= 0 && f < 2;
+  return { order, u: moving ? f - floor(f) : -1 };
+}
+
+function pile(t) {
+  if (t >= 6.6) return;
+  const q = easeIO(span(t, 0.6, 1.6)) * (1 - easeIO(span(t, 3.7, 4.3)));
+  const sway = sin((t - 1.6) * 2.2) * 0.035 * span(t, 1.6, 2.0);
+  const sh = shuffleState(t);
+  const order = sh.order.slice();
+  let moveId = -1;
+  if (sh.u >= 0) moveId = order[order.length - 1];
+  const draw1 = (id, p, extraX, extraRot) => {
+    const e = id < 6 ? popIn((t - 0.1 - id * 0.06) / 0.3) : popIn((t - 3.95) / 0.3);
+    if (e <= 0) return;
+    const a = pilePose(id, p);
+    const b = fanPose(id, sway);
+    const qq = id < 6 ? q : 0;
+    const sz = fitSize(ORDER_T[id], 345);
+    drawTemplate(TPL[ORDER_T[id]], sz.w, sz.h, lerp(a.x, b.x, qq) + extraX, lerp(a.y, b.y, qq), e, lerp(a.rot, b.rot, qq) + extraRot);
+  };
+  const rest = order.filter((id) => id !== moveId);
+  if (moveId >= 0 && sh.u >= 0.5) draw1(moveId, 0, sin(PI * sh.u) * 210, sin(PI * sh.u) * 0.3);
+  rest.forEach((id, p) => draw1(id, p + 1, 0, 0));
+  if (moveId >= 0 && sh.u < 0.5) draw1(moveId, rest.length + 1, sin(PI * sh.u) * 210, sin(PI * sh.u) * 0.3);
+}
+
+function rows(t) {
+  if (t < 6.6) return;
+  const tt = min(t, 10.8) - 6.6;
+  const exit = easeIO(span(t, 10.8, 11.7));
+  const sorder = shuffleState(8).order;
+  const cards = [];
+  for (const row of ROWS) {
+    for (const sl of row.slots) {
+      const isCard = sl.id !== undefined;
+      const base = wrapX(sl.x + row.dir * ROW_SPEED * tt, row.d0, row.R);
+      if (t > 10.8 && (base < -150 || base > W + 150)) continue;
+      const x = base + row.dir * 1500 * exit;
+      if (x < -150 || x > W + 150) continue;
+      if (!isCard) {
+        const sz = fitSize(sl.tpl, 190);
+        drawTemplate(TPL[sl.tpl], sz.w, sz.h, x, row.y, 1, 0);
+      } else {
+        cards.push({ id: sl.id, x, y: row.y, pos: sorder.indexOf(sl.id) });
+      }
+    }
+  }
+  cards.sort((a, b) => a.pos - b.pos);
+  for (const c of cards) {
+    const m = easeIO(span(t, 6.6 + (6 - c.pos) * 0.06, 7.5 + (6 - c.pos) * 0.06));
+    const a = pilePose(c.id, c.pos);
+    const sz = fitSize(ORDER_T[c.id], lerp(345, 190, m));
+    drawTemplate(TPL[ORDER_T[c.id]], sz.w, sz.h, lerp(a.x, c.x, m), lerp(a.y, c.y, m), 1, lerp(a.rot, 0, m));
+  }
+}
+
+function unit(str, ax, y, t, t0, outAt, align) {
+  const ctx = drawingContext;
+  const e = ease((t - t0) / 0.35);
+  const o = outAt === undefined ? 0 : ease((t - outAt) / 0.3);
+  if (e <= 0 || o >= 1) return;
+  setAlpha(e * (1 - o));
+  setBlur((1 - e) * 6 + o * 6);
+  ctx.fillStyle = WHITE;
+  ctx.textAlign = align;
+  ctx.fillText(str, ax, y + (1 - e) * 12 - o * 14);
+  setBlur(0);
+  setAlpha(1);
+}
+
+function mixed(t, cx, y, t0, outAt) {
+  const ctx = drawingContext;
+  const e = ease((t - t0) / 0.35);
+  const o = ease((t - outAt) / 0.3);
+  if (e <= 0 || o >= 1) return;
+  const serif = 'italic 400 42px "Fraunces", Georgia, serif';
+  const sans = '500 40px ' + P5_FONT;
+  ctx.font = serif;
+  ctx.letterSpacing = '-1px';
+  const w1 = ctx.measureText('without').width;
+  ctx.letterSpacing = '0px';
+  ctx.font = sans;
+  const gap = 12;
+  const w2 = ctx.measureText('starting').width;
+  const x = cx - (w1 + gap + w2) / 2;
+  const yy = y + (1 - e) * 12 - o * 14;
+  setAlpha(e * (1 - o));
+  setBlur((1 - e) * 6 + o * 6);
+  ctx.fillStyle = WHITE;
+  ctx.textAlign = 'left';
+  ctx.font = serif;
+  ctx.letterSpacing = '-1px';
+  ctx.fillText('without', x, yy);
+  ctx.letterSpacing = '0px';
+  ctx.font = sans;
+  ctx.fillText('starting', x + w1 + gap, yy);
+  setBlur(0);
+  setAlpha(1);
+}
+
+function popUnit(str, cx, y, t, t0, outAt) {
+  const ctx = drawingContext;
+  const e = popIn((t - t0) / 0.5);
+  const o = ease((t - outAt) / 0.3);
+  if (e <= 0 || o >= 1) return;
+  ctx.save();
+  ctx.translate(cx, y);
+  ctx.scale(e, e);
+  setAlpha(constrain((t - t0) / 0.12, 0, 1) * (1 - o));
+  setBlur(o * 6);
+  ctx.fillStyle = WHITE;
+  ctx.textAlign = 'center';
+  ctx.fillText(str, 0, -o * 14);
+  setBlur(0);
+  setAlpha(1);
+  ctx.restore();
+}
+
+function words(list, ax, y, t, t0, step, outAt) {
+  const ctx = drawingContext;
+  const gap = 10;
+  const widths = list.map((w) => ctx.measureText(w).width);
+  let total = -gap;
+  widths.forEach((w) => (total += w + gap));
+  let x = ax;
+  ctx.textAlign = 'left';
+  for (let k = 0; k < list.length; k++) {
+    const e = ease((t - t0 - k * step) / 0.3);
+    const o = outAt === undefined ? 0 : ease((t - outAt) / 0.3);
+    if (e > 0 && o < 1) {
+      setAlpha(e * (1 - o));
+      setBlur((1 - e) * 5 + o * 6);
+      ctx.fillStyle = WHITE;
+      ctx.fillText(list[k], x, y + (1 - e) * 10 - o * 14);
+    }
+    x += widths[k] + gap;
+  }
+  setBlur(0);
+  setAlpha(1);
+}
+
+function captions(t) {
+  const ctx = drawingContext;
+  ctx.save();
+  ctx.font = '500 34px ' + P5_FONT;
+  ctx.textBaseline = 'middle';
+  const pair = (q, a) => {
+    const qw = ctx.measureText(q).width;
+    let aw = -10;
+    a.forEach((w) => (aw += ctx.measureText(w).width + 10));
+    const x0 = W / 2 - (qw + 12 + aw) / 2;
+    return { x0, x1: x0 + qw + 12 };
+  };
+  const a1 = pair('Postcards?', ['Templates', 'for', 'that.']);
+  const a2 = pair('Letters?', ['Templates', 'for', 'those', 'too.']);
+  unit('Postcards?', a1.x0, CAP_Y, t, 0.9, 3.4, 'left');
+  words(['Templates', 'for', 'that.'], a1.x1, CAP_Y, t, 2.05, 0.28, 3.4);
+  unit('Letters?', a2.x0, CAP_Y, t, 3.85, 6.9, 'left');
+  words(['Templates', 'for', 'those', 'too.'], a2.x1, CAP_Y, t, 5.05, 0.24, 6.9);
+  ctx.restore();
+}
+
+function endCopy(t) {
+  const ctx = drawingContext;
+  ctx.save();
+  ctx.font = '500 40px ' + P5_FONT;
+  ctx.textBaseline = 'middle';
+  unit('Introducing the new', W / 2, H - 140, t, 7.9, 11.0, 'center');
+  popUnit('Template Gallery', W / 2, H - 88, t, 8.1, 11.0);
+  unit('Launch campaigns', W / 2, H / 2 - 56, t, 11.5, 13.9, 'center');
+  mixed(t, W / 2, H / 2, 11.7, 13.9);
+  ctx.font = '500 40px ' + P5_FONT;
+  unit('from scratch', W / 2, H / 2 + 56, t, 11.9, 13.9, 'center');
+  ctx.restore();
+  if (LOGO) {
+    const e = popIn((t - 14.3) / 0.4);
+    if (e > 0) {
+      const h = 64 * e;
+      const w = (h * LOGO.width) / LOGO.height;
+      drawingContext.drawImage(LOGO.canvas, W / 2 - w / 2, H / 2 - h / 2, w, h);
+    }
+  }
+}
+
+// the 720 x 720 square is scaled to fit the frame height with a margin top and bottom; the frame is the matte
+const MARGIN = 0.07;
+let szSeen = '';
+function fitFrame() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key === szSeen || innerWidth <= 0 || innerHeight <= 0) return;
+  szSeen = key;
+  const s = Math.min(innerHeight * (1 - 2 * MARGIN), innerWidth) / W;
+  const el = drawingContext.canvas;
+  el.style.width = Math.floor(W * s) + 'px';
+  el.style.height = Math.floor(H * s) + 'px';
+}
+function windowResized() { szSeen = ''; fitFrame(); }
+
+function draw() {
+  fitFrame();
+  if (!ready) return;
+  const t = ((millis() - startMs) / 1000) % TOTAL;
+  background(BG);
+  pile(t);
+  rows(t);
+  captions(t);
+  endCopy(t);
+  setAlpha(1);
+  setBlur(0);
+}
+</script>
+</body>
+</html>

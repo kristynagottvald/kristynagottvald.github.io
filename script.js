@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261028g');
+      const res = await fetch('projects.json?v=20261028h');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -222,7 +222,9 @@
         return `<figure class="block-media"><div class="embed" data-vimeo="${id}"${hash} data-title="${esc(b.title || 'Video')}"></div></figure>`;
       }
       case 'pair':
-        return `<div class="pair-row">${b.images.map((m) => `<figure class="block-media"><img src="${esc(m.src)}" alt="${esc(m.alt || '')}" loading="lazy"></figure>`).join('')}</div>`;
+        return `<div class="pair-row">${b.images.map((m) => m.sketch
+          ? `<figure class="block-media"><div class="embed sketch" style="aspect-ratio: ${esc(m.aspect || '16 / 9')}${m.bg ? `; background: ${esc(m.bg)}` : ''}"><iframe src="${esc(m.sketch)}" title="${esc(m.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe></div></figure>`
+          : `<figure class="block-media"><img src="${esc(m.src)}" alt="${esc(m.alt || '')}" loading="lazy"></figure>`).join('')}</div>`;
       case 'sketch':
         return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><div class="embed sketch"${b.aspect ? ` style="aspect-ratio: ${esc(b.aspect)}"` : ''}><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay; camera"></iframe>${b.noHint ? '' : `<span class="reel-hint"><span class="hint-cta">Interactive <svg class="ptr-svg" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle class="ripple" cx="7.2" cy="6.4" r="2.5" fill="none" stroke="currentColor" stroke-width="1"/><path class="ptr" d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></span></span>`}</div></figure>`;
       case 'video':
