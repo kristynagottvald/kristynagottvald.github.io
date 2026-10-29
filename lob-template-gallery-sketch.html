@@ -64,10 +64,10 @@ function addInter() {
   return new Promise((resolve) => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:ital,wght@1,400&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=EB+Garamond:ital,wght@1,400&display=swap';
     link.onload = () => {
       if (!document.fonts) return resolve();
-      Promise.all([document.fonts.load('400 32px Inter', 'Abc'), document.fonts.load('500 32px Inter', 'Abc'), document.fonts.load('italic 400 32px "Fraunces"', 'Abc')]).then(resolve, resolve);
+      Promise.all([document.fonts.load('400 32px Inter', 'Abc'), document.fonts.load('500 32px Inter', 'Abc'), document.fonts.load('italic 400 32px "EB Garamond"', 'Abc')]).then(resolve, resolve);
     };
     link.onerror = resolve;
     document.head.appendChild(link);
@@ -299,10 +299,10 @@ function mixed(t, cx, y, t0, outAt) {
   const e = ease((t - t0) / 0.35);
   const o = ease((t - outAt) / 0.3);
   if (e <= 0 || o >= 1) return;
-  const serif = 'italic 400 42px "Fraunces", Georgia, serif';
+  const serif = 'italic 400 50px "EB Garamond", Georgia, serif';
   const sans = '500 40px ' + P5_FONT;
   ctx.font = serif;
-  ctx.letterSpacing = '-1px';
+  ctx.letterSpacing = '0px';
   const w1 = ctx.measureText('without').width;
   ctx.letterSpacing = '0px';
   ctx.font = sans;
@@ -315,7 +315,7 @@ function mixed(t, cx, y, t0, outAt) {
   ctx.fillStyle = WHITE;
   ctx.textAlign = 'left';
   ctx.font = serif;
-  ctx.letterSpacing = '-1px';
+  ctx.letterSpacing = '0px';
   ctx.fillText('without', x, yy);
   ctx.letterSpacing = '0px';
   ctx.font = sans;
