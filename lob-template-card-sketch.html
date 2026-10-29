@@ -590,6 +590,37 @@ function textLine(label, cx, y, t, tIn, tOut, font) {
   setAlpha(1);
 }
 
+// a line made of differently styled words, all sitting on one shared baseline
+function textLineMixed(parts, cx, y, t, tIn, tOut) {
+  const ctx = drawingContext;
+  const e = ease((t - tIn) / 0.45);
+  const o = ease((t - tOut) / 0.4);
+  if (e <= 0 || o >= 1) return;
+  const widths = parts.map((p) => {
+    ctx.font = p.font;
+    return ctx.measureText(p.text).width;
+  });
+  const total = widths.reduce((a, b) => a + b, 0);
+  // where a middle-aligned sans line puts its baseline, so this line sits exactly where a plain one would
+  ctx.font = parts[0].font;
+  ctx.textBaseline = 'middle';
+  const off = ctx.measureText('x').actualBoundingBoxDescent;
+  ctx.textBaseline = 'alphabetic';
+  setAlpha(e * (1 - o));
+  setBlur((1 - e) * 6 + o * 6);
+  ctx.fillStyle = WHITE;
+  ctx.textAlign = 'left';
+  let x = cx - total / 2;
+  parts.forEach((p, i) => {
+    ctx.font = p.font;
+    ctx.fillText(p.text, x, y + off + (1 - e) * 18 - o * 20);
+    x += widths[i];
+  });
+  ctx.textBaseline = 'middle';
+  setBlur(0);
+  setAlpha(1);
+}
+
 function drawCopy(t) {
   const ctx = drawingContext;
   ctx.save();
@@ -597,7 +628,7 @@ function drawCopy(t) {
   const sans = '500 64px ' + P5_FONT;
   const serif = 'italic 400 74px "EB Garamond", Georgia, serif';
   textLine('Spend less time building', 600, 250, t, 0.3, 4.6, sans);
-  textLine('and more time sending', 600, 250, t, 4.9, 9.4, sans);
+  textLineMixed([{ text: 'and more time ', font: sans }, { text: 'sending', font: serif }], 600, 250, t, 4.9, 9.4);
   textLine('Explore the Lob', 600, 216, t, 9.7, 13.2, sans);
   textLine('Template Gallery', 600, 300, t, 9.85, 13.2, serif);
   ctx.restore();
@@ -608,7 +639,7 @@ function drawLogo(t) {
   if (e <= 0) return;
   const ctx = drawingContext;
   if (LOGO) {
-    const w = 200 * e;
+    const w = 246 * e;   // 147.6px on the 720 canvas, the same logo size as the gallery sketch
     const h = (w * LOGO.height) / LOGO.width;
     ctx.drawImage(LOGO.canvas, 600 - w / 2, 600 - h / 2, w, h);
   } else {
