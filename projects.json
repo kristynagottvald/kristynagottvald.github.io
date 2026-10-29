@@ -846,6 +846,14 @@
         "bg": "#060922"
       },
       {
+        "src": "reprise-mcp-sketch.html",
+        "title": "Reprise MCP explainer",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1400 / 788",
+        "bg": "#46423c"
+      },
+      {
         "id": "1214916593",
         "title": "RePalette",
         "type": "vimeo"

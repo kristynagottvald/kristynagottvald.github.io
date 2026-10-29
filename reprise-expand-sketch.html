@@ -37,16 +37,20 @@ function draw() {
   let centerX = width / 2;
   
   strokeCap(SQUARE);
-  strokeWeight(2);
+  strokeWeight(1);
   
-  let centerIndex = floor(numLines / 2);
-  let maxDistance = max(centerIndex, numLines - centerIndex);
-  let timePerLine = 40; 
+  // the lines gather into three (the middle line of each third) and fan back out from them
+  let groupSize = (numLines - 1) / 3;
+  let maxDistance = floor(groupSize / 2);
+  let timePerLine = 70; 
   let cycleDuration = 7000;
   let t = millis() % cycleDuration;
   
   for (let i = 1; i < numLines; i++) {
-    let distanceCenter = abs(i - centerIndex);
+    let g = min(2, floor((i - 1) / groupSize));
+    let leader = round(g * groupSize + (groupSize + 1) / 2);
+    let isLeader = i === leader;
+    let distanceCenter = abs(i - leader);
     
     let pHoriz = 0;
     let alphaMultiplier = 1;
@@ -73,17 +77,20 @@ function draw() {
     }
     
     let targetX = i * spacing;
-    let x = lerp(centerX, targetX, pHoriz);
+    let x = lerp(leader * spacing, targetX, pHoriz);
     
-    let etherealFade = pHoriz * alphaMultiplier; 
+    // the three leaders stay put and stay visible; every other line fades out as it merges into one
+    let etherealFade = isLeader ? 1 : pHoriz * alphaMultiplier; 
     
     let maxAlphaTop = constrain(map(i, 1, numLines * 0.75, 255, 0), 0, 255);
+    if (isLeader) maxAlphaTop = max(maxAlphaTop, 150);   // the three that remain read as full-height lines
     if (maxAlphaTop > 0 && etherealFade > 0) {
       stroke(30, 88, 152, maxAlphaTop * etherealFade);
       line(x, marginY, x, centerY);
     }
     
     let maxAlphaBottom = constrain(map(i, numLines * 0.25, numLines - 1, 0, 255), 0, 255);
+    if (isLeader) maxAlphaBottom = max(maxAlphaBottom, 150);
     if (maxAlphaBottom > 0 && etherealFade > 0) {
       stroke(30, 88, 152, maxAlphaBottom * etherealFade);
       line(x, centerY, x, height - marginY);
