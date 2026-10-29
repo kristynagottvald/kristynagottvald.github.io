@@ -21,6 +21,8 @@ const WHITE = '#ffffff';
 const CAP_L = 56;
 const CAP_Y = H - 76;
 const SW = 2;
+const HOLD_AT = 6.5;   // the shuffle has landed on the lime mailer
+const HOLD_D = 0.8;    // length of the hold, in seconds
 const ASSET_DIR = window.ASSET_DIR || '';
 
 const TPL = [
@@ -434,7 +436,9 @@ function windowResized() { szSeen = ''; fitFrame(); }
 function draw() {
   fitFrame();
   if (!ready) return;
-  const t = ((millis() - startMs) / 1000) % TOTAL;
+  // hold for a beat on the "Letters? Templates for those too." scene, once the shuffle has landed
+  const raw = ((millis() - startMs) / 1000) % (TOTAL + HOLD_D);
+  const t = raw < HOLD_AT ? raw : raw < HOLD_AT + HOLD_D ? HOLD_AT : raw - HOLD_D;
   background(BG);
   pile(t);
   rows(t);
