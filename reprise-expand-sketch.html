@@ -18,17 +18,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 }
 
-// a frame inside a page can report a tiny size before its layout settles, which leaves the canvas small in
-// the corner. Once the frame size has been steady for a moment, fit the canvas to it.
-let szSeen = '', szSince = 0;
-function syncSize() {
-  const key = innerWidth + 'x' + innerHeight;
-  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
-  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) resizeCanvas(innerWidth, innerHeight);
-}
-
 function draw() {
-  syncSize();
   background('#060922'); 
   
   let spacing = width / numLines;
@@ -39,19 +29,14 @@ function draw() {
   strokeCap(SQUARE);
   strokeWeight(1);
   
-  // the lines gather into the single middle line and fan back out from it
   let centerIndex = floor(numLines / 2);
-  let anchorIndex = () => centerIndex;
-  let maxDistance = 0;
-  for (let n = 1; n < numLines; n++) maxDistance = max(maxDistance, abs(n - anchorIndex(n)));
+  let maxDistance = max(centerIndex, numLines - centerIndex);
   let timePerLine = 40; 
   let cycleDuration = 7000;
   let t = millis() % cycleDuration;
   
   for (let i = 1; i < numLines; i++) {
-    let anchor = anchorIndex(i);
-    let isLeader = i === anchor;
-    let distanceCenter = abs(i - anchor);
+    let distanceCenter = abs(i - centerIndex);
     
     let pHoriz = 0;
     let alphaMultiplier = 1;
@@ -78,20 +63,17 @@ function draw() {
     }
     
     let targetX = i * spacing;
-    let x = lerp(anchor * spacing, targetX, pHoriz);
+    let x = lerp(centerX, targetX, pHoriz);
     
-    // the middle line stays put and stays visible; every other line fades out as it merges into it
-    let etherealFade = isLeader ? 1 : pHoriz * alphaMultiplier; 
+    let etherealFade = pHoriz * alphaMultiplier; 
     
     let maxAlphaTop = constrain(map(i, 1, numLines * 0.75, 255, 0), 0, 255);
-    if (isLeader) maxAlphaTop = max(maxAlphaTop, 200);   // the one that remains reads as a full-height line
     if (maxAlphaTop > 0 && etherealFade > 0) {
       stroke(30, 88, 152, maxAlphaTop * etherealFade);
       line(x, marginY, x, centerY);
     }
     
     let maxAlphaBottom = constrain(map(i, numLines * 0.25, numLines - 1, 0, 255), 0, 255);
-    if (isLeader) maxAlphaBottom = max(maxAlphaBottom, 200);
     if (maxAlphaBottom > 0 && etherealFade > 0) {
       stroke(30, 88, 152, maxAlphaBottom * etherealFade);
       line(x, centerY, x, height - marginY);
