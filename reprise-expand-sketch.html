@@ -39,9 +39,9 @@ function draw() {
   strokeCap(SQUARE);
   strokeWeight(1);
   
-  // the lines gather into the three in the middle (the centre line and one either side) and fan back out from them
+  // the lines gather into the single middle line and fan back out from it
   let centerIndex = floor(numLines / 2);
-  let anchorIndex = (n) => constrain(n, centerIndex - 1, centerIndex + 1);
+  let anchorIndex = () => centerIndex;
   let maxDistance = 0;
   for (let n = 1; n < numLines; n++) maxDistance = max(maxDistance, abs(n - anchorIndex(n)));
   let timePerLine = 40; 
@@ -80,11 +80,11 @@ function draw() {
     let targetX = i * spacing;
     let x = lerp(anchor * spacing, targetX, pHoriz);
     
-    // the three middle lines stay put and stay visible; every other line fades out as it merges into one
+    // the middle line stays put and stays visible; every other line fades out as it merges into it
     let etherealFade = isLeader ? 1 : pHoriz * alphaMultiplier; 
     
     let maxAlphaTop = constrain(map(i, 1, numLines * 0.75, 255, 0), 0, 255);
-    if (isLeader) maxAlphaTop = max(maxAlphaTop, 200);   // the three that remain read as full-height lines
+    if (isLeader) maxAlphaTop = max(maxAlphaTop, 200);   // the one that remains reads as a full-height line
     if (maxAlphaTop > 0 && etherealFade > 0) {
       stroke(30, 88, 152, maxAlphaTop * etherealFade);
       line(x, marginY, x, centerY);
