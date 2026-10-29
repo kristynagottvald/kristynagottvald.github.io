@@ -397,7 +397,9 @@ function frame(now){
  requestAnimationFrame(frame);
 }
 stage.addEventListener('click',()=>play(false));
-document.fonts.ready.then(()=>{play(true);requestAnimationFrame(frame)});
+// start once the fonts are ready, but never wait longer than 1.5s for them (a blocked font request must not leave this blank)
+let started=false;const go=()=>{if(started)return;started=true;play(true);requestAnimationFrame(frame)};
+document.fonts.ready.then(go);setTimeout(go,1500);
 </script>
 </body>
 </html>
