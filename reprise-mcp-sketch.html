@@ -388,14 +388,21 @@ function reset(){
 
 const qs=new URLSearchParams(location.search),skip=+qs.get('t')||0,freeze=qs.has('freeze');
 function play(first){reset();build();t0=performance.now()-(first?skip:0)}
-function frame(now){
+let lastRaf=0;
+function tick(now){
  const el=freeze?skip:now-t0;
  for(const e of ev)if(!e.d&&el>=e.t){e.d=1;e.f()}
  for(const d of du){if(d.d||el<d.s)continue;const p=Math.min(1,(el-d.s)/(d.e-d.s));d.f(p);if(p>=1)d.d=1}
  draw(now);
  if(el>END)play(false);
+}
+function frame(now){
+ lastRaf=performance.now();
+ tick(now);
  requestAnimationFrame(frame);
 }
+// if the browser pauses animation frames (a background or off-screen frame), keep the timeline running on a timer
+setInterval(()=>{if(started&&performance.now()-lastRaf>250)tick(performance.now())},100);
 
 // start once the fonts are ready, but never wait longer than 1.5s for them (a blocked font request must not leave this blank)
 let started=false;const go=()=>{if(started)return;started=true;play(true);requestAnimationFrame(frame)};

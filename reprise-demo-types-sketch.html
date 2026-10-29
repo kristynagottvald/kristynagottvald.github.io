@@ -40,11 +40,11 @@ html,body{margin:0;height:100%;background:#0a0a2e;overflow:hidden}
 .chip b:hover,.chip.o b:hover{background:var(--pale);border-color:var(--pale);color:var(--navy)}
 
 /* ---------- demo window ---------- */
-.win{position:absolute;left:460px;top:242px;width:500px;height:356px;background:var(--sand);border-radius:14px;padding:8px;z-index:5}
+.win{position:absolute;left:460px;top:242px;width:500px;height:356px;background:var(--sand);border-radius:4px;padding:8px;z-index:5}
 .win h4{margin:0;height:40px;display:flex;align-items:center;gap:12px;padding:0 8px 6px;font-size:15px;font-weight:500;letter-spacing:-.01em;white-space:nowrap}
 .timer{display:inline-flex;align-items:center;gap:5px;font:500 9px 'JetBrains Mono',monospace;color:var(--navy);border:1px solid rgba(15,15,66,.28);border-radius:3px;padding:2px 6px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .timer i{width:5px;height:5px;border-radius:50%;background:var(--green);animation:live 1.8s ease-in-out infinite}
-.app{display:flex;height:calc(100% - 40px);background:#fff;border-radius:6px;overflow:hidden;border:1px solid #e1ded6;transition:opacity .22s}
+.app{display:flex;height:calc(100% - 40px);background:#fff;border-radius:2px;overflow:hidden;border:1px solid #e1ded6;transition:opacity .22s}
 .app.sw{opacity:0}
 .app aside{width:128px;background:var(--navy);padding:14px 12px;flex:none}
 .logo{display:flex;align-items:center;height:22px;margin-bottom:18px}
@@ -226,18 +226,21 @@ function renderScores(){
  applySet(0,true);   // rings are drawn at their values straight away
  // hovering a card replays its ring
  $$('.sc').forEach((c,i)=>c.addEventListener('mouseenter',()=>{
-  const pg=c.querySelector('.pg'),v=vals[i];if(!v)return;
+  const pg=c.querySelector('.pg'),v=ringTgt[i];if(!v)return;
   pg.style.transition='none';pg.style.strokeDasharray='0 100';void pg.getBoundingClientRect();pg.style.transition='';
   vals[i]=0;setRing(i,v);
  }));
 }
+const ringTok=[0,0,0];   // a newer animation on a ring cancels the one still running
+const ringTgt=[0,0,0];   // the value each ring is heading for (hover replays this, even if a count-up was cut short)
 function setRing(i,v,instant){
  const card=$$('.sc')[i];if(!card)return;
+ const my=++ringTok[i];ringTgt[i]=v;
  const pg=card.querySelector('.pg'),lab=card.querySelector('.ring span');
  if(instant){pg.style.transition='none';pg.style.strokeDasharray=`${v} 100`;void pg.getBoundingClientRect();pg.style.transition='';lab.textContent=v+'%';vals[i]=v;return}
  pg.style.strokeDasharray=`${v} 100`;
  const from=vals[i],t0=performance.now(),dur=reduce?0:1100;
- const step=n=>{const p=dur?Math.min(1,(n-t0)/dur):1,e=1-Math.pow(1-p,3);lab.textContent=Math.round(from+(v-from)*e)+'%';if(p<1)requestAnimationFrame(step);else vals[i]=v};
+ const step=()=>{if(ringTok[i]!==my)return;const p=dur?Math.max(0,Math.min(1,(performance.now()-t0)/dur)):1,e=1-Math.pow(1-p,3);lab.textContent=Math.round(from+(v-from)*e)+'%';if(p<1)requestAnimationFrame(step);else vals[i]=v};
  requestAnimationFrame(step);
 }
 const applySet=(n,instant)=>DEMOS[demo].sets[n].forEach((v,i)=>setRing(i,v,instant));
