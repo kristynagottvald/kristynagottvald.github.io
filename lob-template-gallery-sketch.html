@@ -301,7 +301,7 @@ function mixed(t, cx, y, t0, outAt) {
   const o = ease((t - outAt) / 0.3);
   if (e <= 0 || o >= 1) return;
   const serif = 'italic 400 50px "EB Garamond", Georgia, serif';
-  const sans = '500 40px ' + P5_FONT;
+  const sans = '400 40px ' + P5_FONT;
   ctx.font = serif;
   ctx.letterSpacing = '0px';
   const w1 = ctx.measureText('without').width;
@@ -375,7 +375,7 @@ function words(list, ax, y, t, t0, step, outAt) {
 function captions(t) {
   const ctx = drawingContext;
   ctx.save();
-  ctx.font = '500 34px ' + P5_FONT;
+  ctx.font = '400 34px ' + P5_FONT;
   ctx.textBaseline = 'middle';
   const pair = (q, a) => {
     const qw = ctx.measureText(q).width;
@@ -396,15 +396,15 @@ function captions(t) {
 function endCopy(t) {
   const ctx = drawingContext;
   ctx.save();
-  ctx.font = '500 40px ' + P5_FONT;
+  ctx.font = '400 40px ' + P5_FONT;
   ctx.textBaseline = 'middle';
   unit('Introducing the new', W / 2, H - 140, t, 7.9, 11.0, 'center');
   ctx.font = 'italic 400 50px "EB Garamond", Georgia, serif';
   popUnit('Template Gallery', W / 2, H - 88, t, 8.1, 11.0);
-  ctx.font = '500 40px ' + P5_FONT;
+  ctx.font = '400 40px ' + P5_FONT;
   unit('Launch campaigns', W / 2, H / 2 - 56, t, 11.5, 13.9, 'center');
   mixed(t, W / 2, H / 2, 11.7, 13.9);
-  ctx.font = '500 40px ' + P5_FONT;
+  ctx.font = '400 40px ' + P5_FONT;
   unit('from scratch', W / 2, H / 2 + 56, t, 11.9, 13.9, 'center');
   ctx.restore();
   if (LOGO) {

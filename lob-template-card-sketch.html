@@ -76,7 +76,7 @@ function addInter() {
     link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=EB+Garamond:ital,wght@1,400&display=swap';
     link.onload = () => {
       if (!document.fonts) return resolve();
-      Promise.all([document.fonts.load('500 32px Inter', 'Abc'), document.fonts.load('700 32px Inter', 'Abc'), document.fonts.load('italic 400 32px "EB Garamond"', 'Abc')]).then(resolve, resolve);
+      Promise.all([document.fonts.load('400 32px Inter', 'Abc'), document.fonts.load('500 32px Inter', 'Abc'), document.fonts.load('700 32px Inter', 'Abc'), document.fonts.load('italic 400 32px "EB Garamond"', 'Abc')]).then(resolve, resolve);
     };
     link.onerror = resolve;
     document.head.appendChild(link);
@@ -625,7 +625,7 @@ function drawCopy(t) {
   const ctx = drawingContext;
   ctx.save();
   ctx.textBaseline = 'middle';
-  const sans = '500 64px ' + P5_FONT;
+  const sans = '400 64px ' + P5_FONT;
   const serif = 'italic 400 74px "EB Garamond", Georgia, serif';
   textLine('Spend less time building', 600, 250, t, 0.3, 4.6, sans);
   textLineMixed([{ text: 'and more time ', font: sans }, { text: 'sending', font: serif }], 600, 250, t, 4.9, 9.4);
