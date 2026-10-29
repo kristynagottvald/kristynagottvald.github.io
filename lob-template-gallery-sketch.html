@@ -27,7 +27,7 @@ const TPL = [
   { L: 0, bg: '#ffffff', st: '#4131f1', soft: '#efedfe' },
   { L: 1, bg: '#f8ff9a', st: '#4131f1', soft: '#4131f1' },
   { L: 2, bg: '#ffffff', st: '#4131f1' },
-  { L: 3, bg: '#fbdbfd', st: '#d246e0' },
+  { L: 3, bg: '#ff9a3d', st: '#4131f1' },
   { L: 1, bg: '#cc40dc', st: '#ffc84a', soft: '#ffc84a' },
   { L: 3, bg: '#a28bff', st: '#4131f1' },
   { L: 2, bg: '#ffc84a', st: '#4131f1', solid: true },
@@ -308,11 +308,13 @@ function mixed(t, cx, y, t0, outAt) {
   ctx.letterSpacing = '0px';
   ctx.font = sans;
   const gap = 12;
-  const m2 = ctx.measureText('starting');
-  const w2 = m2.width;
+  const w2 = ctx.measureText('starting').width;
   const x = cx - (w1 + gap + w2) / 2;
-  // both words share one alphabetic baseline (the sans line's baseline), so the serif no longer sits low
-  const yy = y + (m2.fontBoundingBoxAscent - m2.fontBoundingBoxDescent) / 2 + (1 - e) * 12 - o * 14;
+  // the other lines use a middle baseline; measure where that puts the sans baseline so this line sits exactly
+  // halfway between them, and draw both words on that one alphabetic baseline
+  ctx.textBaseline = 'middle';
+  const off = ctx.measureText('x').actualBoundingBoxDescent;
+  const yy = y + off + (1 - e) * 12 - o * 14;
   ctx.textBaseline = 'alphabetic';
   setAlpha(e * (1 - o));
   setBlur((1 - e) * 6 + o * 6);
