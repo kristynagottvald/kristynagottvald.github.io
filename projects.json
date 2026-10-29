@@ -892,9 +892,12 @@
         "type": "image"
       },
       {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-09.webp",
-        "type": "image"
+        "src": "reprise-demo-types-sketch.html",
+        "title": "Reprise demo types",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1400 / 764",
+        "bg": "#0f0f42"
       },
       {
         "id": "1214919145",
