@@ -838,9 +838,12 @@
         "type": "text"
       },
       {
-        "id": "1214919605",
+        "src": "reprise-expand-sketch.html",
         "title": "ReExpand",
-        "type": "vimeo"
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "16 / 9",
+        "bg": "#060922"
       },
       {
         "id": "1214916593",

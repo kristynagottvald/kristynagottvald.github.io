@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reprise expand sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #060922; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+let numLines = 46;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+}
+
+// a frame inside a page can report a tiny size before its layout settles, which leaves the canvas small in
+// the corner. Once the frame size has been steady for a moment, fit the canvas to it.
+let szSeen = '', szSince = 0;
+function syncSize() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
+  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) resizeCanvas(innerWidth, innerHeight);
+}
+
+function draw() {
+  syncSize();
+  background('#060922'); 
+  
+  let spacing = width / numLines;
+  let marginY = height * 0.08; 
+  let centerY = height / 2;
+  let centerX = width / 2;
+  
+  strokeCap(SQUARE);
+  strokeWeight(1);
+  
+  let centerIndex = floor(numLines / 2);
+  let maxDistance = max(centerIndex, numLines - centerIndex);
+  let timePerLine = 40; 
+  let cycleDuration = 7000;
+  let t = millis() % cycleDuration;
+  
+  for (let i = 1; i < numLines; i++) {
+    let distanceCenter = abs(i - centerIndex);
+    
+    let pHoriz = 0;
+    let alphaMultiplier = 1;
+    
+    if (t < 3500) {
+      let timeOffset = distanceCenter * timePerLine;
+      let localTime = t - timeOffset;
+      
+      let rawHoriz = constrain(localTime / 800, 0, 1);
+      pHoriz = easeOutQuint(rawHoriz);
+      
+      alphaMultiplier = constrain(localTime / 400, 0, 1);
+      alphaMultiplier = alphaMultiplier * alphaMultiplier * (3 - 2 * alphaMultiplier);
+      
+    } else {
+      let revOffset = (maxDistance - distanceCenter) * timePerLine;
+      let localTime = (t - 3500) - revOffset;
+      
+      let rawHoriz = constrain(localTime / 600, 0, 1);
+      pHoriz = 1 - easeInQuint(rawHoriz);
+      
+      alphaMultiplier = 1 - constrain(localTime / 400, 0, 1);
+      alphaMultiplier = constrain(alphaMultiplier, 0, 1);
+    }
+    
+    let targetX = i * spacing;
+    let x = lerp(centerX, targetX, pHoriz);
+    
+    let etherealFade = pHoriz * alphaMultiplier; 
+    
+    let maxAlphaTop = constrain(map(i, 1, numLines * 0.75, 255, 0), 0, 255);
+    if (maxAlphaTop > 0 && etherealFade > 0) {
+      stroke(30, 88, 152, maxAlphaTop * etherealFade);
+      line(x, marginY, x, centerY);
+    }
+    
+    let maxAlphaBottom = constrain(map(i, numLines * 0.25, numLines - 1, 0, 255), 0, 255);
+    if (maxAlphaBottom > 0 && etherealFade > 0) {
+      stroke(30, 88, 152, maxAlphaBottom * etherealFade);
+      line(x, centerY, x, height - marginY);
+    }
+  }
+}
+
+function easeOutQuint(x) {
+  return 1 - pow(1 - x, 5);
+}
+
+function easeInQuint(x) {
+  return pow(x, 5);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+</body>
+</html>
