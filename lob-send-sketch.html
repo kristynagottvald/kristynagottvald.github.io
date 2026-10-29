@@ -50,10 +50,10 @@ function addInter() {
   return new Promise((resolve) => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=EB+Garamond:ital,wght@1,400&display=swap';
     link.onload = () => {
       if (!document.fonts) return resolve();
-      Promise.all([document.fonts.load('400 32px Inter', 'Abc'), document.fonts.load('700 32px Inter', 'Abc')]).then(resolve, resolve);
+      Promise.all([document.fonts.load('400 32px Inter', 'Abc'), document.fonts.load('700 32px Inter', 'Abc'), document.fonts.load('italic 400 32px "EB Garamond"', 'Abc')]).then(resolve, resolve);
     };
     link.onerror = resolve;
     document.head.appendChild(link);
@@ -177,8 +177,17 @@ function drawWords(words, cx, y, size, col, t, t0, stag, exitAt, italicAt) {
     const lean = italicAt !== undefined && k === words.length - 1 ? ease((t - italicAt) / 0.35) : 0;
     drawingContext.save();
     drawingContext.translate(x + dx, y + (1 - e) * 19);
-    drawingContext.transform(1, 0, -0.21 * lean, 1, 0, 0);
-    text(words[k], 0, 0);
+    if (lean > 0) {
+      // the last word crossfades from Inter to EB Garamond italic
+      setAlpha(baseAlpha * a * (1 - lean));
+      text(words[k], 0, 0);
+      setAlpha(baseAlpha * a * lean);
+      drawingContext.font = 'italic 400 ' + size * 1.15 + 'px "EB Garamond", Georgia, serif';
+      drawingContext.textAlign = 'left';
+      drawingContext.fillText(words[k], 0, 0);
+    } else {
+      text(words[k], 0, 0);
+    }
     drawingContext.restore();
     x += widths[k] + gap;
   }
