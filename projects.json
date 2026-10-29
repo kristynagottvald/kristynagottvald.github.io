@@ -849,9 +849,12 @@
         "type": "image"
       },
       {
-        "alt": "Lob",
-        "src": "lob-03.webp",
-        "type": "image"
+        "src": "lob-mailpieces-sketch.html",
+        "title": "Lob mailpieces",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1135",
+        "bg": "#cf45d9"
       },
       {
         "src": "lob-template-sketch.html",

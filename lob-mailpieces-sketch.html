@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lob mailpieces</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #cf45d9; overflow: hidden; }
+  #stage { position: relative; width: 100%; height: 100%; background: #cf45d9; }
+  #stage img { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+  #stage img.on { display: block; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+// Hard-cut slideshow of the full-resolution (2000x1135) mailpiece frames.
+const FRAMES = ['lob-mailpieces/1.png', 'lob-mailpieces/2.png', 'lob-mailpieces/3.png'];
+const HOLD_MS = 2500;
+
+const stage = document.getElementById('stage');
+const imgs = FRAMES.map((src) => {
+  const img = new Image();
+  img.src = src;
+  img.alt = '';
+  stage.appendChild(img);
+  return img;
+});
+
+let current = 0;
+const show = (i) => {
+  imgs[current].classList.remove('on');
+  current = i;
+  imgs[current].classList.add('on');
+};
+
+// Wait until every frame is decoded so the first cut never flashes blank.
+Promise.all(imgs.map((img) => img.decode())).then(() => {
+  show(0);
+  setInterval(() => show((current + 1) % imgs.length), HOLD_MS);
+});
+
+</script>
+</body>
+</html>
