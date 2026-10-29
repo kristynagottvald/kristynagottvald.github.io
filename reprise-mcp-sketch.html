@@ -224,7 +224,7 @@ html,body{margin:0;height:100%;background:#161512;overflow:hidden}
 
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const W=1400,H=788,S=11,END=35400,PERIOD=5000;
+const W=1400,H=788,S=11,END=33400,PERIOD=5000;
 const stage=$('#stage'),wrap=$('#wrap'),feed=$('#feed'),fi=$('#fi');
 
 function fit(){wrap.style.setProperty('--s',Math.min(innerWidth/W,innerHeight/H))}   // fill the frame, however wide it is
@@ -320,7 +320,7 @@ function build(){
  ev=[];du=[];
  const q=$('#q0'),m1=$('#m1'),ah=$('#ah');
  // the question, centred in the column
- scene(0,'s1');at(0,()=>feedTo(q,H/2-q.offsetHeight/2,true));add(350,'#q0');
+ scene(0,'s1');at(0,()=>feedTo(q,H/2-q.offsetHeight/2,true));add(60,'#q0');
  // it lifts away to the top; the prompt arrives right underneath
  at(2700,()=>{q.classList.add('gone');feedTo(m1,150);theme='chat'});
  add(2900,'#m1');type(3100,4700,'#t1','Build this demo for Northstar Energy, focusing on their surge energy usage.');

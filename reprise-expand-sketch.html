@@ -32,7 +32,7 @@ function draw() {
   let centerIndex = floor(numLines / 2);
   let maxDistance = max(centerIndex, numLines - centerIndex);
   let timePerLine = 40; 
-  let cycleDuration = 7000;
+  let cycleDuration = 3500 + maxDistance * timePerLine + 400;   // ends the moment the last line has faded out (400ms fade), so it loops straight away
   let t = millis() % cycleDuration;
   
   for (let i = 1; i < numLines; i++) {
