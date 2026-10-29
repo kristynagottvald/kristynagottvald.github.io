@@ -12,7 +12,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#161512;overflow:hidden}
 #wrap{position:absolute;left:50%;top:50%;width:1400px;height:788px;transform:translate(-50%,-50%) scale(var(--s,1))}
-#stage{position:absolute;inset:0;overflow:hidden;background:#46423c;color:var(--navy);font-family:'Inter Tight',system-ui,sans-serif;cursor:pointer}
+#stage{position:absolute;inset:0;overflow:hidden;background:#46423c;color:var(--navy);font-family:'Inter Tight',system-ui,sans-serif;cursor:default}
 #bg{position:absolute;inset:0;width:1400px;height:788px}
 .scene{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .5s ease}
 .scene.on{opacity:1}
@@ -198,7 +198,7 @@ html,body{margin:0;height:100%;background:#161512;overflow:hidden}
   </main>
   <div class="tip" id="tip"><i>1</i>Evening surge: +38% load at 6 PM</div>
   <div class="tip" id="tip2" style="left:346px;top:232px"><i>2</i>5 PM: +22% load</div>
-  <div class="ptr" id="ptr"><span class="rip" id="rip"></span><svg width="22" height="26" viewBox="0 0 22 26"><path d="M2 2v19l5-4.6 3.6 7.6 3.2-1.5-3.6-7.4H18z" fill="#0f0f42" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+  <div class="ptr" id="ptr"><span class="rip" id="rip"></span><img src="reprise-cursor.png" width="20" height="24" alt="" style="display:block;margin:2px 0 0 2px"></div>
  </div>
 </div></section>
 
@@ -396,7 +396,7 @@ function frame(now){
  if(el>END)play(false);
  requestAnimationFrame(frame);
 }
-stage.addEventListener('click',()=>play(false));
+
 // start once the fonts are ready, but never wait longer than 1.5s for them (a blocked font request must not leave this blank)
 let started=false;const go=()=>{if(started)return;started=true;play(true);requestAnimationFrame(frame)};
 document.fonts.ready.then(go);setTimeout(go,1500);
