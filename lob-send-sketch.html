@@ -158,7 +158,19 @@ function drawWords(words, cx, y, size, col, t, t0, stag, exitAt, italicAt) {
   const baseAlpha = drawingContext.globalAlpha;
   const gap = size * 0.3;
   let total = -gap;
-  const widths = words.map((w) => textWidth(w));
+  // with italicAt set, the last word is always EB Garamond italic (drawn a little larger to match Inter)
+  const serifLast = italicAt !== undefined;
+  const serifFont = 'italic 400 ' + size * 1.15 + 'px "EB Garamond", Georgia, serif';
+  const widths = words.map((w, k) => {
+    if (serifLast && k === words.length - 1) {
+      drawingContext.save();
+      drawingContext.font = serifFont;
+      const sw = drawingContext.measureText(w).width;
+      drawingContext.restore();
+      return sw;
+    }
+    return textWidth(w);
+  });
   widths.forEach((w) => (total += w + gap));
   let x = cx - total / 2;
   const ex = exitAt === undefined ? -1 : t - exitAt;
@@ -174,16 +186,12 @@ function drawWords(words, cx, y, size, col, t, t0, stag, exitAt, italicAt) {
     setBlur((1 - e) * 8);
     fill(col);
     noStroke();
-    const lean = italicAt !== undefined && k === words.length - 1 ? ease((t - italicAt) / 0.35) : 0;
     drawingContext.save();
     drawingContext.translate(x + dx, y + (1 - e) * 19);
-    if (lean > 0) {
-      // the last word crossfades from Inter to EB Garamond italic
-      setAlpha(baseAlpha * a * (1 - lean));
-      text(words[k], 0, 0);
-      setAlpha(baseAlpha * a * lean);
-      drawingContext.font = 'italic 400 ' + size * 1.15 + 'px "EB Garamond", Georgia, serif';
+    if (serifLast && k === words.length - 1) {
+      drawingContext.font = serifFont;
       drawingContext.textAlign = 'left';
+      drawingContext.fillStyle = col;
       drawingContext.fillText(words[k], 0, 0);
     } else {
       text(words[k], 0, 0);
