@@ -219,11 +219,12 @@ function fanPose(id, sway) {
 }
 
 function shuffleState(t) {
-  const order = [0, 1, 2, 3, 4, 5, 6];
-  const f = (t - 4.5) / 0.55;
-  const moves = constrain(floor(f), 0, 2);
+  // four top-to-bottom moves; the starting order is set so the white and purple vertical mailer (id 4) lands on top
+  const order = [0, 1, 4, 2, 3, 5, 6];
+  const f = (t - 4.5) / 0.5;
+  const moves = constrain(floor(f), 0, 4);
   for (let m = 0; m < moves; m++) order.unshift(order.pop());
-  const moving = f >= 0 && f < 2;
+  const moving = f >= 0 && f < 4;
   return { order, u: moving ? f - floor(f) : -1 };
 }
 
