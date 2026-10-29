@@ -73,6 +73,31 @@ let mouseIn = false;
 let timeOff = 0;
 const hit = { url: null, offer: null };
 
+// marching-ants hover on the postcard's two text blocks and the square image
+const ANTS = {
+  text1: { x: 705, y: 420, w: 158, h: 60, r: 8, amt: 0 },
+  text2: { x: 959, y: 551, w: 165, h: 56, r: 8, amt: 0 },
+  image: { x: 712, y: 512, w: 185, h: 196, r: 6, amt: 0 }
+};
+
+function drawAnts(a, t) {
+  if (a.amt < 0.01) return;
+  const ctx = drawingContext;
+  push();
+  noFill();
+  stroke(C.yellow);
+  strokeWeight(LW);
+  strokeCap(ROUND);
+  ctx.globalAlpha = a.amt;
+  ctx.setLineDash([8, 10]);
+  ctx.lineDashOffset = -t * 20;
+  rect(a.x, a.y, a.w, a.h, a.r);
+  ctx.setLineDash([]);
+  ctx.lineDashOffset = 0;
+  ctx.globalAlpha = 1;
+  pop();
+}
+
 function curLt() {
   return (((millis() / 1000 + timeOff) % cycleLen) + cycleLen) % cycleLen;
 }
@@ -300,6 +325,10 @@ function drawPostcard(t) {
   pill(971, 1112, 568, 14, C.pale, 200);
   pill(971, 1061, 592, 14, C.pale, 200);
 
+  drawAnts(ANTS.image, t);
+  drawAnts(ANTS.text1, t);
+  drawAnts(ANTS.text2, t);
+
   noFill();
   stroke(C.yellow);
   strokeWeight(LW);
@@ -445,6 +474,12 @@ function draw() {
   selAmt += (selTarget - selAmt) * min(1, dt * 12);
   hoverAmt += ((overSel && selTarget ? 1 : 0) - hoverAmt) * min(1, dt * 14);
   cursor(overSel || overTag ? 'pointer' : 'default');
+  // text 1 already has the solid selector while it is on, so its ants show once the selector has been removed
+  const over = (a, pad) => mouseIn && inRect(mouseX, mouseY, a, pad);
+  const ease1 = min(1, dt * 14);
+  ANTS.text1.amt += ((over(ANTS.text1, 0) && !selTarget ? 1 : 0) - ANTS.text1.amt) * ease1;
+  ANTS.text2.amt += ((over(ANTS.text2, 0) ? 1 : 0) - ANTS.text2.amt) * ease1;
+  ANTS.image.amt += ((over(ANTS.image, 0) ? 1 : 0) - ANTS.image.amt) * ease1;
   const tf = tagF(lt);
   background(C.bg);
   const fm = max(tf.url, tf.offer);

@@ -308,9 +308,12 @@ function mixed(t, cx, y, t0, outAt) {
   ctx.letterSpacing = '0px';
   ctx.font = sans;
   const gap = 12;
-  const w2 = ctx.measureText('starting').width;
+  const m2 = ctx.measureText('starting');
+  const w2 = m2.width;
   const x = cx - (w1 + gap + w2) / 2;
-  const yy = y + (1 - e) * 12 - o * 14;
+  // both words share one alphabetic baseline (the sans line's baseline), so the serif no longer sits low
+  const yy = y + (m2.fontBoundingBoxAscent - m2.fontBoundingBoxDescent) / 2 + (1 - e) * 12 - o * 14;
+  ctx.textBaseline = 'alphabetic';
   setAlpha(e * (1 - o));
   setBlur((1 - e) * 6 + o * 6);
   ctx.fillStyle = WHITE;
@@ -321,6 +324,7 @@ function mixed(t, cx, y, t0, outAt) {
   ctx.letterSpacing = '0px';
   ctx.font = sans;
   ctx.fillText('starting', x + w1 + gap, yy);
+  ctx.textBaseline = 'middle';
   setBlur(0);
   setAlpha(1);
 }
