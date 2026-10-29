@@ -81,13 +81,29 @@ function inRect(px, py, r, pad) {
   return r && px >= r.x - pad && px <= r.x + r.w + pad && py >= r.y - pad && py <= r.y + r.h + pad;
 }
 
-// a tag can be clicked while it sits at rest, and only when neither tag is mid-flight
+// a tag that is on its way out lingers for a moment while the other one takes its place
+const ghost = { url: null, offer: null };
+function ghostF(kind) {
+  const g = ghost[kind];
+  if (!g) return 0;
+  const p = (millis() / 1000 - g.t0) / 0.55;
+  if (p >= 1) { ghost[kind] = null; return 0; }
+  return g.f0 * (1 - easeInOut(p));
+}
+
+// how far each tag is into the postcard right now (0 at rest, 1 landed)
+function tagF(lt) {
+  return {
+    url: max(flight(lt - urlStart, false), ghostF('url')),
+    offer: max(flight(lt - offerStart, false), ghostF('offer'))
+  };
+}
+
+// a tag can be clicked whenever it sits at rest, even while the other one is in the postcard
 function tagAt(px, py, lt) {
-  const idleU = lt < urlStart || lt > urlStart + 3.3;
-  const idleO = lt < offerStart || lt > offerStart + 3.3;
-  if (!idleU || !idleO) return null;
-  if (inRect(px, py, hit.url, 0)) return 'url';
-  if (inRect(px, py, hit.offer, 0)) return 'offer';
+  const f = tagF(lt);
+  if (f.url < 0.02 && inRect(px, py, hit.url, 0)) return 'url';
+  if (f.offer < 0.02 && inRect(px, py, hit.offer, 0)) return 'offer';
   return null;
 }
 
@@ -96,8 +112,11 @@ function mousePressed() {
   const lt = curLt();
   const tag = tagAt(mouseX, mouseY, lt);
   if (tag) {
-    // snap the tag into the postcard (skipping the press and flight) and let the cycle carry on from there
-    timeOff = (tag === 'url' ? urlStart : offerStart) + 0.96 - millis() / 1000;
+    // play this tag's own press and arc from the start; the other tag, if it is up, eases back out
+    const other = tag === 'url' ? 'offer' : 'url';
+    const fo = tagF(lt)[other];
+    if (fo > 0.001) ghost[other] = { t0: millis() / 1000, f0: fo };
+    timeOff = (tag === 'url' ? urlStart : offerStart) - millis() / 1000;
     return false;
   }
   if (inRect(mouseX, mouseY, SEL, SEL_PAD)) {
@@ -356,8 +375,10 @@ function drawLabel(x, y, ow, oh, label, textX, u, kind) {
   const tw0 = spacedWidth(label, 3.5);
   const w = 56 + tw0 + 26;
   const h = 66;
-  const f = flight(u, false);
-  const fs = flight(u, true);
+  const gf = ghostF(kind);
+  const fTl = flight(u, false);
+  const f = max(fTl, gf);
+  const fs = gf > fTl ? gf : flight(u, true);
   const press = pressAmount(u);
   const cx = lerp(bcx, 1050, f);
   const bob = 3 * sin(millis() / 1000 * 2.2 + (kind === 'url' ? 0 : PI)) * (1 - constrain(f, 0, 1));
@@ -424,10 +445,9 @@ function draw() {
   selAmt += (selTarget - selAmt) * min(1, dt * 12);
   hoverAmt += ((overSel && selTarget ? 1 : 0) - hoverAmt) * min(1, dt * 14);
   cursor(overSel || overTag ? 'pointer' : 'default');
-  const fu = flight(lt - urlStart, false);
-  const fo = flight(lt - offerStart, false);
+  const tf = tagF(lt);
   background(C.bg);
-  const fm = max(fu, fo);
+  const fm = max(tf.url, tf.offer);
   drawEditor(lt, constrain((fm - 0.35) / 0.5, 0, 1), constrain((fm - 0.86) / 0.14, 0, 1));
   drawCropMarks();
   drawPostcard(t);
