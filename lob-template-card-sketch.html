@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lob template card sketch</title>
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #dd63e8; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-  canvas { display: block; border-radius: 6px; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #d045dc; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
 </head>
@@ -624,8 +624,8 @@ function drawLogo(t) {
   }
 }
 
-// the 720 x 720 square is scaled to fit the frame height with a margin top and bottom; the frame is the matte
-const MARGIN = 0.07;
+// the 720 x 720 canvas is scaled to fill its square frame
+const MARGIN = 0;   // square frame: the canvas fills it
 let szSeen = '';
 function fitFrame() {
   const key = innerWidth + 'x' + innerHeight;
