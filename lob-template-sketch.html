@@ -63,6 +63,52 @@ let urlStart = 0;
 let offerStart = 0;
 let cycleLen = 0;
 
+// interaction: the text-box selector pops on hover and toggles on click; clicking a purple tag sends it into the postcard
+const SEL = { x: 712, y: 420, w: 143, h: 60 };
+const SEL_PAD = 12;
+let selTarget = 1;
+let selAmt = 1;
+let hoverAmt = 0;
+let mouseIn = false;
+let timeOff = 0;
+const hit = { url: null, offer: null };
+
+function curLt() {
+  return (((millis() / 1000 + timeOff) % cycleLen) + cycleLen) % cycleLen;
+}
+
+function inRect(px, py, r, pad) {
+  return r && px >= r.x - pad && px <= r.x + r.w + pad && py >= r.y - pad && py <= r.y + r.h + pad;
+}
+
+// a tag can be clicked while it sits at rest, and only when neither tag is mid-flight
+function tagAt(px, py, lt) {
+  const idleU = lt < urlStart || lt > urlStart + 3.3;
+  const idleO = lt < offerStart || lt > offerStart + 3.3;
+  if (!idleU || !idleO) return null;
+  if (inRect(px, py, hit.url, 0)) return 'url';
+  if (inRect(px, py, hit.offer, 0)) return 'offer';
+  return null;
+}
+
+function mousePressed() {
+  if (!mouseIn) return;
+  const lt = curLt();
+  const tag = tagAt(mouseX, mouseY, lt);
+  if (tag) {
+    // snap the tag into the postcard (skipping the press and flight) and let the cycle carry on from there
+    timeOff = (tag === 'url' ? urlStart : offerStart) + 0.96 - millis() / 1000;
+    return false;
+  }
+  if (inRect(mouseX, mouseY, SEL, SEL_PAD)) {
+    selTarget = selTarget ? 0 : 1;
+    return false;
+  }
+}
+
+window.addEventListener('mousemove', () => { mouseIn = true; });
+document.documentElement.addEventListener('mouseleave', () => { mouseIn = false; });
+
 function setup() {
   createCanvas(1400, 890);
   textFont('Arial');
@@ -196,14 +242,26 @@ function drawPostcard(t) {
   pill(717, 850, 434, 14, C.pale, 200);
   pill(717, 800, 464, 14, C.pale, 200);
 
-  noFill();
-  stroke(C.yellow);
-  strokeWeight(LW);
-  rect(712, 420, 143, 60);
-  drawHandle(712, 420, 13);
-  drawHandle(855, 420, 13);
-  drawHandle(712, 480, 13);
-  drawHandle(855, 480, 13);
+  if (selAmt > 0.01) {
+    const scx = SEL.x + SEL.w / 2;
+    const scy = SEL.y + SEL.h / 2;
+    push();
+    translate(scx, scy);
+    scale((1 + 0.045 * hoverAmt) * (0.94 + 0.06 * selAmt));
+    translate(-scx, -scy);
+    drawingContext.globalAlpha = selAmt;
+    noFill();
+    stroke(C.yellow);
+    strokeWeight(LW);
+    rect(SEL.x, SEL.y, SEL.w, SEL.h);
+    const hs = 13 + 3 * hoverAmt;
+    drawHandle(SEL.x, SEL.y, hs);
+    drawHandle(SEL.x + SEL.w, SEL.y, hs);
+    drawHandle(SEL.x, SEL.y + SEL.h, hs);
+    drawHandle(SEL.x + SEL.w, SEL.y + SEL.h, hs);
+    drawingContext.globalAlpha = 1;
+    pop();
+  }
 
   noFill();
   stroke(C.yellow);
@@ -304,6 +362,7 @@ function drawLabel(x, y, ow, oh, label, textX, u, kind) {
   const cx = lerp(bcx, 1050, f);
   const bob = 3 * sin(millis() / 1000 * 2.2 + (kind === 'url' ? 0 : PI)) * (1 - constrain(f, 0, 1));
   const cy = lerp(bcy, 657.5, f) - 70 * sin(PI * constrain(f, 0, 1)) + bob;
+  hit[kind] = { x: cx - w / 2, y: cy - h / 2, w: w, h: h };
   const cw = lerp(w, 170, fs);
   const ch = lerp(h, 63, fs);
   const a1 = 1 - constrain(f / 0.45, 0, 1);
@@ -358,7 +417,13 @@ function drawLabel(x, y, ow, oh, label, textX, u, kind) {
 
 function draw() {
   const t = millis() / 1000;
-  const lt = t % cycleLen;
+  const lt = curLt();
+  const dt = min(deltaTime / 1000, 0.1);
+  const overSel = mouseIn && inRect(mouseX, mouseY, SEL, SEL_PAD);
+  const overTag = mouseIn && tagAt(mouseX, mouseY, lt);
+  selAmt += (selTarget - selAmt) * min(1, dt * 12);
+  hoverAmt += ((overSel && selTarget ? 1 : 0) - hoverAmt) * min(1, dt * 14);
+  cursor(overSel || overTag ? 'pointer' : 'default');
   const fu = flight(lt - urlStart, false);
   const fo = flight(lt - offerStart, false);
   background(C.bg);
