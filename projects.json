@@ -901,16 +901,20 @@
         "type": "text"
       },
       {
-        "alt": "Lob",
-        "src": "lob-12.webp",
-        "type": "image"
+        "src": "lob-template-gallery-sketch.html",
+        "title": "Lob Template Gallery",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "16 / 9",
+        "bg": "#5B4DF4"
       },
       {
-        "type": "pair",
-        "images": [
-          { "sketch": "lob-template-gallery-sketch.html", "title": "Lob Template Gallery", "aspect": "2000 / 1271", "bg": "#5B4DF4" },
-          { "src": "lob-letter.webp", "alt": "Lob" }
-        ]
+        "src": "lob-template-card-sketch.html",
+        "title": "Lob template cards",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "16 / 9",
+        "bg": "#dd63e8"
       },
       {
         "body": [

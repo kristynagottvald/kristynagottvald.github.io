@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261029a');
+      const res = await fetch('projects.json?v=20261029b');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -226,7 +226,7 @@
           ? `<figure class="block-media"><div class="embed sketch" style="aspect-ratio: ${esc(m.aspect || '16 / 9')}${m.bg ? `; background: ${esc(m.bg)}` : ''}"><iframe src="${esc(m.sketch)}" title="${esc(m.title || 'Interactive sketch')}" loading="lazy" allow="autoplay"></iframe></div></figure>`
           : `<figure class="block-media"><img src="${esc(m.src)}" alt="${esc(m.alt || '')}" loading="lazy"></figure>`).join('')}</div>`;
       case 'sketch':
-        return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><div class="embed sketch"${b.aspect ? ` style="aspect-ratio: ${esc(b.aspect)}"` : ''}><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay; camera"></iframe>${b.noHint ? '' : `<span class="reel-hint"><span class="hint-cta">Interactive <svg class="ptr-svg" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle class="ripple" cx="7.2" cy="6.4" r="2.5" fill="none" stroke="currentColor" stroke-width="1"/><path class="ptr" d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></span></span>`}</div></figure>`;
+        return `<figure class="block-media${b.half ? (b.half === 'left' ? ' half-left' : ' half-right') : ''}"><div class="embed sketch"${b.aspect || b.bg ? ` style="${b.aspect ? `aspect-ratio: ${esc(b.aspect)};` : ''}${b.bg ? ` background: ${esc(b.bg)};` : ''}"` : ''}><iframe src="${esc(b.src)}" title="${esc(b.title || 'Interactive sketch')}" loading="lazy" allow="autoplay; camera"></iframe>${b.noHint ? '' : `<span class="reel-hint"><span class="hint-cta">Interactive <svg class="ptr-svg" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle class="ripple" cx="7.2" cy="6.4" r="2.5" fill="none" stroke="currentColor" stroke-width="1"/><path class="ptr" d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></span></span>`}</div></figure>`;
       case 'video':
         return `<figure class="block-media"><video src="${esc(b.src)}"${b.poster ? ` poster="${esc(b.poster)}"` : ''} controls playsinline preload="metadata"></video>${b.caption ? `<figcaption class="figcap">${esc(b.caption)}</figcaption>` : ''}</figure>`;
       default:
