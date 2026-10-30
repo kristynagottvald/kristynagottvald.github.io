@@ -449,7 +449,7 @@ function drawFound(t, a) {
   drawingContext.globalAlpha = a;
   noStroke();
   fill(PALE);
-  rect(x, y, 343, 300, 8);
+  rect(x, y, 343, 306, 8);
 
   try {
     drawingContext.letterSpacing = "1.96px";
@@ -466,7 +466,7 @@ function drawFound(t, a) {
   tx("fields you can change", x + 26 + max(nw, 60) + 10, y + 109, 19, NAVY, SANS, false, LEFT, BASELINE);
 
   for (let i = 0; i < 3; i++) {
-    const ry = y + 135 + i * 44;
+    const ry = y + 161 + i * 44;
     noStroke();
     if (hotA[i] > 0.01) {
       fill(255, 255, 255, 255 * 0.6 * hotA[i]);
