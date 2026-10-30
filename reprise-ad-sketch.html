@@ -119,7 +119,7 @@ function syncSize() {
 function draw() {
   syncSize();
   const t = (millis() / 1000) % LOOP;
-  const sent = t >= 4.6 && t < 20.2;
+  const sent = t >= 4.6 && t < 20.65;
   const sentAmt = t < 20.2 ? clamp01((t - 4.6) / 0.4) : 1 - clamp01((t - 20.2) / 0.4);
   const onAmt = t < 19.3 ? clamp01((t - 7.4) / 0.35) : 1 - clamp01((t - 19.3) / 0.35);
   const panelAmt = t < 19.3 ? eo((t - 7.4) / 0.7) : 1 - eo((t - 19.3) / 0.7);
@@ -346,9 +346,9 @@ function drawPrompt(t, sent, sentAmt) {
     rect(x + 36 + textWidth(str) + 2, y + h / 2 - 17, 2, 30);
   }
 
-  const showBtn = t < 4.82 || t >= 20.2;
+  const showBtn = t < 4.6 || t >= 20.65;
   if (showBtn) {
-    const hot = t >= 4.6 && t < 4.82;
+    const hot = false;
     const bx = x + 604 - 20 - 48, by = y + (h - 48) / 2;
     push();
     translate(bx + 24, by + 24);
