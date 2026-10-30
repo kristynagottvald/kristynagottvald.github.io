@@ -928,9 +928,12 @@
         "type": "image"
       },
       {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-15.webp",
-        "type": "image"
+        "src": "reprise-social-tiles-sketch.html",
+        "title": "Reprise social tiles",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1092",
+        "bg": "#2463ad"
       },
       {
         "id": "1214928692",
