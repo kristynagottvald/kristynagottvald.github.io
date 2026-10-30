@@ -910,9 +910,12 @@
         "type": "image"
       },
       {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-12.webp",
-        "type": "image"
+        "src": "reprise-ad-sketch.html",
+        "title": "Reprise editable data",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1092",
+        "bg": "#cfe0f7"
       },
       {
         "alt": "Build better demos with AI",

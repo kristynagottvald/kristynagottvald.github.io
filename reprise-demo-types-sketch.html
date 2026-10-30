@@ -265,7 +265,7 @@ function show(key){
 $$('.row').forEach(r=>r.addEventListener('click',()=>show(demo===r.dataset.demo?'def':r.dataset.demo)));
 
 /* ---------- meeting clock ---------- */
-let secs=21*60+5;
+const START_SECS=21*60+5;let secs=START_SECS;
 const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
 setInterval(()=>{secs++;$('#clock').textContent=fmt(secs)},1000);
 
@@ -278,6 +278,7 @@ async function tour(){
  await sleep(2600);
  let cycle=0;
  while(true){
+  secs=START_SECS;$('#clock').textContent=fmt(secs);
   for(const [id,x,y] of [['t0',438,523],['t1',469,523],['t2',501,523]]){
    move(x,y);await sleep(950);$('#'+id).classList.add('hot');await sleep(600);$('#'+id).classList.remove('hot');
   }

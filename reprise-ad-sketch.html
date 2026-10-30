@@ -1,0 +1,512 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reprise editable data ad</title><style>html,body{margin:0;background:#cfe0f7;overflow:hidden}canvas{display:block}</style><script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script></head><body><script>
+const MATTE = "#cfe0f7";
+const NAVY = "#0f0f42";
+const BLUE = "#1f5fb4";
+const LOGO_BG = "#5aa0e6";
+const CREAM = "#fbf9f4";
+const PALE = "#bbdcff";
+const HL = "#2f6fcf";
+const UI_LINE = "#e4e7f0";
+const SANS = "Arial";
+const MONO = "Courier New";
+const SERIF = "Georgia";
+
+
+const PROMPT = "Show me what data I can edit on this screen.";
+const LOOP = 21;
+const BARS = [34, 40, 37, 48, 62, 78, 96, 112, 76, 52];
+const ALERTS = ["Public bucket exposed", "Excess privileges", "Data outside region"];
+const ROWS = [["Key numbers", "3 fields"], ["Alert volume chart", "7 fields"], ["Recent alerts table", "3 fields"]];
+const TAGS = [{ t: "3 fields", r: 30, y: 70 }, { t: "7 fields", r: 445, y: 204 }, { t: "3 fields", r: 30, y: 204 }];
+const BOXES = [
+  { g: 0, x: 190, y: 62, w: 252, h: 104 },
+  { g: 0, x: 466, y: 62, w: 252, h: 104 },
+  { g: 0, x: 742, y: 62, w: 254, h: 104 },
+  { g: 1, x: 190, y: 196, w: 391, h: 394 },
+  { g: 2, x: 605, y: 196, w: 391, h: 394 }
+];
+const POINTER_PATH = [
+  [0, 756, 610],
+  [3.6, 756, 610],
+  [4.5, 632, 256],
+  [7.4, 632, 256],
+  [8.3, 756, 610],
+  [9.8, 756, 610],
+  [10.7, 800 * 0.678 + 188, 112 * 0.678 + 326],
+  [12.5, 800 * 0.678 + 188, 112 * 0.678 + 326],
+  [13.4, 470 * 0.678 + 188, 340 * 0.678 + 326],
+  [15.2, 470 * 0.678 + 188, 340 * 0.678 + 326],
+  [16.1, 820 * 0.678 + 188, 480 * 0.678 + 326],
+  [17.9, 820 * 0.678 + 188, 480 * 0.678 + 326],
+  [18.8, 756, 610],
+  [21, 756, 610]
+];
+
+let hotA = [0, 0, 0];
+let LOGO_PATHS = [];
+
+const LOGO_SVG = [
+  "M23.5422 0L25.0998 14.1444C25.1837 14.9055 26.0747 15.2744 26.6721 14.7954L37.7748 5.89529L39.1892 7.30951L30.2889 18.4124C29.81 19.0098 30.1789 19.9007 30.9401 19.9845L30.9395 19.9849L45.0838 21.5421V23.5422L25.6785 25.6788L23.5419 45.084H21.5418L19.9845 30.9398C19.9007 30.1786 19.0098 29.8097 18.4124 30.2887L7.30951 39.1889L5.89529 37.7745L14.7954 26.6718C15.2744 26.0744 14.9055 25.1834 14.1444 25.0995L0 23.5422V21.5421L19.4055 19.4053L21.5421 0H23.5422ZM24.9703 19.5719C23.3515 19.4237 21.7324 19.4237 20.1136 19.5719C19.8427 19.5975 19.5975 19.8427 19.5719 20.1136C19.4237 21.7324 19.4237 23.3515 19.5719 24.9703C19.5974 25.2412 19.8427 25.4866 20.1136 25.5122C21.7324 25.6601 23.3515 25.6601 24.9703 25.5122C25.2412 25.4866 25.4866 25.2412 25.5122 24.9703C25.6604 23.3515 25.6604 21.7324 25.5122 20.1136C25.4866 19.8427 25.2412 19.5974 24.9703 19.5719Z",
+  "M160.046 26.3455C160.046 19.6515 163.882 16.1916 169.767 16.1916C175.615 16.1916 179 19.7267 179 25.5746V27.5677H164.314C164.39 30.8207 166.402 33.096 169.749 33.096C172.983 33.096 174.393 31.366 174.694 29.8994H178.701L178.605 30.4635C178.079 33.0019 175.747 36.5182 169.805 36.5182C163.901 36.5182 160.046 33.0395 160.046 26.3455ZM164.371 24.2583H174.807C174.769 21.607 173.077 19.5763 169.711 19.5763C166.439 19.5763 164.615 21.6635 164.371 24.2583Z",
+  "M141.34 21.9459C141.34 18.4297 144.349 16.2109 149.633 16.2109C154.935 16.2109 158.038 18.4297 158.357 22.0587V22.6228H154.296C154.164 20.3476 152.303 19.5579 149.651 19.5579C147.019 19.5579 145.571 20.3476 145.571 21.8519C145.571 23.3562 146.775 23.8451 148.448 24.1083L152.096 24.6724C155.969 25.2741 158.621 26.8724 158.621 30.4075C158.621 33.9425 155.819 36.4998 150.178 36.4998C144.537 36.4998 141.265 33.9425 140.983 30.5015V29.9374H145.12C145.308 32.2126 147.395 33.1528 150.178 33.1528C152.961 33.1528 154.371 32.175 154.371 30.6519C154.371 29.1476 153.149 28.5271 151.099 28.2075L147.451 27.6434C143.804 27.0793 141.34 25.4622 141.34 21.9459Z",
+  "M134.695 16.5697H139.152L139.15 36.0669H134.694L134.695 16.5697Z",
+  "M120.854 16.6429H125.122V18.695C125.122 18.7974 125.205 18.8805 125.307 18.8805C125.378 18.8805 125.442 18.8401 125.475 18.7776C126.182 17.4265 127.462 16.5676 130.048 16.5676H132.756V20.2531H130.067C126.758 20.2531 125.31 22.0019 125.31 25.6685V36.0668H120.854V16.6429Z",
+  "M99.172 43.5879V16.6425H103.497V18.699C103.497 18.8094 103.586 18.8989 103.697 18.8989C103.76 18.8989 103.82 18.8684 103.858 18.8179C105.289 16.9417 107.463 16.2288 110.022 16.2288C114.967 16.2288 118.916 19.5383 118.916 26.3451C118.916 33.152 114.967 36.4802 110.022 36.4802C107.536 36.4802 105.397 35.7846 103.968 33.996C103.931 33.9503 103.876 33.9229 103.818 33.9229C103.713 33.9229 103.628 34.0077 103.628 34.1122V43.5879H99.172ZM103.44 26.3451C103.44 30.6135 105.64 32.9639 108.931 32.9639C112.222 32.9639 114.422 30.6135 114.422 26.3451C114.422 22.0955 112.222 19.7451 108.931 19.7451C105.64 19.7451 103.44 22.0955 103.44 26.3451Z",
+  "M78.0286 26.3455C78.0286 19.6515 81.8645 16.1916 87.75 16.1916C93.5979 16.1916 96.9825 19.7267 96.9825 25.5746V27.5677H82.297C82.3722 30.8207 84.3842 33.096 87.7312 33.096C90.9654 33.096 92.3757 31.366 92.6765 29.8994H96.5876V30.4635C96.0611 33.0019 93.7295 36.5182 87.7876 36.5182C81.8833 36.5182 78.0286 33.0395 78.0286 26.3455ZM82.3534 24.2583H92.7893C92.7517 21.607 91.0594 19.5763 87.6936 19.5763C84.4218 19.5763 82.5979 21.6635 82.3534 24.2583Z",
+  "M69.4671 8.9896C74.262 8.9896 78.0791 11.7349 78.0791 16.8306C78.0791 21.8888 74.45 24.6153 69.9936 24.6153H68.9287L78.0791 35.5025V36.0666H73.0388L63.8188 25.0415C63.5531 24.7237 63.16 24.5401 62.7457 24.5401H61.0808V36.0666H56.5115V8.9896H69.4671ZM61.0808 21.0426H68.7714C71.6107 21.0426 73.5663 19.6512 73.5663 16.9247C73.5663 14.217 71.6107 12.8067 68.7714 12.8067H61.0808V21.0426Z",
+  "M134.694 10.3495C134.694 10.1287 134.873 9.94977 135.094 9.94977H138.752C138.973 9.94977 139.152 10.1287 139.152 10.3495V14.0059C139.152 14.2266 138.973 14.4056 138.752 14.4056H135.094C134.873 14.4056 134.694 14.2266 134.694 14.0059V10.3495Z"
+];
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  LOGO_PATHS = LOGO_SVG.map((d) => new Path2D(d));
+  frameRate(60);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function clamp01(v) {
+  return constrain(v, 0, 1);
+}
+
+function eo(v) {
+  return 1 - pow(1 - clamp01(v), 3);
+}
+
+function eio(v) {
+  v = clamp01(v);
+  return v < 0.5 ? 4 * v * v * v : 1 - pow(-2 * v + 2, 3) / 2;
+}
+
+function font(fam, size, bold) {
+  textFont(fam);
+  textSize(size);
+  textStyle(bold ? BOLD : NORMAL);
+}
+
+function tx(s, x, y, size, col, fam, bold, h, v) {
+  noStroke();
+  fill(col);
+  font(fam || SANS, size, bold);
+  textAlign(h || LEFT, v || CENTER);
+  text(s, x, y);
+}
+
+function entrance(delay) {
+  return eo((millis() / 1000 - delay) / 0.85);
+}
+
+function pointerAt(t) {
+  for (let i = 0; i < POINTER_PATH.length - 1; i++) {
+    const a = POINTER_PATH[i], b = POINTER_PATH[i + 1];
+    if (t >= a[0] && t <= b[0]) {
+      const k = b[0] === a[0] ? 1 : eio((t - a[0]) / (b[0] - a[0]));
+      return [lerp(a[1], b[1], k), lerp(a[2], b[2], k)];
+    }
+  }
+  return [756, 610];
+}
+
+let szSeen = '', szSince = 0;
+function syncSize() {
+  const key = innerWidth + 'x' + innerHeight;
+  if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
+  if (innerWidth > 0 && innerHeight > 0 && (width !== innerWidth || height !== innerHeight) && millis() - szSince > 120) windowResized();
+}
+
+function draw() {
+  syncSize();
+  const t = (millis() / 1000) % LOOP;
+  const sent = t >= 4.6 && t < 20.2;
+  const sentAmt = t < 20.2 ? clamp01((t - 4.6) / 0.4) : 1 - clamp01((t - 20.2) / 0.4);
+  const onAmt = t < 19.3 ? clamp01((t - 7.4) / 0.35) : 1 - clamp01((t - 19.3) / 0.35);
+  const panelAmt = t < 19.3 ? eo((t - 7.4) / 0.7) : 1 - eo((t - 19.3) / 0.7);
+  const dt = deltaTime / 1000;
+
+  for (let i = 0; i < 3; i++) {
+    const s = 9.8 + i * 2.7;
+    const hot = t >= s + 1.0 && t < s + 2.7;
+    hotA[i] = constrain(hotA[i] + (hot ? 1 : -1) * dt / 0.3, 0, 1);
+  }
+
+  background(MATTE);
+  push();
+  translate(width / 2, height / 2);
+  scale(min(width, height) / 880 * 0.86);
+  translate(-440, -440);
+  drawingContext.beginPath();
+  drawingContext.rect(0, 0, 880, 880);
+  drawingContext.clip();
+  background(NAVY);
+  drawBlue(t);
+  drawLogoBox();
+  drawScreen(t, onAmt);
+  drawPrompt(t, sent, sentAmt);
+  drawStep(t);
+  drawFound(t, panelAmt);
+  drawPointer(t);
+  pop();
+}
+
+function drawBlue(t) {
+  noStroke();
+  fill(BLUE);
+  rect(0, 127, 567, 753);
+  push();
+  drawingContext.beginPath();
+  drawingContext.rect(0, 127, 567, 753);
+  drawingContext.clip();
+  translate(235, 525);
+  rotate(millis() / 1000 / 240 * TWO_PI);
+  strokeWeight(1);
+  for (let i = 0; i < 64; i++) {
+    const a = i * TWO_PI / 64 + 0.05;
+    const k = 0.575 + 0.325 * sin(millis() / 1000 * TWO_PI / 5.5 - i * 0.37 * TWO_PI / 5.5);
+    stroke(200, 225, 255, 255 * 0.5 * k);
+    line(0, 0, cos(a) * 1500, sin(a) * 1500);
+  }
+  pop();
+}
+
+function drawLogoBox() {
+  const e = entrance(0.1);
+  push();
+  translate(0, (1 - e) * 20);
+  drawingContext.globalAlpha = e;
+  noStroke();
+  fill(LOGO_BG);
+  rect(567, 0, 313, 127);
+  push();
+  translate(626, 38);
+  scale(195 / 179);
+  drawingContext.fillStyle = CREAM;
+  for (let i = 0; i < LOGO_PATHS.length; i++) {
+    drawingContext.fill(LOGO_PATHS[i], i === 0 ? "evenodd" : "nonzero");
+  }
+  pop();
+  drawingContext.globalAlpha = 1;
+  pop();
+}
+
+function drawScreen(t, onAmt) {
+  push();
+  translate(188, 326);
+  scale(0.678);
+  drawingContext.beginPath();
+  drawingContext.roundRect(0, 0, 1020, 606, [18, 0, 0, 18]);
+  drawingContext.clip();
+
+  noStroke();
+  fill(255);
+  rect(0, 0, 1020, 606);
+
+  fill("#f5f7fc");
+  rect(0, 0, 166, 606);
+  fill(UI_LINE);
+  rect(165, 0, 1, 606);
+  fill(HL);
+  rect(18, 18, 26, 26, 7);
+  fill("#d9dbe4");
+  rect(54, 26, 62, 9, 5);
+  const navW = [70, 44, 62, 52, 38];
+  for (let i = 0; i < 5; i++) {
+    const y = 68 + i * 38;
+    if (i === 0) {
+      fill("#dbe6f8");
+      rect(14, y, 138, 32, 8);
+      fill(47, 111, 207, 140);
+    } else fill("#cfd3e2");
+    rect(26, y + 11.5, navW[i], 9, 5);
+  }
+
+  fill(255);
+  rect(166, 0, 854, 46);
+  fill(UI_LINE);
+  rect(166, 44, 854, 2);
+  fill("#d9dbe4");
+  rect(179, 18.5, 130, 9, 5);
+  rect(894, 18.5, 70, 9, 5);
+  fill("#e1e3ea");
+  circle(989, 23, 26);
+
+  const bw = 2 * (1 - onAmt);
+  const bc = color(228, 231, 240, 255 * (1 - onAmt));
+  const stat = [["12,480", 68], ["34", 56], ["96%", 62]];
+  for (let i = 0; i < 3; i++) {
+    const b = BOXES[i];
+    drawCard(b, bw, bc);
+    fill("#e1e3ea");
+    noStroke();
+    rect(b.x + 24, b.y + 22, stat[i][1], 7, 4);
+    tx(stat[i][0], b.x + 24, b.y + 56, 30, NAVY, SERIF, false, LEFT, TOP);
+  }
+
+  drawCard(BOXES[3], bw, bc);
+  drawCard(BOXES[4], bw, bc);
+
+  fill("#e3ebf9");
+  noStroke();
+  rect(214, 222, 118, 22, 11);
+  rect(629, 222, 104, 22, 11);
+
+  const bx = 218, bwid = 335, area = 278, gap = 9;
+  const barW = (bwid - gap * 9) / 10;
+  for (let i = 0; i < 10; i++) {
+    const h = BARS[i] * 0.86 / 100 * area;
+    if (i === 7) fill(lerpColor(color(HL), color("#1a4fa0"), hotA[1]));
+    else fill("#c1cde8");
+    rect(bx + i * (barW + gap), 196 + 394 - 30 - h, barW, h, 3, 3, 0, 0);
+  }
+
+  for (let i = 0; i < 3; i++) {
+    const y = 272 + i * 72;
+    fill(i < 2 ? "#e5483f" : "#3b78d8");
+    circle(633 + 5.5, y + 36, 11);
+    tx(ALERTS[i], 660, y + 36, 23, "#7b8096");
+    if (i < 2) {
+      fill("#eef0f5");
+      rect(633, y + 70, 335, 2);
+    }
+  }
+
+  drawAnts(t, onAmt);
+  drawTags();
+  drawingContext.setLineDash([]);
+  pop();
+}
+
+function drawCard(b, bw, bc) {
+  fill(255);
+  stroke(bc);
+  strokeWeight(max(bw, 0.001));
+  rect(b.x + bw / 2, b.y + bw / 2, b.w - bw, b.h - bw, 10);
+}
+
+function drawAnts(t, onAmt) {
+  if (onAmt <= 0) return;
+  const off = t < 19.3 ? 0 : clamp01((t - 19.3) / 0.5);
+  const offset = -(millis() / 1000) * 23.6;
+  for (const b of BOXES) {
+    const op = clamp01((t - 7.4 - b.g * 0.25) / 0.5) * (1 - off);
+    if (op <= 0) continue;
+    const h = hotA[b.g];
+    push();
+    drawingContext.setLineDash([7, 6]);
+    drawingContext.lineDashOffset = offset;
+    strokeCap(ROUND);
+    stroke(47, 111, 207, 255 * op);
+    strokeWeight(3.2 + 0.6 * h);
+    fill(47, 111, 207, 255 * 0.07 * h * op);
+    rect(b.x + 1.6, b.y + 1.6, b.w - 3.2, b.h - 3.2, 9);
+    drawingContext.setLineDash([]);
+    pop();
+  }
+}
+
+function drawTags() {
+  for (let g = 0; g < 3; g++) {
+    const a = hotA[g];
+    if (a <= 0.01) continue;
+    font(MONO, 20, false);
+    const tg = TAGS[g];
+    const w = textWidth(tg.t) + 32;
+    const x = 1020 - tg.r - w;
+    const y = tg.y + (1 - a) * 4;
+    noStroke();
+    fill(47, 111, 207, 255 * a);
+    rect(x, y, w, 42, 7);
+    tx(tg.t, x + 16, y + 21.5, 20, color(255, 255, 255, 255 * a), MONO);
+  }
+}
+
+function drawPrompt(t, sent, sentAmt) {
+  const e = entrance(0.45);
+  const w = lerp(604, 556, sentAmt);
+  const x = 68, y = 190 + (1 - e) * 20, h = 92;
+  push();
+  drawingContext.globalAlpha = e;
+  const bg = lerpColor(color(CREAM), color(15, 15, 66, 235), sentAmt);
+  fill(bg);
+  stroke(96, 150, 240, 204);
+  strokeWeight(1.5);
+  rect(x, y, w, h, 10, 10, 0, 10);
+  noStroke();
+
+  let n = 0;
+  if (t >= 4.6 && t < 20.2) n = PROMPT.length;
+  else if (t >= 0.7 && t < 4.6) n = constrain(floor((t - 0.7) / 0.0558), 0, PROMPT.length);
+  const str = PROMPT.substring(0, n);
+  const col = lerpColor(color(NAVY), color(CREAM), sentAmt);
+  tx(str, x + 36, y + h / 2 - 1, 23, col, SANS);
+  if (!sent && sentAmt === 0 && floor(t) % 2 === 0) {
+    font(SANS, 23, false);
+    fill(HL);
+    rect(x + 36 + textWidth(str) + 2, y + h / 2 - 17, 2, 30);
+  }
+
+  const showBtn = t < 4.82 || t >= 20.2;
+  if (showBtn) {
+    const hot = t >= 4.6 && t < 4.82;
+    const bx = x + 604 - 20 - 48, by = y + (h - 48) / 2;
+    push();
+    translate(bx + 24, by + 24);
+    if (hot) scale(1.08);
+    fill(hot ? "#7aa2f5" : "#dbe6f8");
+    rect(-24, -24, 48, 48, 7);
+    stroke(NAVY);
+    strokeWeight(2);
+    strokeCap(ROUND);
+    strokeJoin(ROUND);
+    noFill();
+    line(-9, 0, 9, 0);
+    line(2, -7, 9, 0);
+    line(2, 7, 9, 0);
+    pop();
+  }
+  drawingContext.globalAlpha = 1;
+  pop();
+}
+
+function drawStep(t) {
+  if (t < 4.82 || t >= 7.9) return;
+  const a = t < 7.4 ? clamp01((t - 4.82) / 0.35) : 1 - clamp01((t - 7.4) / 0.35);
+  const slide = (1 - eo((t - 4.82) / 0.45)) * -6;
+  const done = t >= 6.32;
+  const x = 68, y = 294 + slide, w = 556, h = 60;
+  push();
+  drawingContext.globalAlpha = a;
+  drawingContext.shadowColor = "rgba(4,6,40,0.16)";
+  drawingContext.shadowBlur = 18;
+  drawingContext.shadowOffsetY = 6;
+  fill(NAVY);
+  stroke(96, 150, 240, 204);
+  strokeWeight(1.5);
+  rect(x, y, w, h, 9);
+  drawingContext.shadowColor = "transparent";
+  drawingContext.shadowBlur = 0;
+  drawingContext.shadowOffsetY = 0;
+
+  const cx = x + 12 + 16 + 1.5, cy = y + h / 2;
+  if (done) {
+    const k = constrain((t - 6.32) / 0.4, 0, 1);
+    const sc = k < 1 ? 0.4 + 0.6 * (1 + 1.5 * pow(k - 1, 3) + 0.5 * pow(k - 1, 2)) * 1 : 1;
+    push();
+    translate(cx, cy);
+    scale(constrain(sc, 0.4, 1.12));
+    noStroke();
+    fill("#5f9f66");
+    circle(0, 0, 32);
+    scale(1.22);
+    stroke(255);
+    strokeWeight(2.4);
+    strokeCap(ROUND);
+    strokeJoin(ROUND);
+    noFill();
+    line(-5, 0.5, -1.4, 4.1);
+    line(-1.4, 4.1, 5.2, -3.4);
+    pop();
+  } else {
+    noFill();
+    strokeWeight(3);
+    stroke(255, 255, 255, 46);
+    circle(cx, cy, 30);
+    stroke("#8db6f5");
+    const a0 = (millis() / 1000) * TWO_PI / 0.8;
+    arc(cx, cy, 30, 30, a0, a0 + HALF_PI);
+  }
+
+  noStroke();
+  const tx0 = x + 12 + 32 + 14 + 1.5;
+  const mid = "#9a9dc4";
+  font(MONO, 18, false);
+  const first = "reprise.";
+  const fn = done ? "get_data" : "review_demo";
+  fill(mid);
+  textAlign(LEFT, CENTER);
+  text(first, tx0, cy + 1);
+  const w1 = textWidth(first);
+  fill(CREAM);
+  textStyle(BOLD);
+  text(fn, tx0 + w1, cy + 1);
+  const w2 = textWidth(fn);
+  fill(mid);
+  textStyle(NORMAL);
+  text("()", tx0 + w1 + w2, cy + 1);
+  font(MONO, 17, false);
+  fill(mid);
+  textAlign(RIGHT, CENTER);
+  text(done ? "13 sources" : "reviewing", x + w - 24, cy + 1);
+  drawingContext.globalAlpha = 1;
+  pop();
+}
+
+function drawFound(t, a) {
+  if (a <= 0.001) return;
+  const x = 68, y = 502 + (1 - a) * 26;
+  push();
+  drawingContext.globalAlpha = a;
+  noStroke();
+  fill(PALE);
+  rect(x, y, 343, 300, 8);
+
+  try {
+    drawingContext.letterSpacing = "1.96px";
+  } catch (e) {}
+  tx("FOUND ON THIS SCREEN", x + 26, y + 32.5, 14, NAVY, SANS, false);
+  try {
+    drawingContext.letterSpacing = "0px";
+  } catch (e) {}
+
+  const tot = round(13 * eo((t - 7.4) / 1.3));
+  font(SERIF, 68, false);
+  const nw = textWidth(str(tot));
+  tx(str(tot), x + 26, y + 109, 68, NAVY, SERIF, false, LEFT, BASELINE);
+  tx("fields you can change", x + 26 + max(nw, 60) + 10, y + 109, 19, NAVY, SANS, false, LEFT, BASELINE);
+
+  for (let i = 0; i < 3; i++) {
+    const ry = y + 135 + i * 44;
+    noStroke();
+    if (hotA[i] > 0.01) {
+      fill(255, 255, 255, 255 * 0.6 * hotA[i]);
+      rect(x + 16, ry, 311, 44, 6);
+    }
+    fill(15, 15, 66, 36);
+    rect(x + 16, ry, 311, 1);
+    tx(ROWS[i][0], x + 26, ry + 23, 18, NAVY, SANS, false);
+    tx(ROWS[i][1], x + 343 - 26, ry + 23, 18, NAVY, SANS, true, RIGHT);
+  }
+  drawingContext.globalAlpha = 1;
+  pop();
+}
+
+function drawPointer(t) {
+  const p = pointerAt(t);
+  const e = constrain(entrance(0.5), 0, 1);
+  if (t >= 4.6 && t < 5.3) {
+    const k = (t - 4.6) / 0.7;
+    noFill();
+    stroke(122, 162, 245, 255 * (0.9 * (1 - k)));
+    strokeWeight(2);
+    circle(p[0], p[1], 12 * (0.4 + 3.2 * k));
+  }
+  push();
+  translate(p[0], p[1]);
+  let s = 1;
+  if (t >= 4.5 && t < 4.9) s = 1 - 0.08 * sin((t - 4.5) / 0.4 * PI);
+  scale(s);
+  fill(255);
+  stroke(NAVY);
+  strokeWeight(2);
+  strokeJoin(ROUND);
+  beginShape();
+  vertex(2, 2);
+  vertex(21, 11.5);
+  vertex(12.8, 14.1);
+  vertex(10, 23.5);
+  endShape(CLOSE);
+  pop();
+}
+
+</script></body></html>
