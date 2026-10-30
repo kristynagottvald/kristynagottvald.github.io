@@ -910,12 +910,21 @@
         "type": "image"
       },
       {
-        "src": "reprise-ad-sketch.html",
-        "title": "Reprise editable data",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "2000 / 1092",
-        "bg": "#cfe0f7"
+        "type": "pair",
+        "images": [
+          {
+            "sketch": "reprise-ad-sketch.html",
+            "title": "Reprise editable data",
+            "aspect": "1 / 1",
+            "bg": "#cfe0f7"
+          },
+          {
+            "sketch": "reprise-ad-pharma-share-sketch.html",
+            "title": "Reprise pharma share",
+            "aspect": "1 / 1",
+            "bg": "#cfe0f7"
+          }
+        ]
       },
       {
         "alt": "Build better demos with AI",

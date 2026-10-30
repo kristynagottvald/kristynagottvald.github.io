@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reprise Pharma Share Ad</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Roboto+Serif:wght@400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--matte:#cfe0f7;--navy:#0f0f42;--blue:#1f5fb4;--logo:#5aa0e6;--cream:#fbf9f4;--pale:#bbdcff;--frame:#dbe8f9;--sky:#7aa2f5;--hl:#2f6fcf;--line:#e4e7f0;--green:#5f9f66;--red:#e5483f;--amber:#3b78d8;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--matte);overflow:hidden}
+#wrap{position:absolute;left:50%;top:50%;width:880px;height:880px;background:var(--matte);transform:translate(-50%,-50%) scale(var(--s,1))}
+#stage{position:absolute;inset:0;transform:scale(.86);overflow:hidden;background:var(--blue);color:var(--navy);font-family:'Inter Tight',system-ui,sans-serif}
+.abs{position:absolute}
+.rv{opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0s)}
+.go .rv{opacity:1;transform:none}
+
+#rays{position:absolute;inset:0;width:880px;height:880px}
+#rays g{transform-origin:480px 560px;animation:turn 240s linear infinite}
+@keyframes turn{to{transform:rotate(360deg)}}
+#rays line{stroke:rgba(200,225,255,.5);stroke-width:1;animation:ray 5.5s ease-in-out infinite;animation-delay:calc(var(--i)*-.37s)}
+@keyframes ray{0%,100%{opacity:.25}50%{opacity:.9}}
+
+.navy{background:var(--navy)}
+.logo{left:147px;top:95px;width:293px;height:103px;background:var(--logo);display:grid;place-items:center;z-index:3;border-radius:12px 0 12px 0}
+.logo svg{width:195px;height:auto;display:block;fill:var(--cream)}
+
+.win{left:267px;top:285px;width:613px;height:461px;background:var(--frame);border-radius:14px 0 0 14px;z-index:4}
+.win h4{position:absolute;left:16px;top:0;height:53px;margin:0;display:flex;align-items:center;font-size:22px;font-weight:500;letter-spacing:-.01em}
+.app{position:absolute;left:8px;top:53px;width:605px;height:394px;overflow:hidden;border-radius:8px 0 0 8px;background:#fff}
+.ui{position:absolute;left:0;top:0;width:900px;height:585px;transform-origin:0 0;transform:scale(.6728);background:#fff}
+.ui aside{position:absolute;left:0;top:0;width:150px;height:585px;background:#f5f7fc;border-right:1px solid var(--line);padding:18px 14px}
+.ui u{display:block;height:9px;border-radius:5px;background:#d9dbe4;text-decoration:none}
+.brand{display:flex;align-items:center;gap:10px;padding:0 2px 24px}
+.brand i{width:26px;height:26px;border-radius:7px;background:var(--hl);flex:none}
+.nv{display:flex;align-items:center;height:32px;padding:0 12px;margin-bottom:6px;border-radius:8px}
+.nv u{background:#cfd3e2}
+.nv.act{background:#dbe6f8}.nv.act u{background:rgba(47,111,207,.55)}
+.top{position:absolute;left:150px;right:0;top:0;height:46px;border-bottom:2px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px 0 16px}
+.av{width:26px;height:26px;border-radius:50%;background:#e1e3ea;display:block}
+.stat{position:absolute;top:62px;height:98px;width:228px;border:2px solid var(--line);border-radius:10px;padding:20px 22px;background:#fff}
+.stat u{height:7px;background:#e1e3ea}
+.stat b{display:block;font:400 34px/1 'Roboto Serif',Georgia,serif;letter-spacing:-.02em;margin-top:16px;font-variant-numeric:tabular-nums}
+.card{position:absolute;left:166px;top:180px;width:718px;height:282px;border:2px solid var(--line);border-radius:10px;background:#fff}
+.pill{position:absolute;left:22px;top:20px;width:118px;height:22px;border-radius:999px;background:#e3ebf9}
+.cols{position:absolute;left:22px;right:22px;top:64px;height:10px}
+.cols u{position:absolute;top:0;height:8px;background:#e1e3ea}
+.row{position:absolute;left:22px;right:22px;height:58px;border-bottom:2px solid #eef0f5;display:flex;align-items:center;font-size:21px;color:#4a4e68;letter-spacing:-.005em}
+.row:last-child{border-bottom:none}
+.nm,.win h4{transition:opacity .22s ease}
+.row u{position:absolute;height:9px;background:#d3d6e2}
+.row u.s{background:#e6e8ee;height:9px}
+
+
+.prompt{left:56px;top:640px;width:var(--pw,470px);height:170px;z-index:7;display:flex;align-items:flex-end;padding:0 20px 24px 28px;background:var(--cream);border:1.5px solid rgba(96,150,240,.8);border-radius:10px 10px 0 10px;color:var(--navy);font-size:23px;line-height:31px;letter-spacing:-.01em;white-space:nowrap;transition:opacity .8s ease var(--d,0s),transform .9s cubic-bezier(.2,.8,.2,1) var(--d,0s),background .35s,color .35s,width .4s cubic-bezier(.2,.8,.2,1)}
+.prompt .txt{flex:1;margin-right:22px;position:relative;top:-1px}
+.prompt .txt div{min-height:31px}
+.caret{display:inline-block;width:2px;height:30px;background:var(--hl);margin-left:2px;vertical-align:-6px;animation:cb 1s steps(1) infinite}
+@keyframes cb{50%{opacity:0}}
+.send{margin-bottom:7px;width:48px;height:48px;border-radius:7px;background:#dbe6f8;display:grid;place-items:center;flex:none}
+.send svg{width:19px;height:19px;fill:none;stroke:var(--navy);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.send.gone{display:none}
+.prompt.nocaret .caret{display:none}
+.prompt.sent{width:var(--sw,414px);padding-right:36px;background:rgba(15,15,66,.92);color:var(--cream)}
+.prompt.sent .txt{margin-right:0}
+
+.found{left:476px;top:574px;width:360px;height:236px;z-index:8;background:var(--pale);border-radius:8px;padding:26px 26px 0;color:var(--navy);opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.on .found{opacity:1;transform:none}
+.found .lab{font:500 14px 'Inter Tight',sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.found h3{margin:16px 0 22px;font:400 31px/1 'Roboto Serif',Georgia,serif;letter-spacing:-.02em}
+.link{display:flex;align-items:center;gap:9px;height:54px;padding:0 8px 0 14px;background:rgba(255,255,255,.7);border-radius:8px}
+.link svg{width:17px;height:17px;flex:none;fill:none;stroke:var(--navy);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.link code{font:400 12.5px 'JetBrains Mono',monospace;color:var(--navy);flex:1;white-space:nowrap}
+.copy{display:flex;align-items:center;justify-content:center;gap:6px;height:38px;width:98px;padding:0 10px;border-radius:6px;background:var(--hl);color:#fff;font-size:15px;font-weight:500;transition:background .25s,transform .2s}
+.copy svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;display:none}
+.copy.done{background:var(--green)}
+.copy.done svg{display:block}
+.copy.press{transform:scale(.94)}
+.found p{margin:16px 0 0;font-size:16px;color:rgba(15,15,66,.72);letter-spacing:-.005em}
+
+.chip{left:910px;top:574px;z-index:9;height:38px;padding:0 12px 0 14px;display:flex;align-items:center;gap:14px;background:var(--cream);border:1.5px solid #3a6db4;border-radius:9px;font:400 13px 'JetBrains Mono',monospace;color:var(--navy);white-space:nowrap;opacity:0;pointer-events:none;transition:left .9s cubic-bezier(.45,0,.2,1),top .9s cubic-bezier(.45,0,.2,1),opacity .3s,transform .3s,box-shadow .3s,background .35s,color .35s,border-color .35s}
+.chip svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.chip.sent{background:var(--navy);color:var(--cream);border-color:rgba(96,150,240,.8)}
+.chip.carry{transform:rotate(-3deg) scale(1.05);box-shadow:0 10px 24px rgba(4,6,40,.3)}
+.chip.nt{transition:none}
+.ptr{position:absolute;left:560px;top:742px;z-index:12;pointer-events:none;transition:left .9s cubic-bezier(.45,0,.2,1),top .9s cubic-bezier(.45,0,.2,1)}
+.rip{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;border:2px solid var(--sky);opacity:0}
+.rip.go{animation:rp .7s ease-out}
+@keyframes rp{from{opacity:.9;transform:scale(.4)}to{opacity:0;transform:scale(3.6)}}
+@media (prefers-reduced-motion:reduce){#rays g,#rays line,.caret,.ld,.ld{animation:none}.rv,.found{transition:none}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+<svg id="rays" viewBox="0 0 880 880"><g id="rg"></g></svg>
+<div class="abs navy" style="left:440px;top:0;width:440px;height:95px"></div>
+<div class="abs navy" style="left:0;top:198px;width:147px;height:682px"></div>
+
+<div class="abs logo"><svg viewBox="0 0 179 46"><path fill-rule="evenodd" d="M23.5422 0L25.0998 14.1444C25.1837 14.9055 26.0747 15.2744 26.6721 14.7954L37.7748 5.89529L39.1892 7.30951L30.2889 18.4124C29.81 19.0098 30.1789 19.9007 30.9401 19.9845L30.9395 19.9849L45.0838 21.5421V23.5422L25.6785 25.6788L23.5419 45.084H21.5418L19.9845 30.9398C19.9007 30.1786 19.0098 29.8097 18.4124 30.2887L7.30951 39.1889L5.89529 37.7745L14.7954 26.6718C15.2744 26.0744 14.9055 25.1834 14.1444 25.0995L0 23.5422V21.5421L19.4055 19.4053L21.5421 0H23.5422ZM24.9703 19.5719C23.3515 19.4237 21.7324 19.4237 20.1136 19.5719C19.8427 19.5975 19.5975 19.8427 19.5719 20.1136C19.4237 21.7324 19.4237 23.3515 19.5719 24.9703C19.5974 25.2412 19.8427 25.4866 20.1136 25.5122C21.7324 25.6601 23.3515 25.6601 24.9703 25.5122C25.2412 25.4866 25.4866 25.2412 25.5122 24.9703C25.6604 23.3515 25.6604 21.7324 25.5122 20.1136C25.4866 19.8427 25.2412 19.5974 24.9703 19.5719Z"/><path d="M160.046 26.3455C160.046 19.6515 163.882 16.1916 169.767 16.1916C175.615 16.1916 179 19.7267 179 25.5746V27.5677H164.314C164.39 30.8207 166.402 33.096 169.749 33.096C172.983 33.096 174.393 31.366 174.694 29.8994H178.701L178.605 30.4635C178.079 33.0019 175.747 36.5182 169.805 36.5182C163.901 36.5182 160.046 33.0395 160.046 26.3455ZM164.371 24.2583H174.807C174.769 21.607 173.077 19.5763 169.711 19.5763C166.439 19.5763 164.615 21.6635 164.371 24.2583Z"/><path d="M141.34 21.9459C141.34 18.4297 144.349 16.2109 149.633 16.2109C154.935 16.2109 158.038 18.4297 158.357 22.0587V22.6228H154.296C154.164 20.3476 152.303 19.5579 149.651 19.5579C147.019 19.5579 145.571 20.3476 145.571 21.8519C145.571 23.3562 146.775 23.8451 148.448 24.1083L152.096 24.6724C155.969 25.2741 158.621 26.8724 158.621 30.4075C158.621 33.9425 155.819 36.4998 150.178 36.4998C144.537 36.4998 141.265 33.9425 140.983 30.5015V29.9374H145.12C145.308 32.2126 147.395 33.1528 150.178 33.1528C152.961 33.1528 154.371 32.175 154.371 30.6519C154.371 29.1476 153.149 28.5271 151.099 28.2075L147.451 27.6434C143.804 27.0793 141.34 25.4622 141.34 21.9459Z"/><path d="M134.695 16.5697H139.152L139.15 36.0669H134.694L134.695 16.5697Z"/><path d="M120.854 16.6429H125.122V18.695C125.122 18.7974 125.205 18.8805 125.307 18.8805C125.378 18.8805 125.442 18.8401 125.475 18.7776C126.182 17.4265 127.462 16.5676 130.048 16.5676H132.756V20.2531H130.067C126.758 20.2531 125.31 22.0019 125.31 25.6685V36.0668H120.854V16.6429Z"/><path d="M99.172 43.5879V16.6425H103.497V18.699C103.497 18.8094 103.586 18.8989 103.697 18.8989C103.76 18.8989 103.82 18.8684 103.858 18.8179C105.289 16.9417 107.463 16.2288 110.022 16.2288C114.967 16.2288 118.916 19.5383 118.916 26.3451C118.916 33.152 114.967 36.4802 110.022 36.4802C107.536 36.4802 105.397 35.7846 103.968 33.996C103.931 33.9503 103.876 33.9229 103.818 33.9229C103.713 33.9229 103.628 34.0077 103.628 34.1122V43.5879H99.172ZM103.44 26.3451C103.44 30.6135 105.64 32.9639 108.931 32.9639C112.222 32.9639 114.422 30.6135 114.422 26.3451C114.422 22.0955 112.222 19.7451 108.931 19.7451C105.64 19.7451 103.44 22.0955 103.44 26.3451Z"/><path d="M78.0286 26.3455C78.0286 19.6515 81.8645 16.1916 87.75 16.1916C93.5979 16.1916 96.9825 19.7267 96.9825 25.5746V27.5677H82.297C82.3722 30.8207 84.3842 33.096 87.7312 33.096C90.9654 33.096 92.3757 31.366 92.6765 29.8994H96.5876V30.4635C96.0611 33.0019 93.7295 36.5182 87.7876 36.5182C81.8833 36.5182 78.0286 33.0395 78.0286 26.3455ZM82.3534 24.2583H92.7893C92.7517 21.607 91.0594 19.5763 87.6936 19.5763C84.4218 19.5763 82.5979 21.6635 82.3534 24.2583Z"/><path d="M69.4671 8.9896C74.262 8.9896 78.0791 11.7349 78.0791 16.8306C78.0791 21.8888 74.45 24.6153 69.9936 24.6153H68.9287L78.0791 35.5025V36.0666H73.0388L63.8188 25.0415C63.5531 24.7237 63.16 24.5401 62.7457 24.5401H61.0808V36.0666H56.5115V8.9896H69.4671ZM61.0808 21.0426H68.7714C71.6107 21.0426 73.5663 19.6512 73.5663 16.9247C73.5663 14.217 71.6107 12.8067 68.7714 12.8067H61.0808V21.0426Z"/><path d="M134.694 10.3495C134.694 10.1287 134.873 9.94977 135.094 9.94977H138.752C138.973 9.94977 139.152 10.1287 139.152 10.3495V14.0059C139.152 14.2266 138.973 14.4056 138.752 14.4056H135.094C134.873 14.4056 134.694 14.2266 134.694 14.0059V10.3495Z"/></svg></div>
+
+<div class="abs win">
+ <h4 id="wtitle">Sales demo</h4>
+ <div class="app"><div class="ui">
+  <aside><div class="brand"><i></i><u style="width:62px"></u></div>
+   <div class="nv act"><u style="width:70px"></u></div><div class="nv"><u style="width:44px"></u></div><div class="nv"><u style="width:62px"></u></div><div class="nv"><u style="width:52px"></u></div><div class="nv"><u style="width:38px"></u></div></aside>
+  <div class="top"><u style="width:130px"></u><span class="av"></span></div>
+  <div class="stat" style="left:166px"><u style="width:68px"></u><b data-n="128">128</b></div>
+  <div class="stat" style="left:410px"><u style="width:56px"></u><b data-n="46">46</b></div>
+  <div class="card">
+   <div class="pill"></div>
+   <div class="cols"><u style="left:0;width:90px"></u><u style="left:250px;width:70px"></u><u style="left:430px;width:60px"></u><u style="left:610px;width:50px"></u></div>
+   <div class="row" style="top:92px"><span class="nm" data-a="Northwind" data-b="AbbVie">Northwind</span><u style="left:228px;width:150px"></u><u class="s" style="left:408px;width:104px"></u><u class="s" style="left:588px;width:70px"></u></div>
+   <div class="row" style="top:150px"><span class="nm" data-a="Globex" data-b="AstraZeneca">Globex</span><u style="left:228px;width:112px"></u><u class="s" style="left:408px;width:126px"></u><u class="s" style="left:588px;width:60px"></u></div>
+   <div class="row" style="top:208px"><span class="nm" data-a="Initech" data-b="Bristol Myers">Initech</span><u style="left:228px;width:168px"></u><u class="s" style="left:408px;width:88px"></u><u class="s" style="left:588px;width:76px"></u></div>
+  </div>
+ </div></div>
+</div>
+
+<div class="abs prompt rv" id="prompt" style="--d:.8s"><span class="txt" id="ptxt"></span><b class="send" id="send"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></b></div>
+
+<div class="abs found" id="found">
+ <div class="lab">Ready to share</div>
+ <h3>Pharma demo</h3>
+ <div class="link"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><code>reprise.com/pharma</code><span class="copy" id="copy"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-6.5"/></svg><span id="ctx">Copy</span></span></div>
+ <p>Anyone with the link can view</p>
+</div>
+
+<div class="abs chip" id="chip"><span>Pharma-Dataset</span><svg viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M5 21h14"/></svg></div>
+
+<div class="ptr" id="ptr"><span class="rip" id="rip"></span><svg width="24" height="26" viewBox="0 0 24 26"><path d="M2 2l19 9.5-8.2 2.6L10 23.5z" fill="#fff" stroke="#0f0f42" stroke-width="2" stroke-linejoin="round"/></svg></div>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const wrap=$('#wrap'),stage=$('#stage');
+function fit(){wrap.style.setProperty('--s',Math.min(innerWidth/880,innerHeight/880))}
+addEventListener('resize',fit);fit();
+
+const rg=$('#rg');
+for(let i=0;i<64;i++){
+ const a=i*Math.PI*2/64+.05,l=document.createElementNS('http://www.w3.org/2000/svg','line');
+ l.setAttribute('x1',480);l.setAttribute('y1',560);l.setAttribute('x2',480+Math.cos(a)*1500);l.setAttribute('y2',560+Math.sin(a)*1500);
+ l.style.setProperty('--i',i);rg.appendChild(l);
+}
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const ptr=$('#ptr'),rip=$('#rip');
+const move=(x,y)=>{ptr.style.left=x+'px';ptr.style.top=y+'px'};
+const chip=$('#chip');
+const CHIP_HOME=[84,666];
+const moveCarry=(x,y)=>{move(x,y);chip.style.left=(x-30)+'px';chip.style.top=(y-38)+'px'};
+function jump(x,y){
+ ptr.style.transition='none';chip.classList.add('nt');
+ ptr.style.left=x+'px';ptr.style.top=y+'px';chip.style.left=(x-30)+'px';chip.style.top=(y-38)+'px';
+ void ptr.offsetWidth;ptr.style.transition='';chip.classList.remove('nt');
+}
+const click=()=>{rip.classList.remove('go');void rip.offsetWidth;rip.classList.add('go')};
+function center(el){
+ const r=el.getBoundingClientRect(),s=stage.getBoundingClientRect(),k=s.width/880;
+ return [(r.left+r.width/2-s.left)/k,(r.top+r.height/2-s.top)/k];
+}
+function countTo(el,to,dur){
+ if(reduce){el.textContent=to;return}
+ const t0=performance.now(),f=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=Math.round(to*e);if(p<1)requestAnimationFrame(f)};
+ requestAnimationFrame(f);
+}
+
+const L1='Use my premade Pharma dataset',L2='and give me the link to share';
+const N1=L1.length,TOT=N1+1+L2.length;
+function render(n){
+ const a=L1.slice(0,Math.min(n,N1)),b=n>N1?L2.slice(0,n-N1-1):'';
+ const c='<i class="caret"></i>';
+ $('#ptxt').innerHTML='<div>'+a+(n<=N1?c:'')+'</div><div>'+b+(n>N1?c:'')+'</div>';
+}
+async function type(){
+ render(0);
+ if(reduce){render(TOT);return}
+ for(let n=1;n<=TOT;n++){render(n);await sleep(n===N1+1?260:46+Math.random()*30)}
+}
+function sizePrompt(){
+ const c=document.createElement('canvas').getContext('2d');
+ c.font='400 23px "Inter Tight",system-ui,sans-serif';
+ const w=Math.max(c.measureText(L1).width,c.measureText(L2).width)+6;
+ stage.style.setProperty('--pw',Math.round(28+w+22+48+20)+'px');
+ stage.style.setProperty('--sw',Math.round(28+w+36)+'px');
+}
+async function setData(pharma){
+ const els=$$('.nm');
+ els.forEach(e=>e.style.opacity=0);$('#wtitle').style.opacity=0;
+ await sleep(240);
+ els.forEach(e=>{e.textContent=pharma?e.dataset.b:e.dataset.a;e.style.opacity=1});
+ $('#wtitle').textContent=pharma?'Pharma demo':'Sales demo';$('#wtitle').style.opacity=1;
+}
+function copyState(done){
+ $('#copy').classList.toggle('done',done);
+ $('#ctx').textContent=done?'Copied':'Copy';
+}
+
+async function loop(){
+ await sleep(1500);
+ while(true){
+  jump(900,560);
+  chip.classList.add('carry');chip.style.opacity=1;
+  await sleep(120);
+  moveCarry(CHIP_HOME[0]+30,CHIP_HOME[1]+38);await sleep(1050);
+  chip.classList.remove('carry');
+  await sleep(350);
+  move(560,742);await sleep(700);
+  await type();
+  await sleep(500);
+  const [sx,sy]=center($('#send'));
+  move(sx+6,sy+14);await sleep(1000);
+  $('#send').classList.add('hot');$('#prompt').classList.add('nocaret');click();await sleep(170);
+  $('#send').classList.add('gone');await sleep(110);
+  $('#prompt').classList.add('sent');chip.classList.add('sent');
+  await sleep(700);setData(true);
+  await sleep(900);
+  stage.classList.add('on');
+  move(600,704);
+  await sleep(2400);
+  const [cx,cy]=center($('#copy'));
+  move(cx+6,cy+12);await sleep(1000);
+  $('#copy').classList.add('press');click();await sleep(160);
+  $('#copy').classList.remove('press');copyState(true);
+  await sleep(2600);
+  move(560,742);await sleep(1200);
+  stage.classList.remove('on');
+  await sleep(900);
+  copyState(false);
+  chip.style.opacity=0;
+  $('#prompt').classList.remove('sent');
+  setTimeout(()=>chip.classList.remove('sent'),400);
+  setData(false);
+  render(0);
+  await sleep(480);
+  $('#send').classList.remove('gone','hot');$('#prompt').classList.remove('nocaret');
+  await sleep(500);
+ }
+}
+
+let started=false;
+function start(){if(started)return;started=true;sizePrompt();render(0);document.body.classList.add('go');loop()}
+document.fonts.ready.then(()=>{requestAnimationFrame(start);setTimeout(start,150)});
+</script>
+</body>
+</html>
