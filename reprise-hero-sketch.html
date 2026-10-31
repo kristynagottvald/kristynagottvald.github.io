@@ -130,13 +130,13 @@ function draw() {
   syncSize();
   VH = VW * height / width;
   C = min(VH / 658, 1.12);
-  LX = 1197 * C;
-  HD = 96 * C;
+  LX = VW * 0.7225;
+  HD = VH * 0.156;
   EX = 1020 * 9 / 16 - 606;
   const PNS = 0.97;
   const CC = min(VH / 940, 1.3);
   const OFX = min(270, (VW - 30) / CC - VW / 2 / CC - 494.7);
-  const FX = VW / 2 / CC + 494.7 + OFX - 343 * PNS, FY = VH / 2 / CC + 278.3 + 40 - 341 * PNS;
+  const FX = VW / 2 / CC + 494.7 + OFX - 343 * PNS, FY = VH * 0.56 / CC + 278.3 + 40 - 341 * PNS;
   const SC = 1;
   BOXES[3].h = BOXES[4].h = 394 + EX;
   const t = ((millis() - t0) / 1000) % LOOP;
@@ -162,7 +162,7 @@ function draw() {
   push();
   scale(CC);
   push();
-  translate(VW / 2 / CC, VH / 2 / CC);
+  translate(VW / 2 / CC, VH * 0.56 / CC);
   scale(SC);
   translate(-(421 + 494.7), -(252 + 278.3));
   drawScreen(t, onAmt);
