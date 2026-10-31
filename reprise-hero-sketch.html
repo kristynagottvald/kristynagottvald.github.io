@@ -22,7 +22,7 @@ const SERIF = "Georgia";
 
 
 const PROMPT = "Show me what data I can edit on this screen.";
-const LOOP = 17.5;
+const LOOP = 60;
 const BARS = [34, 40, 37, 48, 62, 78, 96, 112, 76, 52];
 const ALERTS = ["Public bucket exposed", "Excess privileges", "Data outside region"];
 const ROWS = [["Key numbers", "3 fields"], ["Alert volume chart", "7 fields"], ["Recent alerts table", "3 fields"]];
@@ -140,11 +140,11 @@ function draw() {
   const SC = 1;
   BOXES[3].h = BOXES[4].h = 394 + EX;
   const raw = ((millis() - t0) / 1000) % LOOP;
-  const t = raw <= 9.8 ? raw : raw < 15.8 ? 9.8 + (raw - 9.8) / 0.8 : 17.3 + (raw - 15.8);
-  const sent = t >= 4.6 && t < 18.65;
-  const sentAmt = t < 18.2 ? clamp01((t - 4.9) / 0.4) : 1 - clamp01((t - 18.2) / 0.4);
-  const onAmt = t < 17.3 ? clamp01((t - 7.4) / 0.35) : 1 - clamp01((t - 17.3) / 0.35);
-  const panelAmt = t < 17.3 ? eo((t - 7.4) / 0.7) : 1 - eo((t - 17.3) / 0.7);
+  const t = min(19, raw <= 9.8 ? raw : raw < 15.8 ? 9.8 + (raw - 9.8) / 0.8 : 17.3 + (raw - 15.8));
+  const sent = t >= 4.6;
+  const sentAmt = clamp01((t - 4.9) / 0.4);
+  const onAmt = clamp01((t - 7.4) / 0.35);
+  const panelAmt = eo((t - 7.4) / 0.7);
   const dt = deltaTime / 1000;
 
   for (let i = 0; i < 3; i++) {
@@ -329,7 +329,7 @@ function drawCard(b, bw, bc) {
 
 function drawAnts(t, onAmt) {
   if (onAmt <= 0) return;
-  const off = t < 17.3 ? 0 : clamp01((t - 17.3) / 0.5);
+  const off = 0;
   const offset = -((millis() - t0) / 1000) * 23.6;
   for (const b of BOXES) {
     const op = clamp01((t - 7.4 - b.g * 0.25) / 0.5) * (1 - off);
@@ -378,7 +378,7 @@ function drawPrompt(t, sent, sentAmt) {
   noStroke();
 
   let n = 0;
-  if (t >= 4.6 && t < 18.2) n = PROMPT.length;
+  if (t >= 4.6) n = PROMPT.length;
   else if (t >= 0.7 && t < 4.6) n = constrain(floor((t - 0.7) / 0.0558), 0, PROMPT.length);
   const typed = PROMPT.substring(0, n);
   const col = lerpColor(color(NAVY), color(CREAM), sentAmt);
@@ -389,7 +389,7 @@ function drawPrompt(t, sent, sentAmt) {
     rect(x + 36 + textWidth(typed) + 2, y + h / 2 - 17, 2, 30);
   }
 
-  const showBtn = t < 4.77 || t >= 18.65;
+  const showBtn = t < 4.77;
   if (showBtn) {
     const hot = t >= 4.6 && t < 4.77;
     const bx = x + 604 - 20 - 48, by = y + (h - 48) / 2;
