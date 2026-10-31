@@ -134,8 +134,9 @@ function draw() {
   HD = 96 * C;
   EX = 1020 * 9 / 16 - 606;
   const PNS = 0.97;
-  const FX = (VW - 88) / C - 343 * PNS, FY = (VH * 0.84) / C - 341 * PNS;
-  const SC = min(1, (FX * C - 24 - VW / 2) * 2 / (989.4 * C));
+  const CC = min(VH / 690, 1.3);
+  const FX = (VW - 60) / CC - 343 * PNS, FY = (VH * 0.9) / CC - 341 * PNS;
+  const SC = 1;
   BOXES[3].h = BOXES[4].h = 394 + EX;
   const t = ((millis() - t0) / 1000) % LOOP;
   const sent = t >= 4.6 && t < 20.65;
@@ -156,14 +157,12 @@ function draw() {
   noStroke();
   fill(NAVY);
   rect(0, 0, VW, VH);
-  fill(LOGO_BG);
-  rect(0, 0, VW, HD);
   drawBlue(t);
   drawLogoBox();
   push();
-  scale(C);
+  scale(CC);
   push();
-  translate(VW / 2 / C, VH / 2 / C);
+  translate(VW / 2 / CC, VH / 2 / CC);
   scale(SC);
   translate(-(421 + 494.7), -(252 + 278.3));
   drawScreen(t, onAmt);
