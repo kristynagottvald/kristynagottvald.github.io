@@ -478,7 +478,7 @@ function draw() {
   const fixed = new URLSearchParams(location.search).get('t');
   if (fixed !== null) { renderSpot(+fixed); noLoop(); return; }
   const hero = new URLSearchParams(location.search).get('hero') === '1';
-  let el = (millis() - t0) / 1000 * (hero ? 1.5 : 1);   // hero: quicker, and hold the last frame instead of looping
+  let el = (millis() - t0) / 1000 * (hero ? 1.25 : 1);   // hero: quicker, and hold the last frame instead of looping
   if (!hero && el > DUR + END_HOLD) { t0 = millis(); el = 0; }
   renderSpot(Math.min(el, DUR));
 }

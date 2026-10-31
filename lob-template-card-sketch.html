@@ -674,7 +674,7 @@ function draw() {
   fitFrame();
   if (!ready) return;
   const HERO = new URLSearchParams(location.search).get('hero') === '1';
-  const el = (millis() - startMs) / 1000 * (HERO ? 1.6 : 1);   // hero: quicker so the slide fits in about 10s
+  const el = (millis() - startMs) / 1000 * (HERO ? 1.3 : 1);   // hero: a little quicker so the slide fits in about 12s
   const t = HERO ? Math.min(el, TOTAL - 0.01) : el % TOTAL;   // hero: hold the last frame so the slideshow crossfades out without the loop restarting
   background(lerpColor(color(BG), color(LOGO_BG), ease(span(t, 13.3, 13.8))));
   const ctx = drawingContext;
