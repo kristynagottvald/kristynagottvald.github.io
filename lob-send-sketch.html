@@ -114,7 +114,7 @@ function draw() {
   }
   textFont(P5_FONT);
   const raw = (millis() - startMs) / 1000;
-  const t = HERO ? HERO_FROM + (raw % (HERO_TO - HERO_FROM)) : raw % TOTAL;
+  const t = HERO ? HERO_FROM + Math.min(raw, HERO_TO - HERO_FROM - 0.01) : raw % TOTAL;   // hero: hold the last frame so the slideshow crossfades out without the loop restarting
   let start = 0;
   let i = 0;
   while (i < 5 && t >= start + DUR[i]) {
