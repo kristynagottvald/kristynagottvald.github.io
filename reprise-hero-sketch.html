@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reprise rebrand hero</title><style>html,body{margin:0;background:#cfe0f7;overflow:hidden}canvas{display:block;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}</style><script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script></head><body><script>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reprise rebrand hero</title><style>html,body{margin:0;background:#0f0f42;overflow:hidden}canvas{display:block;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}</style><script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script></head><body><script>
 
 let t0 = 0;
 addEventListener('message', (e) => { if (e.data === 'reset') { t0 = millis(); hotA = [0, 0, 0]; } });
@@ -66,7 +66,7 @@ const LOGO_SVG = [
   "M134.694 10.3495C134.694 10.1287 134.873 9.94977 135.094 9.94977H138.752C138.973 9.94977 139.152 10.1287 139.152 10.3495V14.0059C139.152 14.2266 138.973 14.4056 138.752 14.4056H135.094C134.873 14.4056 134.694 14.2266 134.694 14.0059V10.3495Z"
 ];
 
-const ASPECT = 1990 / 764;
+const ASPECT = 1884 / 658;
 
 function fitW() {
   return min(windowWidth, windowHeight * ASPECT);
@@ -139,10 +139,9 @@ function draw() {
     hotA[i] = constrain(hotA[i] + (hot ? 1 : -1) * dt / 0.3, 0, 1);
   }
 
-  background(MATTE);
+  background(NAVY);
   push();
-  scale(width / 1990);
-  translate(53, 53);
+  scale(width / 1884);
   drawingContext.beginPath();
   drawingContext.rect(0, 0, 1884, 658);
   drawingContext.clip();
