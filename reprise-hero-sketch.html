@@ -132,7 +132,10 @@ function draw() {
   C = min(VH / 658, 1.12);
   LX = 1197 * C;
   HD = 96 * C;
-  EX = max(0, (VH - 252 * C) / (0.97 * C) + 30 - 606);
+  EX = 1020 * 9 / 16 - 606;
+  const PNS = 0.97;
+  const FX = (VW - 88) / C - 343 * PNS, FY = (VH * 0.84) / C - 341 * PNS;
+  const SC = min(1, (FX * C - 24 - VW / 2) * 2 / (989.4 * C));
   BOXES[3].h = BOXES[4].h = 394 + EX;
   const t = ((millis() - t0) / 1000) % LOOP;
   const sent = t >= 4.6 && t < 20.65;
@@ -153,10 +156,16 @@ function draw() {
   noStroke();
   fill(NAVY);
   rect(0, 0, VW, VH);
+  fill(LOGO_BG);
+  rect(0, 0, VW, HD);
   drawBlue(t);
   drawLogoBox();
   push();
   scale(C);
+  push();
+  translate(VW / 2 / C, VH / 2 / C);
+  scale(SC);
+  translate(-(421 + 494.7), -(252 + 278.3));
   drawScreen(t, onAmt);
   push();
   translate(250, 200);
@@ -170,13 +179,14 @@ function draw() {
   translate(-68, -294);
   drawStep(t);
   pop();
+  drawPointer(t);
+  pop();
   push();
-  translate(1309, 190);
-  scale(0.95 * 1.1);
+  translate(FX, FY);
+  scale(PNS);
   translate(-68, -502);
   drawFound(t, panelAmt);
   pop();
-  drawPointer(t);
   pop();
   pop();
 }
@@ -184,10 +194,10 @@ function draw() {
 function drawBlue(t) {
   noStroke();
   fill(BLUE);
-  rect(0, 0, LX, VH);
+  rect(0, HD, LX, VH - HD);
   push();
   drawingContext.beginPath();
-  drawingContext.rect(0, 0, LX, VH);
+  drawingContext.rect(0, HD, LX, VH - HD);
   drawingContext.clip();
   translate(789 * C, HD + (VH - HD) / 2);
   rotate((millis() - t0) / 1000 / 240 * TWO_PI);
