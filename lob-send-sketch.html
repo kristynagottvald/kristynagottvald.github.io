@@ -113,7 +113,7 @@ function draw() {
     return;
   }
   textFont(P5_FONT);
-  const raw = (millis() - startMs) / 1000 * (HERO ? 1.25 : 1);   // hero: slightly quicker so the slide fits in about 8s
+  const raw = (millis() - startMs) / 1000 * (HERO ? 1 : 1);
   const t = HERO ? HERO_FROM + Math.min(raw, HERO_TO - HERO_FROM - 0.01) : raw % TOTAL;   // hero: hold the last frame so the slideshow crossfades out without the loop restarting
   let start = 0;
   let i = 0;
