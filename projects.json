@@ -2,6 +2,129 @@
   {
     "caseStudyContent": [
       {
+        "alt": "Lob",
+        "src": "lob.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "Lob is the only direct mail platform with proprietary advanced routing, printing, and delivery infrastructure that delivers predictable postage costs and dramatically faster mail delivery times across the United States.",
+          "Built for high-volume teams that send millions of sophisticated, hyper-personalized mailpieces, Lob’s brand is deliberately bold, modern, and distinctive, just like the forward-thinking companies that power their businesses with us."
+        ],
+        "heading": "Your direct mail partner from campaign to mailbox",
+        "type": "text"
+      },
+      {
+        "src": "lob-send-sketch.html",
+        "title": "Send direct mail with Lob",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1200 / 675"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-ads.webp",
+        "type": "image"
+      },
+      {
+        "src": "lob-mailpieces-sketch.html",
+        "title": "Lob mailpieces",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1135",
+        "bg": "#cf45d9"
+      },
+      {
+        "src": "lob-template-sketch.html",
+        "title": "Lob template editor",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1400 / 890"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-carousel.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "We built the Lob brand in the same spirit as the platform: to dominate at enterprise scale and never blend in. Fresh, contemporary, and loud, designed to stand beside the most ambitious, design-obsessed companies in the world. Teams sending millions of pieces refuse to let their mail look like junk. So why would they accept a junk-looking mail platform?"
+        ],
+        "type": "text"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-social.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-09.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-blog-grid.webp",
+        "type": "image"
+      },
+      {
+        "src": "lob-email-sketch.html",
+        "title": "Lob team access email",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1271"
+      },
+      {
+        "body": [
+          "Lob’s Template Gallery now has 40+ beautiful, ready-to-use mail pieces (postcards, gift card carriers, snap packs, letters, self-mailers). I scrapped the old, outdated Lob InDesign library for fresh, new templates. They’re clean, modern, and built 100% for the new Figma-to-Lob plugin so customers can customize and send in minutes instead of weeks."
+        ],
+        "heading": "Beautiful templates that turn “snail mail” into “sale mail”",
+        "type": "text"
+      },
+      {
+        "type": "pair",
+        "images": [
+          {
+            "sketch": "lob-template-gallery-sketch.html",
+            "title": "Lob Template Gallery",
+            "aspect": "1 / 1",
+            "bg": "#4131F1"
+          },
+          {
+            "sketch": "lob-template-card-sketch.html",
+            "title": "Lob template cards",
+            "aspect": "1 / 1",
+            "bg": "#d045dc"
+          }
+        ]
+      },
+      {
+        "body": [
+          "Working alongside the Brand Design Manager, I helped evolve the full Lob brand ecosystem: expanding the illustration system, refreshing mail templates, crafting standout event branding, designing physical print collateral, and unifying the promotional visual identity across ads, social media, and the blog. At the heart of the brand is a bright, CMYK-inspired palette that celebrates the essence of print. Indigo always leads. It’s Lob’s bold primary color that refuses to blend in. Together, these colors pop vividly on paper and cut effortlessly through cluttered mailboxes and digital feeds.",
+          "Role: Art direction, creative concepts, print design, campaign creative, illustration, motion design",
+          "Creative direction: Mel Lavigne"
+        ],
+        "heading": "Junk mail gets tossed. Lob gets opened.",
+        "type": "text"
+      }
+    ],
+    "category": "Visual identity",
+    "client": "",
+    "hideTitle": true,
+    "id": "819502830422523904",
+    "mediaType": "image",
+    "noLine": true,
+    "summary": "",
+    "thumbnail": "lob.webp",
+    "title": "Lob",
+    "year": 2025,
+    "squareThumbnail": "lob-square.webp",
+    "clientName": "Lob",
+    "pageTitle": "Lob Rebrand"
+  },
+  {
+    "caseStudyContent": [
+      {
         "alt": "House of Balloons",
         "src": "house-of-balloons.webp",
         "type": "image"
@@ -150,125 +273,153 @@
   {
     "caseStudyContent": [
       {
-        "alt": "Lob",
-        "src": "lob.webp",
-        "type": "image"
+        "hash": "d77de15d3f",
+        "id": "1215020708",
+        "title": "ReRadial",
+        "type": "vimeo"
       },
       {
         "body": [
-          "Lob is the only direct mail platform with proprietary advanced routing, printing, and delivery infrastructure that delivers predictable postage costs and dramatically faster mail delivery times across the United States.",
-          "Built for high-volume teams that send millions of sophisticated, hyper-personalized mailpieces, Lob’s brand is deliberately bold, modern, and distinctive, just like the forward-thinking companies that power their businesses with us."
+          "To position Reprise as a leader in AI-driven demos, the visual language balances technical precision with modern intelligence. The structured grid system represents a blueprint for creation, while the elegant repeating patterns act as the invisible hand of AI."
         ],
-        "heading": "Your direct mail partner from campaign to mailbox",
+        "heading": "Reprise",
         "type": "text"
       },
       {
-        "src": "lob-send-sketch.html",
-        "title": "Send direct mail with Lob",
+        "src": "reprise-expand-sketch.html",
+        "title": "ReExpand",
         "type": "sketch",
         "noHint": true,
-        "aspect": "1200 / 675"
+        "aspect": "16 / 9",
+        "bg": "#060922"
       },
       {
-        "alt": "Lob",
-        "src": "lob-ads.webp",
-        "type": "image"
-      },
-      {
-        "src": "lob-mailpieces-sketch.html",
-        "title": "Lob mailpieces",
+        "src": "reprise-mcp-sketch.html",
+        "title": "Reprise MCP explainer",
         "type": "sketch",
         "noHint": true,
-        "aspect": "2000 / 1135",
-        "bg": "#cf45d9"
+        "aspect": "1400 / 788",
+        "bg": "#46423c"
       },
       {
-        "src": "lob-template-sketch.html",
-        "title": "Lob template editor",
+        "id": "1214916593",
+        "title": "RePalette",
+        "type": "vimeo"
+      },
+      {
+        "alt": "Build better demos with AI",
+        "half": true,
+        "src": "build-better-demos-with-ai-04.webp",
+        "type": "image",
+        "aside": [
+          "Solve, Align, Scale and Evolve are the four brand pillars: the ideas that shape how Reprise thinks, behaves and shows up. Each pillar is paired with its own pattern style, so the principle behind the brand can be seen as well as read.",
+          "Solve builds in concentric lines, Align locks to a modular grid, Scale arcs into sweeping curves and Evolve steps forward in layered stripes. Each pattern emanates throughout the system, from campaigns and presentations to product UI."
+        ]
+      },
+      {
+        "alt": "Build better demos with AI",
+        "half": true,
+        "src": "build-better-demos-with-ai-05.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Build better demos with AI",
+        "half": "left",
+        "src": "build-better-demos-with-ai-06.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Build better demos with AI",
+        "half": "left",
+        "src": "build-better-demos-with-ai-07.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Build better demos with AI",
+        "src": "build-better-demos-with-ai-08.webp",
+        "type": "image"
+      },
+      {
+        "src": "reprise-demo-types-sketch.html",
+        "title": "Reprise demo types",
         "type": "sketch",
         "noHint": true,
-        "aspect": "1400 / 890"
+        "aspect": "1400 / 764",
+        "bg": "#0f0f42"
       },
       {
-        "alt": "Lob",
-        "src": "lob-carousel.webp",
+        "id": "1214919145",
+        "title": "Build Better Demos",
+        "type": "vimeo"
+      },
+      {
+        "alt": "Build better demos with AI",
+        "src": "build-better-demos-with-ai-11.webp",
         "type": "image"
-      },
-      {
-        "body": [
-          "We built the Lob brand in the same spirit as the platform: to dominate at enterprise scale and never blend in. Fresh, contemporary, and loud, designed to stand beside the most ambitious, design-obsessed companies in the world. Teams sending millions of pieces refuse to let their mail look like junk. So why would they accept a junk-looking mail platform?"
-        ],
-        "type": "text"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-social.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-09.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-blog-grid.webp",
-        "type": "image"
-      },
-      {
-        "src": "lob-email-sketch.html",
-        "title": "Lob team access email",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "2000 / 1271"
-      },
-      {
-        "body": [
-          "Lob’s Template Gallery now has 40+ beautiful, ready-to-use mail pieces (postcards, gift card carriers, snap packs, letters, self-mailers). I scrapped the old, outdated Lob InDesign library for fresh, new templates. They’re clean, modern, and built 100% for the new Figma-to-Lob plugin so customers can customize and send in minutes instead of weeks."
-        ],
-        "heading": "Beautiful templates that turn “snail mail” into “sale mail”",
-        "type": "text"
       },
       {
         "type": "pair",
         "images": [
           {
-            "sketch": "lob-template-gallery-sketch.html",
-            "title": "Lob Template Gallery",
+            "sketch": "reprise-ad-sketch.html",
+            "title": "Reprise editable data",
             "aspect": "1 / 1",
-            "bg": "#4131F1"
+            "bg": "#cfe0f7"
           },
           {
-            "sketch": "lob-template-card-sketch.html",
-            "title": "Lob template cards",
+            "sketch": "reprise-ad-pharma-share-sketch.html",
+            "title": "Reprise pharma share",
             "aspect": "1 / 1",
-            "bg": "#d045dc"
+            "bg": "#cfe0f7"
           }
         ]
       },
       {
+        "alt": "Build better demos with AI",
+        "src": "build-better-demos-with-ai-13.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Build better demos with AI",
+        "src": "build-better-demos-with-ai-14b.webp",
+        "type": "image"
+      },
+      {
+        "src": "reprise-social-tiles-sketch.html",
+        "title": "Reprise social tiles",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1092",
+        "bg": "#2463ad"
+      },
+      {
+        "id": "1214928692",
+        "title": "ReReels",
+        "type": "vimeo"
+      },
+      {
         "body": [
-          "Working alongside the Brand Design Manager, I helped evolve the full Lob brand ecosystem: expanding the illustration system, refreshing mail templates, crafting standout event branding, designing physical print collateral, and unifying the promotional visual identity across ads, social media, and the blog. At the heart of the brand is a bright, CMYK-inspired palette that celebrates the essence of print. Indigo always leads. It’s Lob’s bold primary color that refuses to blend in. Together, these colors pop vividly on paper and cut effortlessly through cluttered mailboxes and digital feeds.",
-          "Role: Art direction, creative concepts, print design, campaign creative, illustration, motion design",
-          "Creative direction: Mel Lavigne"
+          "The visual identity fuses technical precision with modern intelligence, crafting a sophisticated narrative of seamless automation. The strict grid system establishes the foundational blueprint — embodying the modular, scalable architecture of enterprise software with clean lines that signal order, reliability, and engineering excellence.",
+          "In combination with this structured framework, delicate repeating patterns emerge as the invisible hand of AI — fluid and rhythmic. I paired both these design principles together to transform rigid compositions into a dynamic visual language.",
+          "Role: Art direction, creative concepts, campaign creative, social creative, presentation design, motion design"
         ],
-        "heading": "Junk mail gets tossed. Lob gets opened.",
+        "heading": "Reprise uses AI to effortlessly configure, populate, and maintain demo environments.",
         "type": "text"
       }
     ],
     "category": "Visual identity",
     "client": "",
     "hideTitle": true,
-    "id": "819502830422523904",
+    "id": "805157303765614592",
     "mediaType": "image",
     "noLine": true,
+    "pageTitle": "",
     "summary": "",
-    "thumbnail": "lob.webp",
-    "title": "Lob",
+    "thumbnail": "build-better-demos-with-ai-cover.webp",
+    "title": "Build better demos with AI",
     "year": 2025,
-    "squareThumbnail": "lob-square.webp",
-    "clientName": "Lob",
-    "pageTitle": "Lob Rebrand"
+    "squareThumbnail": "reprise-square.webp",
+    "clientName": "Reprise"
   },
   {
     "caseStudyContent": [
@@ -495,157 +646,6 @@
     "year": 2026,
     "squareThumbnail": "lob-square.webp",
     "clientName": "Lob"
-  },
-  {
-    "caseStudyContent": [
-      {
-        "hash": "d77de15d3f",
-        "id": "1215020708",
-        "title": "ReRadial",
-        "type": "vimeo"
-      },
-      {
-        "body": [
-          "To position Reprise as a leader in AI-driven demos, the visual language balances technical precision with modern intelligence. The structured grid system represents a blueprint for creation, while the elegant repeating patterns act as the invisible hand of AI."
-        ],
-        "heading": "Reprise",
-        "type": "text"
-      },
-      {
-        "src": "reprise-expand-sketch.html",
-        "title": "ReExpand",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "16 / 9",
-        "bg": "#060922"
-      },
-      {
-        "src": "reprise-mcp-sketch.html",
-        "title": "Reprise MCP explainer",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "1400 / 788",
-        "bg": "#46423c"
-      },
-      {
-        "id": "1214916593",
-        "title": "RePalette",
-        "type": "vimeo"
-      },
-      {
-        "alt": "Build better demos with AI",
-        "half": true,
-        "src": "build-better-demos-with-ai-04.webp",
-        "type": "image",
-        "aside": [
-          "Solve, Align, Scale and Evolve are the four brand pillars: the ideas that shape how Reprise thinks, behaves and shows up. Each pillar is paired with its own pattern style, so the principle behind the brand can be seen as well as read.",
-          "Solve builds in concentric lines, Align locks to a modular grid, Scale arcs into sweeping curves and Evolve steps forward in layered stripes. Each pattern emanates throughout the system, from campaigns and presentations to product UI."
-        ]
-      },
-      {
-        "alt": "Build better demos with AI",
-        "half": true,
-        "src": "build-better-demos-with-ai-05.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Build better demos with AI",
-        "half": "left",
-        "src": "build-better-demos-with-ai-06.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Build better demos with AI",
-        "half": "left",
-        "src": "build-better-demos-with-ai-07.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-08.webp",
-        "type": "image"
-      },
-      {
-        "src": "reprise-demo-types-sketch.html",
-        "title": "Reprise demo types",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "1400 / 764",
-        "bg": "#0f0f42"
-      },
-      {
-        "id": "1214919145",
-        "title": "Build Better Demos",
-        "type": "vimeo"
-      },
-      {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-11.webp",
-        "type": "image"
-      },
-      {
-        "type": "pair",
-        "images": [
-          {
-            "sketch": "reprise-ad-sketch.html",
-            "title": "Reprise editable data",
-            "aspect": "1 / 1",
-            "bg": "#cfe0f7"
-          },
-          {
-            "sketch": "reprise-ad-pharma-share-sketch.html",
-            "title": "Reprise pharma share",
-            "aspect": "1 / 1",
-            "bg": "#cfe0f7"
-          }
-        ]
-      },
-      {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-13.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-14b.webp",
-        "type": "image"
-      },
-      {
-        "src": "reprise-social-tiles-sketch.html",
-        "title": "Reprise social tiles",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "2000 / 1092",
-        "bg": "#2463ad"
-      },
-      {
-        "id": "1214928692",
-        "title": "ReReels",
-        "type": "vimeo"
-      },
-      {
-        "body": [
-          "The visual identity fuses technical precision with modern intelligence, crafting a sophisticated narrative of seamless automation. The strict grid system establishes the foundational blueprint — embodying the modular, scalable architecture of enterprise software with clean lines that signal order, reliability, and engineering excellence.",
-          "In combination with this structured framework, delicate repeating patterns emerge as the invisible hand of AI — fluid and rhythmic. I paired both these design principles together to transform rigid compositions into a dynamic visual language.",
-          "Role: Art direction, creative concepts, campaign creative, social creative, presentation design, motion design"
-        ],
-        "heading": "Reprise uses AI to effortlessly configure, populate, and maintain demo environments.",
-        "type": "text"
-      }
-    ],
-    "category": "Visual identity",
-    "client": "",
-    "hideTitle": true,
-    "id": "805157303765614592",
-    "mediaType": "image",
-    "noLine": true,
-    "pageTitle": "",
-    "summary": "",
-    "thumbnail": "build-better-demos-with-ai-cover.webp",
-    "title": "Build better demos with AI",
-    "year": 2025,
-    "squareThumbnail": "reprise-square.webp",
-    "clientName": "Reprise"
   },
   {
     "caseStudyContent": [
