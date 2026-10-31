@@ -150,6 +150,129 @@
   {
     "caseStudyContent": [
       {
+        "alt": "Lob",
+        "src": "lob.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "Lob is the only direct mail platform with proprietary advanced routing, printing, and delivery infrastructure that delivers predictable postage costs and dramatically faster mail delivery times across the United States.",
+          "Built for high-volume teams that send millions of sophisticated, hyper-personalized mailpieces, Lob’s brand is deliberately bold, modern, and distinctive, just like the forward-thinking companies that power their businesses with us."
+        ],
+        "heading": "Your direct mail partner from campaign to mailbox",
+        "type": "text"
+      },
+      {
+        "src": "lob-send-sketch.html",
+        "title": "Send direct mail with Lob",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1200 / 675"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-ads.webp",
+        "type": "image"
+      },
+      {
+        "src": "lob-mailpieces-sketch.html",
+        "title": "Lob mailpieces",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1135",
+        "bg": "#cf45d9"
+      },
+      {
+        "src": "lob-template-sketch.html",
+        "title": "Lob template editor",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1400 / 890"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-carousel.webp",
+        "type": "image"
+      },
+      {
+        "body": [
+          "We built the Lob brand in the same spirit as the platform: to dominate at enterprise scale and never blend in. Fresh, contemporary, and loud, designed to stand beside the most ambitious, design-obsessed companies in the world. Teams sending millions of pieces refuse to let their mail look like junk. So why would they accept a junk-looking mail platform?"
+        ],
+        "type": "text"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-social.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-09.webp",
+        "type": "image"
+      },
+      {
+        "alt": "Lob",
+        "src": "lob-blog-grid.webp",
+        "type": "image"
+      },
+      {
+        "src": "lob-email-sketch.html",
+        "title": "Lob team access email",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1271"
+      },
+      {
+        "body": [
+          "Lob’s Template Gallery now has 40+ beautiful, ready-to-use mail pieces (postcards, gift card carriers, snap packs, letters, self-mailers). I scrapped the old, outdated Lob InDesign library for fresh, new templates. They’re clean, modern, and built 100% for the new Figma-to-Lob plugin so customers can customize and send in minutes instead of weeks."
+        ],
+        "heading": "Beautiful templates that turn “snail mail” into “sale mail”",
+        "type": "text"
+      },
+      {
+        "type": "pair",
+        "images": [
+          {
+            "sketch": "lob-template-gallery-sketch.html",
+            "title": "Lob Template Gallery",
+            "aspect": "1 / 1",
+            "bg": "#4131F1"
+          },
+          {
+            "sketch": "lob-template-card-sketch.html",
+            "title": "Lob template cards",
+            "aspect": "1 / 1",
+            "bg": "#d045dc"
+          }
+        ]
+      },
+      {
+        "body": [
+          "Working alongside the Brand Design Manager, I helped evolve the full Lob brand ecosystem: expanding the illustration system, refreshing mail templates, crafting standout event branding, designing physical print collateral, and unifying the promotional visual identity across ads, social media, and the blog. At the heart of the brand is a bright, CMYK-inspired palette that celebrates the essence of print. Indigo always leads. It’s Lob’s bold primary color that refuses to blend in. Together, these colors pop vividly on paper and cut effortlessly through cluttered mailboxes and digital feeds.",
+          "Role: Art direction, creative concepts, print design, campaign creative, illustration, motion design",
+          "Creative direction: Mel Lavigne"
+        ],
+        "heading": "Junk mail gets tossed. Lob gets opened.",
+        "type": "text"
+      }
+    ],
+    "category": "Visual identity",
+    "client": "",
+    "hideTitle": true,
+    "id": "819502830422523904",
+    "mediaType": "image",
+    "noLine": true,
+    "summary": "",
+    "thumbnail": "lob.webp",
+    "title": "Lob",
+    "year": 2025,
+    "squareThumbnail": "lob-square.webp",
+    "clientName": "Lob",
+    "pageTitle": "Lob Rebrand"
+  },
+  {
+    "caseStudyContent": [
+      {
         "body": [
           "Built for hardware products that need frequent troubleshooting, Mavenoid’s multimodal virtual assistant lets customers simply talk, type, or snap a photo of the problem, and the AI instantly recognizes the exact product and model, pulls the correct manual, and guides the customer through a clear, visual, step-by-step repair—all in one uninterrupted flow."
         ],
@@ -372,129 +495,6 @@
     "year": 2026,
     "squareThumbnail": "lob-square.webp",
     "clientName": "Lob"
-  },
-  {
-    "caseStudyContent": [
-      {
-        "alt": "Lob",
-        "src": "lob.webp",
-        "type": "image"
-      },
-      {
-        "body": [
-          "Lob is the only direct mail platform with proprietary advanced routing, printing, and delivery infrastructure that delivers predictable postage costs and dramatically faster mail delivery times across the United States.",
-          "Built for high-volume teams that send millions of sophisticated, hyper-personalized mailpieces, Lob’s brand is deliberately bold, modern, and distinctive, just like the forward-thinking companies that power their businesses with us."
-        ],
-        "heading": "Your direct mail partner from campaign to mailbox",
-        "type": "text"
-      },
-      {
-        "src": "lob-send-sketch.html",
-        "title": "Send direct mail with Lob",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "1200 / 675"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-ads.webp",
-        "type": "image"
-      },
-      {
-        "src": "lob-mailpieces-sketch.html",
-        "title": "Lob mailpieces",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "2000 / 1135",
-        "bg": "#cf45d9"
-      },
-      {
-        "src": "lob-template-sketch.html",
-        "title": "Lob template editor",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "1400 / 890"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-carousel.webp",
-        "type": "image"
-      },
-      {
-        "body": [
-          "We built the Lob brand in the same spirit as the platform: to dominate at enterprise scale and never blend in. Fresh, contemporary, and loud, designed to stand beside the most ambitious, design-obsessed companies in the world. Teams sending millions of pieces refuse to let their mail look like junk. So why would they accept a junk-looking mail platform?"
-        ],
-        "type": "text"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-social.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-09.webp",
-        "type": "image"
-      },
-      {
-        "alt": "Lob",
-        "src": "lob-blog-grid.webp",
-        "type": "image"
-      },
-      {
-        "src": "lob-email-sketch.html",
-        "title": "Lob team access email",
-        "type": "sketch",
-        "noHint": true,
-        "aspect": "2000 / 1271"
-      },
-      {
-        "body": [
-          "Lob’s Template Gallery now has 40+ beautiful, ready-to-use mail pieces (postcards, gift card carriers, snap packs, letters, self-mailers). I scrapped the old, outdated Lob InDesign library for fresh, new templates. They’re clean, modern, and built 100% for the new Figma-to-Lob plugin so customers can customize and send in minutes instead of weeks."
-        ],
-        "heading": "Beautiful templates that turn “snail mail” into “sale mail”",
-        "type": "text"
-      },
-      {
-        "type": "pair",
-        "images": [
-          {
-            "sketch": "lob-template-gallery-sketch.html",
-            "title": "Lob Template Gallery",
-            "aspect": "1 / 1",
-            "bg": "#4131F1"
-          },
-          {
-            "sketch": "lob-template-card-sketch.html",
-            "title": "Lob template cards",
-            "aspect": "1 / 1",
-            "bg": "#d045dc"
-          }
-        ]
-      },
-      {
-        "body": [
-          "Working alongside the Brand Design Manager, I helped evolve the full Lob brand ecosystem: expanding the illustration system, refreshing mail templates, crafting standout event branding, designing physical print collateral, and unifying the promotional visual identity across ads, social media, and the blog. At the heart of the brand is a bright, CMYK-inspired palette that celebrates the essence of print. Indigo always leads. It’s Lob’s bold primary color that refuses to blend in. Together, these colors pop vividly on paper and cut effortlessly through cluttered mailboxes and digital feeds.",
-          "Role: Art direction, creative concepts, print design, campaign creative, illustration, motion design",
-          "Creative direction: Mel Lavigne"
-        ],
-        "heading": "Junk mail gets tossed. Lob gets opened.",
-        "type": "text"
-      }
-    ],
-    "category": "Visual identity",
-    "client": "",
-    "hideTitle": true,
-    "id": "819502830422523904",
-    "mediaType": "image",
-    "noLine": true,
-    "summary": "",
-    "thumbnail": "lob.webp",
-    "title": "Lob",
-    "year": 2025,
-    "squareThumbnail": "lob-square.webp",
-    "clientName": "Lob",
-    "pageTitle": "Lob Rebrand"
   },
   {
     "caseStudyContent": [
