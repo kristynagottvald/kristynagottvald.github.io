@@ -39,7 +39,7 @@ const reduceMotion = typeof window !== 'undefined' && window.matchMedia && windo
 
 let t0 = 0;               // millis() when the sequence (re)starts
 function currentTime() {
-  const raw = (millis() - t0) / 1000;
+  const raw = (millis() - t0) / 1000 * (new URLSearchParams(location.search).get('hero') === '1' ? 1.8 : 1);   // hero: quicker so the slide fits in about 8s
   return { T: raw % TL.loop, loop: Math.floor(raw / TL.loop) };
 }
 

@@ -140,7 +140,7 @@ function draw() {
   const SC = 1;
   BOXES[3].h = BOXES[4].h = 394 + EX;
   const raw = ((millis() - t0) / 1000) % LOOP;
-  const t = min(19, raw / 0.8);
+  const t = min(19, raw * 2.25);
   const sent = t >= 4.6;
   const sentAmt = clamp01((t - 4.9) / 0.4);
   const onAmt = clamp01((t - 7.4) / 0.35);
