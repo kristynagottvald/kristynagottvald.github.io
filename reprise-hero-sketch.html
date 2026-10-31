@@ -6,7 +6,7 @@ let szSeen = '', szSince = 0;
 function syncSize() {
   const key = innerWidth + 'x' + innerHeight;
   if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
-  if (innerWidth > 0 && innerHeight > 0 && Math.abs(width - fitW()) > 1 && millis() - szSince > 120) windowResized();
+  if (innerWidth > 0 && innerHeight > 0 && (Math.abs(width - innerWidth) > 1 || Math.abs(height - innerHeight) > 1) && millis() - szSince > 120) windowResized();
 }
 const MATTE = "#cfe0f7";
 const NAVY = "#0f0f42";
@@ -73,13 +73,13 @@ function fitW() {
 }
 
 function setup() {
-  createCanvas(fitW(), fitW() / ASPECT);
+  createCanvas(windowWidth, windowHeight);
   LOGO_PATHS = LOGO_SVG.map((d) => new Path2D(d));
   frameRate(60);
 }
 
 function windowResized() {
-  resizeCanvas(fitW(), fitW() / ASPECT);
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 function clamp01(v) {
@@ -124,8 +124,16 @@ function pointerAt(t) {
   return [756, 610];
 }
 
+const PS = 0.85 * 1.1;
+let VW = 1884, VH = 658, C = 1, LX = 1197, HD = 96, EX = 0;
 function draw() {
   syncSize();
+  VH = VW * height / width;
+  C = min(VH / 658, 1.12);
+  LX = 1197 * C;
+  HD = 96 * C;
+  EX = max(0, (VH - 252 * C) / (0.97 * C) + 30 - 606);
+  BOXES[3].h = BOXES[4].h = 394 + EX;
   const t = ((millis() - t0) / 1000) % LOOP;
   const sent = t >= 4.6 && t < 20.65;
   const sentAmt = t < 20.2 ? clamp01((t - 4.9) / 0.4) : 1 - clamp01((t - 20.2) / 0.4);
@@ -141,54 +149,54 @@ function draw() {
 
   background(NAVY);
   push();
-  scale(width / 1884);
-  drawingContext.beginPath();
-  drawingContext.rect(0, 0, 1884, 658);
-  drawingContext.clip();
+  scale(width / VW);
   noStroke();
   fill(NAVY);
-  rect(0, 0, 1884, 658);
+  rect(0, 0, VW, VH);
   drawBlue(t);
   drawLogoBox();
+  push();
+  scale(C);
   drawScreen(t, onAmt);
   push();
   translate(250, 200);
-  scale(0.85);
+  scale(PS);
   translate(-68, -190);
   drawPrompt(t, sent, sentAmt);
   pop();
   push();
-  translate(250, 292);
-  scale(0.85);
+  translate(250, 200 + 92 * PS + 14);
+  scale(PS);
   translate(-68, -294);
   drawStep(t);
   pop();
   push();
   translate(1309, 190);
-  scale(0.95);
+  scale(0.95 * 1.1);
   translate(-68, -502);
   drawFound(t, panelAmt);
   pop();
   drawPointer(t);
+  pop();
   pop();
 }
 
 function drawBlue(t) {
   noStroke();
   fill(BLUE);
-  rect(0, 96, 1197, 562);
+  rect(0, 0, LX, VH);
   push();
   drawingContext.beginPath();
-  drawingContext.rect(0, 96, 1197, 562);
+  drawingContext.rect(0, 0, LX, VH);
   drawingContext.clip();
-  translate(789, 393);
+  translate(789 * C, HD + (VH - HD) / 2);
   rotate((millis() - t0) / 1000 / 240 * TWO_PI);
   strokeWeight(1);
   for (let i = 0; i < 64; i++) {
     const a = i * TWO_PI / 64 + 0.05;
     const k = 0.575 + 0.325 * sin((millis() - t0) / 1000 * TWO_PI / 5.5 - i * 0.37 * TWO_PI / 5.5);
     stroke(200, 225, 255, 255 * 0.5 * k);
-    line(0, 0, cos(a) * 1500, sin(a) * 1500);
+    line(0, 0, cos(a) * 2600, sin(a) * 2600);
   }
   pop();
 }
@@ -200,10 +208,10 @@ function drawLogoBox() {
   drawingContext.globalAlpha = e;
   noStroke();
   fill(LOGO_BG);
-  rect(1197, 0, 687, 96);
+  rect(LX, 0, VW - LX, HD);
   push();
-  translate(1453, 25.5);
-  scale(0.98);
+  translate(LX + 256 * C, 25.5 * C);
+  scale(0.98 * C);
   drawingContext.fillStyle = CREAM;
   for (let i = 0; i < LOGO_PATHS.length; i++) {
     drawingContext.fill(LOGO_PATHS[i], i === 0 ? "evenodd" : "nonzero");
@@ -218,17 +226,17 @@ function drawScreen(t, onAmt) {
   translate(421, 252);
   scale(0.97);
   drawingContext.beginPath();
-  drawingContext.roundRect(0, 0, 1020, 606, [18, 18, 18, 18]);
+  drawingContext.roundRect(0, 0, 1020, 606 + EX, [18, 18, 18, 18]);
   drawingContext.clip();
 
   noStroke();
   fill(255);
-  rect(0, 0, 1020, 606);
+  rect(0, 0, 1020, 606 + EX);
 
   fill("#f5f7fc");
-  rect(0, 0, 166, 606);
+  rect(0, 0, 166, 606 + EX);
   fill(UI_LINE);
-  rect(165, 0, 1, 606);
+  rect(165, 0, 1, 606 + EX);
   fill(HL);
   rect(18, 18, 26, 26, 7);
   fill("#d9dbe4");
@@ -277,10 +285,10 @@ function drawScreen(t, onAmt) {
   const bx = 218, bwid = 335, area = 278, gap = 9;
   const barW = (bwid - gap * 9) / 10;
   for (let i = 0; i < 10; i++) {
-    const h = BARS[i] * 0.86 / 100 * area;
+    const h = BARS[i] * 0.86 / 100 * (area + EX * 0.8);
     if (i === 7) fill(lerpColor(color(HL), color("#1a4fa0"), hotA[1]));
     else fill("#c1cde8");
-    rect(bx + i * (barW + gap), 196 + 394 - 30 - h, barW, h, 3, 3, 0, 0);
+    rect(bx + i * (barW + gap), 196 + BOXES[3].h - 30 - h, barW, h, 3, 3, 0, 0);
   }
 
   for (let i = 0; i < 3; i++) {
