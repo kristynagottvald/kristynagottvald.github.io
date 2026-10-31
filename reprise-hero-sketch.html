@@ -124,7 +124,7 @@ function pointerAt(t) {
   return [756, 610];
 }
 
-const PS = 0.85 * 1.1;
+const PS = 0.85 * 1.1 * 1.15;
 let VW = 1884, VH = 658, C = 1, LX = 1197, HD = 96, EX = 0;
 function draw() {
   syncSize();
@@ -535,7 +535,7 @@ function drawPointer(t) {
   }
   push();
   translate(p[0], p[1]);
-  scale(0.8);
+  scale(1.1);
   let s = 1;
   if (t >= 4.5 && t < 4.9) s = 1 - 0.08 * sin((t - 4.5) / 0.4 * PI);
   scale(s);
