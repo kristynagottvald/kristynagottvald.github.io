@@ -135,7 +135,7 @@ function draw() {
   EX = 1020 * 9 / 16 - 606;
   const PNS = 0.97;
   const CC = min(VH / 820, 1.3);
-  const FX = (VW - 40) / CC - 343 * PNS, FY = (VH - 64) / CC - 341 * PNS;
+  const FX = VW / 2 / CC + 494.7 + 40 - 343 * PNS, FY = VH / 2 / CC + 278.3 + 40 - 341 * PNS;
   const SC = 1;
   BOXES[3].h = BOXES[4].h = 394 + EX;
   const t = ((millis() - t0) / 1000) % LOOP;
