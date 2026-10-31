@@ -135,7 +135,7 @@ function draw() {
   EX = 1020 * 9 / 16 - 606;
   const PNS = 0.97;
   const CC = min(VH / 690, 1.3);
-  const FX = (VW - 60) / CC - 343 * PNS, FY = (VH * 0.9) / CC - 341 * PNS;
+  const FX = (VW - 40) / CC - 343 * PNS, FY = (VH - 40) / CC - 341 * PNS;
   const SC = 1;
   BOXES[3].h = BOXES[4].h = 394 + EX;
   const t = ((millis() - t0) / 1000) % LOOP;
@@ -158,7 +158,6 @@ function draw() {
   fill(NAVY);
   rect(0, 0, VW, VH);
   drawBlue(t);
-  drawLogoBox();
   push();
   scale(CC);
   push();
@@ -194,9 +193,11 @@ function drawBlue(t) {
   noStroke();
   fill(BLUE);
   rect(0, HD, LX, VH - HD);
+  rect(LX, 0, VW - LX, HD);
   push();
   drawingContext.beginPath();
   drawingContext.rect(0, HD, LX, VH - HD);
+  drawingContext.rect(LX, 0, VW - LX, HD);
   drawingContext.clip();
   translate(789 * C, HD + (VH - HD) / 2);
   rotate((millis() - t0) / 1000 / 240 * TWO_PI);
