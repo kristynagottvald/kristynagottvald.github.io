@@ -673,7 +673,9 @@ window.addEventListener('message', (e) => { if (e.data === 'reset') startMs = mi
 function draw() {
   fitFrame();
   if (!ready) return;
-  const t = ((millis() - startMs) / 1000) % TOTAL;
+  const HERO = new URLSearchParams(location.search).get('hero') === '1';
+  const el = (millis() - startMs) / 1000;
+  const t = HERO ? Math.min(el, TOTAL - 0.01) : el % TOTAL;   // hero: hold the last frame so the slideshow crossfades out without the loop restarting
   background(lerpColor(color(BG), color(LOGO_BG), ease(span(t, 13.3, 13.8))));
   const ctx = drawingContext;
   ctx.save();

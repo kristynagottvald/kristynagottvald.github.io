@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261031b');
+      const res = await fetch('projects.json?v=20261031c');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
@@ -493,7 +493,7 @@
     hint.classList.toggle('is-link', !!href);
     if (href) hint.setAttribute('href', href); else hint.removeAttribute('href');
     // The dither sketch starts over each time the slideshow comes back to it.
-    if (['reprise-hero-sketch.html', 'clearco-guide-sketch.html', 'lob-send-sketch.html?hero=1', 'postal-fix-spot-sketch.html', 'lob-template-card-sketch.html'].includes(frames[slide].getAttribute('src'))) { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
+    if (['reprise-hero-sketch.html', 'clearco-guide-sketch.html', 'lob-send-sketch.html?hero=1', 'postal-fix-spot-sketch.html', 'lob-template-card-sketch.html?hero=1'].includes(frames[slide].getAttribute('src'))) { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
     dots.forEach((d, k) => {
       d.classList.remove('is-on');
       if (k === slide) { void d.offsetWidth; d.classList.add('is-on'); }
