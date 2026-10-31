@@ -22,7 +22,7 @@ const SERIF = "Georgia";
 
 
 const PROMPT = "Show me what data I can edit on this screen.";
-const LOOP = 19;
+const LOOP = 17.5;
 const BARS = [34, 40, 37, 48, 62, 78, 96, 112, 76, 52];
 const ALERTS = ["Public bucket exposed", "Excess privileges", "Data outside region"];
 const ROWS = [["Key numbers", "3 fields"], ["Alert volume chart", "7 fields"], ["Recent alerts table", "3 fields"]];
@@ -139,7 +139,8 @@ function draw() {
   const FX = VW / 2 / CC + 494.7 + OFX - 343 * PNS, FY = VH * 0.56 / CC + 278.3 + 40 - 341 * PNS;
   const SC = 1;
   BOXES[3].h = BOXES[4].h = 394 + EX;
-  const t = ((millis() - t0) / 1000) % LOOP;
+  const raw = ((millis() - t0) / 1000) % LOOP;
+  const t = raw <= 9.8 ? raw : raw < 15.8 ? 9.8 + (raw - 9.8) / 0.8 : 17.3 + (raw - 15.8);
   const sent = t >= 4.6 && t < 18.65;
   const sentAmt = t < 18.2 ? clamp01((t - 4.9) / 0.4) : 1 - clamp01((t - 18.2) / 0.4);
   const onAmt = t < 17.3 ? clamp01((t - 7.4) / 0.35) : 1 - clamp01((t - 17.3) / 0.35);
