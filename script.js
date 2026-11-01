@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const SITE = 'Kristyna Gottvald';
+  const SITE = 'Kristy Gottvald';
   const TAGLINE = 'Graphic Designer';
 
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261031m');
+      const res = await fetch('projects.json?v=20261101a');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
