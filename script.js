@@ -2,7 +2,7 @@
   'use strict';
 
   const SITE = 'Kristyna Gottvald';
-  const TAGLINE = 'Graphic Designer';
+  const TAGLINE = 'Brand Designer';
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const views = { home: $('#view-home'), case: $('#view-case'), projects: $('#view-projects'), about: $('#view-about') };
@@ -25,7 +25,7 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261101b');
+      const res = await fetch('projects.json?v=20261101c');
       if (!res.ok) throw new Error(res.status);
       projects = await res.json();
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
