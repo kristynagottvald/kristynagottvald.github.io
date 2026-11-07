@@ -4,9 +4,9 @@ let t0 = 0;
 addEventListener('message', (e) => { if (e.data === 'reset') { t0 = millis(); hotA = [0, 0, 0]; } });
 let szSeen = '', szSince = 0;
 function syncSize() {
-  const key = innerWidth + 'x' + innerHeight;
+  const w = frameW(), h = frameH(), key = w + 'x' + h;
   if (key !== szSeen) { szSeen = key; szSince = millis(); return; }
-  if (innerWidth > 0 && innerHeight > 0 && (Math.abs(width - innerWidth) > 1 || Math.abs(height - innerHeight) > 1) && millis() - szSince > 120) windowResized();
+  if (w > 0 && h > 0 && (Math.abs(width - w) > 1 || Math.abs(height - h) > 1) && millis() - szSince > 120) windowResized();
 }
 const MATTE = "#cfe0f7";
 const NAVY = "#0f0f42";
@@ -68,18 +68,17 @@ const LOGO_SVG = [
 
 const ASPECT = 1884 / 658;
 
-function fitW() {
-  return min(windowWidth, windowHeight * ASPECT);
-}
+function frameW() { return document.documentElement.clientWidth || innerWidth; }
+function frameH() { return document.documentElement.clientHeight || innerHeight; }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(frameW(), frameH());
   LOGO_PATHS = LOGO_SVG.map((d) => new Path2D(d));
   frameRate(60);
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(frameW(), frameH());
 }
 
 function clamp01(v) {
