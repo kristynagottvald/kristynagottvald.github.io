@@ -1424,7 +1424,8 @@
     "title": "Pagemaster",
     "year": 2020,
     "squareThumbnail": "pagemaster-square.webp",
-    "clientName": "Pagemaster"
+    "clientName": "Pagemaster",
+    "hidden": true
   },
   {
     "caseStudyContent": [

@@ -25,9 +25,9 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261101d');
+      const res = await fetch('projects.json?v=20261107a');
       if (!res.ok) throw new Error(res.status);
-      projects = await res.json();
+      projects = (await res.json()).filter((p) => !p.hidden);  // set "hidden": true on a project in projects.json to hide it everywhere
       projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
     } catch (err) {
       console.error(err);
