@@ -21,7 +21,7 @@ fontLink.href = 'https://fonts.googleapis.com/css2?family=Figtree:wght@500;600&d
 // Canvas text doesn't trigger web-font downloads on its own, so request it explicitly,
 // once the stylesheet has loaded (before that, fonts.load() has nothing to load)
 const fontReady = new Promise((resolve) => {
-  fontLink.onload = () => document.fonts.load('500 18px Figtree').then(resolve, resolve);
+  fontLink.onload = () => document.fonts.load('600 18px Figtree').then(resolve, resolve);
   fontLink.onerror = resolve;
 });
 document.head.appendChild(fontLink);
@@ -183,14 +183,14 @@ function drawNote(g, s, w, h) {
     [w - foldSize, h - foldSize]
   ], 2);
 
-  g.fill(s.ink);
-  g.noStroke();
-  g.textSize(18);
-  g.textFont('Figtree');
-  g.textStyle(NORMAL);
-  g.textLeading(22);
-  g.textAlign(LEFT, TOP);
-  g.text(s.name + "\n" + s.hex, 12, 15);
+  // Figtree SemiBold (600). p5's textStyle can't set numeric weights, so draw on the 2D context.
+  const ctx = g.drawingContext;
+  ctx.font = '600 18px Figtree, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = s.ink;
+  ctx.fillText(s.name, 12, 15);
+  ctx.fillText(s.hex, 12, 15 + 22);   // 22px line height
   g.pop();
 }
 
