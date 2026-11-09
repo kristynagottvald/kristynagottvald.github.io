@@ -50,10 +50,11 @@ let noteScale = 1;
 const MOBILE_MAX_WIDTH = 700;   // matches the site's mobile breakpoint
 
 // Timing is based on real elapsed time, so the wave keeps its pace even if frames drop
-const STEP_MS = 100;            // one wave step (was 6 frames at 60fps)
+const STEP_MS = 125;            // one wave step (higher = slower wave; was 100)
 const POP_MS = 1000 / 60 / 0.04;// pop duration (was 0.04 progress per frame at 60fps)
 let waveIndex = 0;
 let stepTimer = 0;
+let lastTime = null;            // null = first frame or just resumed
 
 // Each color is drawn once into a cached image, then stamped every frame
 const SPRITE_PAD = 4;
@@ -71,7 +72,7 @@ function setup() {
 
   // Pause while the sketch is scrolled out of view or the tab is hidden
   new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) loop(); else noLoop();
+    if (entries[0].isIntersecting) { lastTime = null; loop(); } else noLoop();
   }).observe(document.body);
 }
 
@@ -105,7 +106,12 @@ function draw() {
   background(BG);
   if (!ready) return;
 
-  const dt = Math.min(deltaTime, 50);   // ignore long gaps (tab switch, resume)
+  // Real elapsed time, so a slow frame never slows the wave down (it catches up instead).
+  // Gaps over 250ms (tab switch, resume) are treated as one normal frame.
+  const now = millis();
+  let dt = lastTime === null ? 0 : now - lastTime;
+  lastTime = now;
+  if (dt > 250) dt = 1000 / 60;
 
   stepTimer += dt;
   while (stepTimer >= STEP_MS) {
@@ -220,11 +226,18 @@ class StickyNote {
   }
 
   display() {
+    const img = sprites[this.colorIndex];
+    if (!this.isPopping) {
+      // Resting notes: a plain stamp, no transform state
+      image(img, this.x - SPRITE_PAD * noteScale, this.y - SPRITE_PAD * noteScale,
+            img.width * noteScale, img.height * noteScale);
+      return;
+    }
     push();
     translate(this.x + this.w * noteScale / 2, this.y + this.h * noteScale / 2);
     scale(this.scale * noteScale);
-    if (this.isPopping) rotate(Math.sin(this.popProgress * Math.PI) * 0.08);
-    image(sprites[this.colorIndex], -this.w / 2 - SPRITE_PAD, -this.h / 2 - SPRITE_PAD);
+    rotate(Math.sin(this.popProgress * Math.PI) * 0.08);
+    image(img, -this.w / 2 - SPRITE_PAD, -this.h / 2 - SPRITE_PAD);
     pop();
   }
 }
@@ -234,6 +247,7 @@ function windowResized() {
   initGrid();
   waveIndex = 0;
   stepTimer = 0;
+  lastTime = null;
 }
 </script>
 </body>
