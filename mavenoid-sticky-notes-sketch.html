@@ -18,9 +18,13 @@
 const fontLink = document.createElement('link');
 fontLink.rel = 'stylesheet';
 fontLink.href = 'https://fonts.googleapis.com/css2?family=Figtree:wght@500;600&display=swap';
+// Canvas text doesn't trigger web-font downloads on its own, so request it explicitly,
+// once the stylesheet has loaded (before that, fonts.load() has nothing to load)
+const fontReady = new Promise((resolve) => {
+  fontLink.onload = () => document.fonts.load('500 18px Figtree').then(resolve, resolve);
+  fontLink.onerror = resolve;
+});
 document.head.appendChild(fontLink);
-// Canvas text doesn't trigger web-font downloads on its own, so request it explicitly
-document.fonts.load('500 18px Figtree');
 
 const colors = [
   { name: "Yellow",      hex: "#F9E898", ink: "#0B346D", line: "#0B346D" },
@@ -45,13 +49,41 @@ const offsetY = -20;
 let noteScale = 1;
 const MOBILE_MAX_WIDTH = 700;   // matches the site's mobile breakpoint
 
+// Timing is based on real elapsed time, so the wave keeps its pace even if frames drop
+const STEP_MS = 100;            // one wave step (was 6 frames at 60fps)
+const POP_MS = 1000 / 60 / 0.04;// pop duration (was 0.04 progress per frame at 60fps)
 let waveIndex = 0;
-let frameCounter = 0;
-const framesPerStep = 6;
+let stepTimer = 0;
+
+// Each color is drawn once into a cached image, then stamped every frame
+const SPRITE_PAD = 4;
+const SPRITE_DENSITY = 3;       // sharp even at the 1.5x pop scale
+let sprites = [];
+let ready = false;
 
 function setup() {
+  pixelDensity(Math.min(2, window.devicePixelRatio || 1));
   createCanvas(windowWidth, windowHeight);
+  buildSprites();
   initGrid();
+  ready = true;
+  fontReady.then(() => buildSprites());   // rebuild once Figtree has loaded
+
+  // Pause while the sketch is scrolled out of view or the tab is hidden
+  new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) loop(); else noLoop();
+  }).observe(document.body);
+}
+
+function buildSprites() {
+  sprites.forEach((g) => g.remove());
+  sprites = colors.map((s) => {
+    const g = createGraphics(noteWidth + SPRITE_PAD * 2, noteHeight + SPRITE_PAD * 2);
+    g.pixelDensity(SPRITE_DENSITY);
+    g.clear();
+    drawNote(g, s, noteWidth, noteHeight);
+    return g;
+  });
 }
 
 function initGrid() {
@@ -71,10 +103,13 @@ function initGrid() {
 
 function draw() {
   background(BG);
+  if (!ready) return;
 
-  frameCounter++;
-  if (frameCounter >= framesPerStep) {
-    frameCounter = 0;
+  const dt = Math.min(deltaTime, 50);   // ignore long gaps (tab switch, resume)
+
+  stepTimer += dt;
+  while (stepTimer >= STEP_MS) {
+    stepTimer -= STEP_MS;
     for (let note of notes) {
       if (note.col + note.row === waveIndex) note.triggerPop();
     }
@@ -84,15 +119,15 @@ function draw() {
 
   // Two passes so popping notes render on top of static ones
   for (let note of notes) {
-    if (!note.isPopping) { note.update(); note.display(); }
+    if (!note.isPopping) { note.update(dt); note.display(); }
   }
   for (let note of notes) {
-    if (note.isPopping) { note.update(); note.display(); }
+    if (note.isPopping) { note.update(dt); note.display(); }
   }
 }
 
-// Polygon with rounded corners (radius r: a number, or one radius per point)
-function roundedPoly(pts, radii) {
+// Polygon with rounded corners (radius r: a number, or one radius per point), drawn onto g
+function roundedPoly(g, pts, radii) {
   const n = pts.length;
   let r = 2;
   const at = (p, q) => {
@@ -101,7 +136,7 @@ function roundedPoly(pts, radii) {
     const k = Math.min(r, len / 2) / len;
     return [p[0] + dx * k, p[1] + dy * k];
   };
-  beginShape();
+  g.beginShape();
   for (let i = 0; i < n; i++) {
     r = Array.isArray(radii) ? radii[i] : radii;
     const prev = pts[(i + n - 1) % n], cur = pts[i], next = pts[(i + 1) % n];
@@ -110,13 +145,47 @@ function roundedPoly(pts, radii) {
     // (quadraticVertex was removed in p5 2.x, so avoid it)
     for (let t = 0; t <= 1.0001; t += 0.25) {
       const u = 1 - t;
-      vertex(
+      g.vertex(
         u * u * a[0] + 2 * u * t * cur[0] + t * t * b[0],
         u * u * a[1] + 2 * u * t * cur[1] + t * t * b[1]
       );
     }
   }
-  endShape(CLOSE);
+  g.endShape(CLOSE);
+}
+
+// One sticky note, drawn onto graphics g
+function drawNote(g, s, w, h) {
+  const foldSize = 20;
+  g.push();
+  g.translate(SPRITE_PAD, SPRITE_PAD);
+
+  g.stroke(s.line);
+  g.strokeWeight(2.5);
+  g.strokeJoin(MITER);
+  g.fill(s.hex);
+
+  roundedPoly(g, [
+    [0, 0], [w, 0], [w, h - foldSize],
+    [w - foldSize, h], [0, h]
+  ], [4, 4, 2, 2, 4]);   // top-left, top-right, bottom-left = 4px; fold corners stay 2px
+
+  // Folded corner
+  g.fill(0, 0, 0, 40);
+  roundedPoly(g, [
+    [w - foldSize, h], [w, h - foldSize],
+    [w - foldSize, h - foldSize]
+  ], 2);
+
+  g.fill(s.ink);
+  g.noStroke();
+  g.textSize(18);
+  g.textFont('Figtree');
+  g.textStyle(NORMAL);
+  g.textLeading(22);
+  g.textAlign(LEFT, TOP);
+  g.text(s.name + "\n" + s.hex, 12, 15);
+  g.pop();
 }
 
 class StickyNote {
@@ -137,9 +206,9 @@ class StickyNote {
     }
   }
 
-  update() {
+  update(dt) {
     if (this.isPopping) {
-      this.popProgress += 0.04;
+      this.popProgress += dt / POP_MS;
       if (this.popProgress >= 1) {
         this.popProgress = 1;
         this.isPopping = false;
@@ -151,40 +220,11 @@ class StickyNote {
   }
 
   display() {
-    const s = colors[this.colorIndex];
-    const foldSize = 20;
-
     push();
     translate(this.x + this.w * noteScale / 2, this.y + this.h * noteScale / 2);
     scale(this.scale * noteScale);
     if (this.isPopping) rotate(Math.sin(this.popProgress * Math.PI) * 0.08);
-    translate(-this.w / 2, -this.h / 2);
-
-    stroke(s.line);
-    strokeWeight(2.5);
-    strokeJoin(MITER);
-    fill(s.hex);
-
-    roundedPoly([
-      [0, 0], [this.w, 0], [this.w, this.h - foldSize],
-      [this.w - foldSize, this.h], [0, this.h]
-    ], [4, 4, 2, 2, 4]);   // top-left, top-right, bottom-left = 4px; fold corners stay 2px
-
-    // Folded corner
-    fill(0, 0, 0, 40);
-    roundedPoly([
-      [this.w - foldSize, this.h], [this.w, this.h - foldSize],
-      [this.w - foldSize, this.h - foldSize]
-    ], 2);
-
-    fill(s.ink);
-    noStroke();
-    textSize(18);
-    textFont('Figtree');
-    textStyle(NORMAL);
-    textLeading(22);
-    textAlign(LEFT, TOP);
-    text(s.name + "\n" + s.hex, 12, 15);
+    image(sprites[this.colorIndex], -this.w / 2 - SPRITE_PAD, -this.h / 2 - SPRITE_PAD);
     pop();
   }
 }
@@ -193,6 +233,7 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   initGrid();
   waveIndex = 0;
+  stepTimer = 0;
 }
 </script>
 </body>
