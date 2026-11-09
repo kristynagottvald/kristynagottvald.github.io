@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mavenoid sticky-note wave</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #FFFFFF; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+// Mavenoid sticky-note wave
+
+// Load Figtree (OpenProcessing doesn't ship it)
+const fontLink = document.createElement('link');
+fontLink.rel = 'stylesheet';
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Figtree:wght@500;600&display=swap';
+document.head.appendChild(fontLink);
+// Canvas text doesn't trigger web-font downloads on its own, so request it explicitly
+document.fonts.load('500 18px Figtree');
+
+const colors = [
+  { name: "Yellow",      hex: "#F9E898", ink: "#0B346D", line: "#0B346D" },
+  { name: "Orange",      hex: "#F96442", ink: "#FFFFFF", line: "#0B346D" },
+  { name: "Medium Blue", hex: "#3A7ED4", ink: "#FFFFFF", line: "#0B346D" },
+  { name: "Sky Blue",    hex: "#78BFF4", ink: "#0B346D", line: "#0B346D" },
+  { name: "Light Blue",  hex: "#CDEBFE", ink: "#3A7ED4", line: "#3A7ED4" },
+  { name: "Navy",        hex: "#0B346D", ink: "#FFFFFF", line: "#FFFFFF" }
+];
+const BG = '#FFFFFF';
+
+let notes = [];
+let cols, rows;
+const noteWidth = 240;
+const noteHeight = 180;
+const paddingX = 25;
+const paddingY = 25;
+const offsetX = -100;
+const offsetY = -20;
+
+// Stickies render 25% smaller on narrow (mobile) widths
+let noteScale = 1;
+const MOBILE_MAX_WIDTH = 700;   // matches the site's mobile breakpoint
+
+let waveIndex = 0;
+let frameCounter = 0;
+const framesPerStep = 6;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  initGrid();
+}
+
+function initGrid() {
+  notes = [];
+  noteScale = width <= MOBILE_MAX_WIDTH ? 0.75 : 1;
+  const k = noteScale;
+  cols = Math.ceil(width / ((noteWidth + paddingX) * k)) + 2;
+  rows = Math.ceil(height / ((noteHeight + paddingY) * k)) + 2;
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      let x = (offsetX + i * (noteWidth + paddingX)) * k;
+      let y = (offsetY + j * (noteHeight + paddingY)) * k;
+      notes.push(new StickyNote(i, j, x, y, noteWidth, noteHeight));
+    }
+  }
+}
+
+function draw() {
+  background(BG);
+
+  frameCounter++;
+  if (frameCounter >= framesPerStep) {
+    frameCounter = 0;
+    for (let note of notes) {
+      if (note.col + note.row === waveIndex) note.triggerPop();
+    }
+    waveIndex++;
+    if (waveIndex > cols + rows + 15) waveIndex = 0;
+  }
+
+  // Two passes so popping notes render on top of static ones
+  for (let note of notes) {
+    if (!note.isPopping) { note.update(); note.display(); }
+  }
+  for (let note of notes) {
+    if (note.isPopping) { note.update(); note.display(); }
+  }
+}
+
+// Polygon with rounded corners (radius r: a number, or one radius per point)
+function roundedPoly(pts, radii) {
+  const n = pts.length;
+  let r = 2;
+  const at = (p, q) => {
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const len = Math.hypot(dx, dy);
+    const k = Math.min(r, len / 2) / len;
+    return [p[0] + dx * k, p[1] + dy * k];
+  };
+  beginShape();
+  for (let i = 0; i < n; i++) {
+    r = Array.isArray(radii) ? radii[i] : radii;
+    const prev = pts[(i + n - 1) % n], cur = pts[i], next = pts[(i + 1) % n];
+    const a = at(cur, prev), b = at(cur, next);
+    // Sample the quadratic curve a -> cur -> b with plain vertices
+    // (quadraticVertex was removed in p5 2.x, so avoid it)
+    for (let t = 0; t <= 1.0001; t += 0.25) {
+      const u = 1 - t;
+      vertex(
+        u * u * a[0] + 2 * u * t * cur[0] + t * t * b[0],
+        u * u * a[1] + 2 * u * t * cur[1] + t * t * b[1]
+      );
+    }
+  }
+  endShape(CLOSE);
+}
+
+class StickyNote {
+  constructor(col, row, x, y, w, h) {
+    this.col = col; this.row = row;
+    this.x = x; this.y = y; this.w = w; this.h = h;
+    this.colorIndex = 0;
+    this.scale = 1.0;
+    this.isPopping = false;
+    this.popProgress = 0;
+  }
+
+  triggerPop() {
+    if (!this.isPopping) {
+      this.isPopping = true;
+      this.popProgress = 0;
+      this.colorIndex = (this.colorIndex + 1) % colors.length;
+    }
+  }
+
+  update() {
+    if (this.isPopping) {
+      this.popProgress += 0.04;
+      if (this.popProgress >= 1) {
+        this.popProgress = 1;
+        this.isPopping = false;
+      }
+      this.scale = 1.0 + Math.sin(this.popProgress * Math.PI) * 0.5;
+    } else {
+      this.scale = 1.0;
+    }
+  }
+
+  display() {
+    const s = colors[this.colorIndex];
+    const foldSize = 20;
+
+    push();
+    translate(this.x + this.w * noteScale / 2, this.y + this.h * noteScale / 2);
+    scale(this.scale * noteScale);
+    if (this.isPopping) rotate(Math.sin(this.popProgress * Math.PI) * 0.08);
+    translate(-this.w / 2, -this.h / 2);
+
+    stroke(s.line);
+    strokeWeight(2.5);
+    strokeJoin(MITER);
+    fill(s.hex);
+
+    roundedPoly([
+      [0, 0], [this.w, 0], [this.w, this.h - foldSize],
+      [this.w - foldSize, this.h], [0, this.h]
+    ], [4, 4, 2, 2, 4]);   // top-left, top-right, bottom-left = 4px; fold corners stay 2px
+
+    // Folded corner
+    fill(0, 0, 0, 40);
+    roundedPoly([
+      [this.w - foldSize, this.h], [this.w, this.h - foldSize],
+      [this.w - foldSize, this.h - foldSize]
+    ], 2);
+
+    fill(s.ink);
+    noStroke();
+    textSize(18);
+    textFont('Figtree');
+    textStyle(NORMAL);
+    textLeading(22);
+    textAlign(LEFT, TOP);
+    text(s.name + "\n" + s.hex, 12, 15);
+    pop();
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  initGrid();
+  waveIndex = 0;
+}
+</script>
+</body>
+</html>

@@ -455,6 +455,14 @@
         "type": "image"
       },
       {
+        "src": "mavenoid-sticky-notes-sketch.html",
+        "title": "Mavenoid sticky-note wave",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 900",
+        "bg": "#FFFFFF"
+      },
+      {
         "alt": "Mavenoid is the AI agent for product support",
         "src": "mavenoid-is-the-ai-agent-for-product-support-04.webp",
         "type": "image"
