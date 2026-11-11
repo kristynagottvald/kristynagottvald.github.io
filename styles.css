@@ -113,6 +113,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .reel-intro { display: flex; align-items: center; padding: 0 var(--pad) 0 var(--left); }
 .reel-intro p { max-width: 22em; font: 300 26px/1.2 var(--cond); }
 @media (min-width: 640px) { .reel-intro p { font-size: 38px; line-height: 1.1; letter-spacing: -1px; } }
+@media (max-width: 639px) { .reel-intro { padding-top: 20px; padding-bottom: 16px; } .reel-intro p { font-size: 22px; } }   /* phones: breathing room under the hero, and the copy no longer fills the whole text band */
 .reel-intro .grey { color: var(--grey); }
 
 /* ---------- Work ---------- */
