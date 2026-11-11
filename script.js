@@ -416,7 +416,7 @@
       }
     });
     currentView = name;
-    lightUp($('#hb-label'), { home: 'Home', case: 'Projects', projects: 'Projects', about: 'About' }[name]);
+    lightUp($('#hb-label'), { home: 'Home', case: 'Selected work', projects: 'Selected work', about: 'About' }[name]);
     $('#hb').classList.remove('open');
     requestAnimationFrame(updateWork);
   }
