@@ -13,7 +13,8 @@
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --ease: cubic-bezier(0.15, 0, 0.15, 1);
   --pad: 8px;      /* margin around the hero, images and tiles */
-  --indent: 12px;  /* left indent for text that sits at the far left edge */
+  --indent: 12px;  /* right-hand text padding */
+  --left: 22px;    /* left edge for text: 8px page margin + 22px = 30px, flush with the KRISTYNA logo in the nav */
   --r-sm: 4px;
   --r-md: 8px;
 }
@@ -40,7 +41,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ---------- Header ---------- */
 .hb { position: fixed; z-index: 40; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
 .hb > * { pointer-events: auto; }
-.hb-pill { position: relative; width: 200px; background: transparent; border-radius: var(--r-sm); transition: width .4s cubic-bezier(.65,0,.35,1); overflow: hidden; }
+.hb-pill { position: relative; width: 248px; background: transparent; border-radius: var(--r-sm); transition: width .4s cubic-bezier(.65,0,.35,1); overflow: hidden; }
 .hb-pill::before { content: ""; position: absolute; inset: 0; background: var(--bg); border-radius: var(--r-md); opacity: 1; }
 .hb-bar { position: relative; display: flex; align-items: center; height: 44px; padding: 0 12px 0 14px; gap: 20px; white-space: nowrap; }
 .logo { flex: none; display: inline-flex; align-items: baseline; gap: 2px; font: 700 16px/1 var(--sans); letter-spacing: -0.4px; color: #fff; transform: translateY(-2px); }
@@ -109,14 +110,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ptr-svg .ripple { transform-box: view-box; transform-origin: 7.2px 6.4px; opacity: 0; animation: ripple 2.6s ease-out infinite; }
 @keyframes ptr-click { 0%, 50%, 100% { transform: translate(0,0) scale(1); } 58% { transform: translate(1.8px,1.8px) scale(.5); } 68% { transform: translate(-.8px,-.8px) scale(1.2); } 80% { transform: translate(0,0) scale(1); } }
 @keyframes ripple { 0%, 56% { opacity: 0; transform: scale(.3); } 60% { opacity: 1; transform: scale(.6); } 86%, 100% { opacity: 0; transform: scale(3.4); } }
-.reel-intro { display: flex; align-items: center; padding: 0 var(--pad) 0 var(--indent); }
+.reel-intro { display: flex; align-items: center; padding: 0 var(--pad) 0 var(--left); }
 .reel-intro p { max-width: 22em; font: 300 26px/1.2 var(--cond); }
 @media (min-width: 640px) { .reel-intro p { font-size: 38px; line-height: 1.1; letter-spacing: -1px; } }
 .reel-intro .grey { color: var(--grey); }
 
 /* ---------- Work ---------- */
 .work { position: relative; display: grid; grid-template-columns: 1fr; padding: 96px var(--pad) 120px; }
-.work-side { padding: 0 0 24px var(--indent); }
+.work-side { padding: 0 0 24px var(--left); }
 .work-side-in { display: flex; flex-direction: column; gap: 12px; }
 .work-side-foot, #work-active { display: none; }
 .work-list { display: grid; gap: 24px; }
@@ -132,7 +133,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 @media (min-width: 900px) {
   .work { grid-template-columns: 6fr 10fr; gap: 0 8px; }
-  .work-side { padding: 0 0 0 var(--indent); }
+  .work-side { padding: 0 0 0 var(--left); }
   /* The column is a full screen tall and pins at the top. The list starts lower by exactly the amount that
      makes the first card centred at the moment it pins, so the description and thumbnail sit at the bottom
      edge and are visible while the first project is active. */
@@ -164,7 +165,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- Case study ---------- */
-.case-top { padding: 110px var(--pad) 40px 31.5px; display: grid; gap: 24px; }   /* 31.5px = left edge of the kg logo */
+.case-top { padding: 110px var(--pad) 40px calc(var(--pad) + var(--left)); display: grid; gap: 24px; }   /* 30px = left edge of the KRISTYNA logo */
 .case-top h1 { font: 300 clamp(40px, 7vw, 104px)/1 var(--cond); letter-spacing: -0.03em; max-width: 80%; text-wrap: balance; margin-left: -0.09em; }
 .case-meta { color: var(--grey); display: flex; gap: 24px; flex-wrap: wrap; }
 .case-lede { color: var(--grey); max-width: 56ch; font-size: 18px; line-height: 24px; }
@@ -215,7 +216,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .next-title.dance .ch { animation: lift .5s var(--ease) both; animation-delay: calc(var(--i) * 28ms); }
 
 /* ---------- About ---------- */
-.about { padding: 150px var(--pad) 120px calc(var(--pad) + var(--indent)); min-height: 90vh; }
+.about { padding: 150px var(--pad) 120px calc(var(--pad) + var(--left)); min-height: 90vh; }
 .about-inner { display: grid; gap: 56px; }
 .about h1 { font-size: clamp(44px, 9vw, 140px); line-height: .96; letter-spacing: -0.04em; max-width: 12ch; }
 .about-sub { font-size: clamp(28px, 4vw, 56px); max-width: 16ch; padding-top: 24px; border-top: 1px solid var(--line); }
@@ -226,7 +227,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ---------- Contact + footer ---------- */
 .contact { padding: 24px var(--pad) 0; border-top: 1px solid var(--line); min-height: 100svh; display: flex; flex-direction: column; }
 .contact-grid { display: grid; grid-template-columns: 1fr; gap: 48px; padding-top: 24px; }
-.contact-head { padding-left: var(--indent); }
+.contact-head { padding-left: var(--left); }
 .contact-rows { display: grid; }
 .contact-row { display: grid; grid-template-columns: 4fr 5fr; gap: 8px; padding: 12px 0 36px; border-top: 1px solid var(--line); }
 .contact-row h3 { font-size: 15px; }
@@ -267,7 +268,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Brand-pillar text beside the half-width image (left column) */
 .aside-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 12px; align-items: start; border-top: 1px solid var(--line); padding-top: 20px; }
 .aside-row .block-media { width: 100%; margin: 0; }
-.aside-text { display: grid; gap: 16px; align-content: start; color: var(--grey); font-size: 17px; line-height: 24px; padding: 0 calc(var(--indent) * 1.5) 0 var(--indent); }
+.aside-text { display: grid; gap: 16px; align-content: start; color: var(--grey); font-size: 17px; line-height: 24px; padding: 0 calc(var(--indent) * 1.5) 0 var(--left); }
 .aside-text p:first-child { color: var(--ink); }
 @media (max-width: 900px) {   /* stack early so the tall text column never leaves a gap before the next half-width image */
   .aside-row { grid-template-columns: 1fr; }
@@ -282,21 +283,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 /* ---------- Consistent left indent for text on the far-left edge ---------- */
-.text-left { padding-left: var(--indent); }
-.role-row > .role-label { padding-left: var(--indent); }
+.text-left { padding-left: var(--left); }
+.role-row > .role-label { padding-left: var(--left); }
 .kr-wrap .role-row > .role-label { padding-left: 0; }
-.case-end .next-label, .case-end .next-title, .all-projects h2 { padding-left: var(--indent); }
-.row-head { padding-left: var(--indent); padding-right: var(--indent); }
-.service-list li { padding-left: var(--indent); }
+.case-end .next-label, .case-end .next-title, .all-projects h2 { padding-left: var(--left); }
+.row-head { padding-left: var(--left); padding-right: var(--indent); }
+.service-list li { padding-left: var(--left); }
 .about-services { padding: 0; margin-top: 24px; }   /* the about page already carries the indent */
 .about-services .row-head, .about-services .service-list li { padding-left: 0; padding-right: 0; }
-.contact-row h3 { padding-left: var(--indent); }
+.contact-row h3 { padding-left: var(--left); }
 .foot span, .widget { margin-left: 0; }
-.foot { padding-left: var(--indent); }
-.widget { margin-left: 0; padding-left: var(--indent); }
+.foot { padding-left: var(--left); }
+.widget { margin-left: 0; padding-left: var(--left); }
 
 @media (max-width: 700px) {
-  .contact-head { padding-left: var(--indent); }
+  .contact-head { padding-left: var(--left); }
 }
 
 /* more room on the right of the right-hand text column */
@@ -305,9 +306,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (max-width: 700px) { .text-right, .role-list:not(.body), .about-cols p { padding-right: var(--indent); } }
 /* Stacked layout: every text line shares the heading's left indent */
 @media (max-width: 700px) {
-  .text-right, .role-list:not(.body) { padding-left: var(--indent); }
+  .text-right, .role-list:not(.body) { padding-left: var(--left); }
   .kr-wrap { width: 100%; margin-left: 0; }
-  .kr-wrap .role-row { padding: 28px var(--indent); }
+  .kr-wrap .role-row { padding: 28px var(--indent) 28px var(--left); }
 }
 
 /* "View project" overlay on the Next up image, same style as the Interactive label */
@@ -333,7 +334,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 
 /* ---------- Projects index: sticky copy left, two staggered landscape / portrait columns right ---------- */
 .pj { display: grid; grid-template-columns: calc(25.45% - 12px) 1fr; gap: 12px; padding: 8px var(--pad) 120px; min-height: 100svh; }
-.pj-side-in { position: sticky; top: 0; padding: 150px 24px 0 var(--indent); display: grid; gap: 4px; align-content: start; }
+.pj-side-in { position: sticky; top: 0; padding: 150px 24px 0 var(--left); display: grid; gap: 4px; align-content: start; }
 .pj-side h1 { font-size: clamp(28px, 2.4vw, 38px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 300; }
 .pj-side p { font: 350 17px/24px var(--sans); letter-spacing: 0; color: var(--grey); max-width: 24em; margin-top: 12px; }   /* body copy style, same as project text */
 .pj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
@@ -356,7 +357,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 }
 @media (max-width: 900px) {
   .pj { grid-template-columns: 1fr; }
-  .pj-side-in { position: static; padding: 110px 0 24px var(--indent); }
+  .pj-side-in { position: static; padding: 110px 0 24px var(--left); }
 }
 @media (max-width: 560px) {
   .pj-grid { grid-template-columns: 1fr; gap: 18px; }
