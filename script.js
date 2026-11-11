@@ -433,7 +433,7 @@
     if (hash === 'projects') {
       const back = currentView === 'case';
       show('projects');
-      document.title = `Projects • ${SITE}`;
+      document.title = `Selected work • ${SITE}`;
       window.scrollTo(0, back ? projectsScroll : 0);
     } else if (hash === 'about') {
       show('about');
