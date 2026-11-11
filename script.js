@@ -52,8 +52,8 @@
   /* ---------- Home: work list ---------- */
 
   const ARROW = '<svg class="card-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor"/></svg>';
-  const SERVICES = ['Brand Identity', 'Creative Coding', 'Creative Direction', 'Art Direction', 'Campaigns', 'Motion Design', 'Interactive Brand Tools'];
-  const SERVICE_LINKS = { 'Interactive Brand Tools': 'https://kristynagottvald.github.io/sketches/' };   // a small arrow opens the sketches page
+  const SERVICES = ['Brand Identity', 'Creative Coding', 'Creative Direction', 'Art Direction', 'Campaigns', 'Motion Design', 'Brand Tools'];
+  const SERVICE_LINKS = { 'Brand Tools': 'https://kristynagottvald.github.io/sketches/' };   // a small arrow opens the sketches page
 
   function renderGrid() {
     cardsEl.innerHTML = projects
