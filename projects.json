@@ -709,6 +709,13 @@
         "type": "image"
       },
       {
+        "bg": "#111",
+        "src": "clearco-replatforming-sketch.html",
+        "title": "Clearco replatforming motif",
+        "type": "sketch",
+        "noHint": false
+      },
+      {
         "id": "1207058184",
         "title": "Replatform Motifs",
         "type": "vimeo"

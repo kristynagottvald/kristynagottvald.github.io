@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clearco replatforming motif sketch</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #111; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+</head>
+<body>
+<script>
+/* Clearco replatforming motif.
+   A target frame (guide lines + corner crosshairs) drives everything. It resizes ONE axis at a time on an
+   ease-in-out curve, and the text is only visible inside it: the frame opens to uncover a headline, closes
+   to a line to crop it away, slides sideways, and opens again. Nothing else moves the type.
+   Paste into OpenProcessing (p5.js, any 1.x/2.x). No libraries or assets needed.
+   Scenes: "Replatforming shouldn't cost you sales." -> two-line sub-headline -> grid dots slide into the 93-dot logo. */
+let ctx;                      // p5's 2D drawing context
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const TL = {
+  // The frame is the clock. Every text reveal and wipe below is cut by its edges, one axis per step.
+  steps: [
+    { axis: 'v', win: [2.0, 2.8],   to: 'R1' },   // aperture opens: the headline is uncovered from the centre line out
+    { axis: 'v', win: [5.2, 5.9],   to: 'C'  },   // closes back to a line: the headline is cropped away
+    { axis: 'h', win: [5.9, 6.6],   to: 'R2' },   // the line slides to the sub-headline's width
+    { axis: 'v', win: [6.6, 7.4],   to: 'R2' },   // opens: the sub-headline is uncovered
+    { axis: 'h', win: [9.9, 10.9],  to: 'R3' },   // once the text has faded, the frame only slides sideways to the logo's width
+    { axis: 'v', win: [17.1, 17.8], to: 'C'  },   // logo closes to a line
+    { axis: 'h', win: [17.8, 18.4], to: 'R1' }    // and the line slides back to the headline's width
+  ],
+  textOut: [9.0, 9.8],                                        // the sub-headline fades fully out first
+  dotsIn: [9.9, 10.3],                                        // then the grid dots brighten
+  dotY: [10.1, 11.0], dotX: [11.0, 11.7], dotStagger: 0.12,   // dots slide vertically down/up their grid column, then settle sideways into place
+  clipDots: 17.0,                                            // from here the frame also crops the logo
+  loop: 18.6
+};
+const clamp01 = v => Math.min(1, Math.max(0, v));
+const prog = (T, r) => clamp01((T - r[0]) / (r[1] - r[0]));
+const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
+const easeInOutCubic = p => p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3) / 2;
+const slide = p => reduce ? (p >= 1 ? 1 : 0) : easeInOutCubic(p);
+const mixv = (a, b, t) => a + (b - a) * t;
+
+const FONT = '"Instrument Sans", "Helvetica Neue", Arial, sans-serif';
+const S1 = ['Replatforming shouldn’t', 'cost you sales.'];
+const S2 = ['Plan your e-commerce', 'migration before your', 'next peak season.'];
+
+let W = 0, H = 0, DPR = 1, arm = 20, pad = 30;
+let L1 = null, L2 = null, rects = [], sources = [], logoR = 4;
+let t0 = 0, ready = false;
+
+function setFont(c, size) {
+  c.font = '400 ' + size + 'px ' + FONT;
+  if ('letterSpacing' in c) c.letterSpacing = (-size * .03) + 'px';
+}
+
+/* ---------- layout ---------- */
+function layout() {
+  DPR = pixelDensity();
+  W = width; H = height;
+  arm = Math.max(14, Math.min(40, Math.min(W, H) * .055));
+  pad = arm * 1.5;
+  const maxText = W - 2 * (pad + arm + 8);
+  const m = document.createElement('canvas').getContext('2d');
+
+  // Both scenes are left-aligned blocks, centred on the canvas (scene 1: two lines, scene 2: three lines)
+  const block = lines => {
+    let size = Math.min(80, Math.max(20, W * .036));
+    setFont(m, size);
+    let w = Math.max(...lines.map(t => m.measureText(t).width));
+    if (w > maxText) { size *= maxText / w; setFont(m, size); w = Math.max(...lines.map(t => m.measureText(t).width)); }
+    const lh = size * 1.22, y1 = H / 2 - (lines.length - 1) * lh / 2 + size * .3;
+    return { size, lh, w, x: (W - w) / 2, y1, top: y1 - size * .8, bot: y1 + (lines.length - 1) * lh + size * .28 };
+  };
+  L1 = block(S1); L2 = block(S2);
+
+  buildDots();
+
+  // Frame rectangle for each scene
+  const box = (l, t, r, b) => ({ l: l - pad, t: t - pad, r: r + pad, b: b + pad });
+  rects = [
+    box(L1.x, L1.top, L1.x + L1.w, L1.bot),
+    box(L2.x, L2.top, L2.x + L2.w, L2.bot),
+    (() => {
+      let l = 1e9, t = 1e9, r = -1e9, b = -1e9;
+      for (const p of sources) { l = Math.min(l, p.tx); r = Math.max(r, p.tx); t = Math.min(t, p.ty); b = Math.max(b, p.ty); }
+      return box(l - logoR, t - logoR, r + logoR, b + logoR);   // height is overridden below to match scene 2
+    })()
+  ];
+
+  // Snap every frame rectangle outward onto the dot grid, so the crosshairs rest exactly on grid dots
+  const fl = (v, o) => o + Math.floor((v - o) / G + 1e-6) * G, ce = (v, o) => o + Math.ceil((v - o) / G - 1e-6) * G;
+  rects = rects.map(r => ({ l: fl(r.l, gx0), r: ce(r.r, gx0), t: fl(r.t, gy0), b: ce(r.b, gy0) }));
+  rects[2].t = rects[1].t; rects[2].b = rects[1].b;      // the logo scene keeps the sub-headline's height: width is the only thing that changes
+}
+
+/* ---------- dot grid and logo ---------- */
+const LOGO_DOTS = [[-481.7,-13.1],[-481.7,14.1],[-468.7,-34.5],[-468.7,36.5],[-445.2,-47.1],[-445.2,47.6],[-419.1,-50.5],[-419.1,51.0],[-395.3,-45.6],[-395.3,46.7],[-374.7,-32.9],[-374.7,34.3],[-334.8,-47.6],[-334.8,-23.8],[-334.8,-0.4],[-334.8,23.7],[-334.8,46.7],[-310.3,47.6],[-286.6,47.6],[-263.5,47.6],[-239.7,47.6],[-206.0,-47.6],[-206.0,-23.8],[-206.0,-0.4],[-206.0,23.7],[-206.0,47.6],[-181.3,-47.6],[-181.3,-0.4],[-181.3,47.6],[-158.0,-47.6],[-158.0,-0.4],[-158.0,47.6],[-134.5,-47.6],[-134.5,-0.4],[-134.5,47.6],[-111.2,-47.6],[-111.2,47.6],[-76.2,49.9],[-63.7,28.1],[-52.1,7.7],[-40.1,-13.1],[-40.1,28.1],[-28.5,-32.9],[-17.0,-50.5],[-17.0,28.1],[-6.2,-32.9],[5.2,-13.1],[6.8,28.1],[16.9,7.7],[28.7,28.1],[40.6,47.6],[76.9,-47.1],[76.9,-23.8],[76.9,0.4],[76.9,23.7],[76.9,47.6],[101.3,-47.6],[101.3,-0.4],[124.8,-47.6],[124.8,-0.4],[148.2,-47.6],[148.2,-0.4],[163.6,23.7],[171.0,-45.6],[172.6,-2.5],[181.5,-23.8],[181.5,47.6],[218.0,-13.1],[218.0,14.1],[231.4,-34.5],[231.4,35.4],[254.8,-47.1],[254.8,47.6],[280.8,-50.5],[280.8,51.0],[304.4,-45.6],[304.4,46.7],[325.4,-32.9],[325.4,35.4],[362.0,-11.6],[362.0,14.1],[375.2,-32.9],[375.2,35.4],[398.8,-45.6],[398.8,46.7],[424.6,-47.6],[424.6,49.9],[448.3,-44.0],[448.3,46.7],[469.0,-31.9],[469.0,34.3],[481.8,-11.6],[481.8,14.1]];
+const LOGO_SPAN = 963.5, LOGO_DOT_R = 7.63;
+
+let G = 24, gridR = 1.2, gx0 = 0, gy0 = 0, gridCanvas = null;
+
+/* A faint, sparse dot grid fills the whole canvas, behind the guide lines and crosshairs.
+   Each logo dot starts as a bright copy of a grid dot, slides straight up or down its grid column, then makes
+   a short sideways move to its exact slot in the logo. The grid itself never changes. */
+function buildDots() {
+  const span = Math.min(W * (W < 560 ? .6 : .48), 1100), k = span / LOGO_SPAN;
+  logoR = Math.max(2, LOGO_DOT_R * k);
+  const targets = LOGO_DOTS.map(([x, y]) => ({ x: W / 2 + x * k, y: H / 2 + y * k })).sort((a, b) => a.x - b.x);
+
+  G = Math.max(18, Math.min(34, Math.min(W, H) * .05));
+  gridR = Math.max(1, G * .055);
+  gx0 = (W / 2) % G;
+  gy0 = (H / 2) % G;
+  const cols = Math.floor((W - gx0) / G) + 1, rows = Math.floor((H - gy0) / G) + 1;
+
+  gridCanvas = document.createElement('canvas');
+  gridCanvas.width = W * DPR; gridCanvas.height = H * DPR;
+  const g = gridCanvas.getContext('2d');
+  g.scale(DPR, DPR); g.fillStyle = 'rgba(255,255,255,.12)';
+  g.beginPath();
+  for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+    const x = gx0 + i * G, y = gy0 + j * G;
+    g.moveTo(x + gridR, y); g.arc(x, y, gridR, 0, Math.PI * 2);
+  }
+  g.fill();
+
+  // Each logo dot starts on its own grid dot, some distance above or below its slot, in the same column
+  const used = new Set();
+  sources = targets.map((t, i) => {
+    const ci = Math.min(cols - 1, Math.max(0, Math.round((t.x - gx0) / G)));
+    const h = Math.imul(i + 1, 2654435761) >>> 0;
+    const dir = (h >>> 20) & 1 ? 1 : -1;
+    const cells = Math.max(3, Math.round(H * (.1 + ((h >>> 8) % 1000) / 1000 * .25) / G));
+    let cj = Math.round((t.y - gy0) / G) + dir * cells;
+    cj = Math.min(rows - 1, Math.max(0, cj));
+    while (used.has(ci + ',' + cj)) cj = Math.min(rows - 1, Math.max(0, cj + dir)) === cj ? cj - dir : cj + dir;
+    used.add(ci + ',' + cj);
+    return { sx: gx0 + ci * G, sy: gy0 + cj * G, sr: gridR, tx: t.x, ty: t.y, delay: i / targets.length * TL.dotStagger };
+  });
+}
+
+/* ---------- frame: one axis at a time ---------- */
+function frameAt(T) {
+  const mid = H / 2, R = { R1: rects[0], R2: rects[1], R3: rects[2], C: { t: mid, b: mid } };
+  let cur = { l: rects[0].l, r: rects[0].r, t: mid, b: mid };         // starts as a line the width of the headline
+  for (const st of TL.steps) {
+    if (T < st.win[0]) break;
+    const e = slide(prog(T, st.win)), to = R[st.to];
+    if (st.axis === 'h') cur = { ...cur, l: mixv(cur.l, to.l, e), r: mixv(cur.r, to.r, e) };
+    else cur = { ...cur, t: mixv(cur.t, to.t, e), b: mixv(cur.b, to.b, e) };
+  }
+  return cur;
+}
+
+/* ---------- drawing ---------- */
+function drawText(text, x, y, size, align, alpha) {
+  if (alpha <= .002) return;
+  ctx.save(); ctx.globalAlpha = alpha; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
+  setFont(ctx, size); ctx.fillStyle = '#fff'; ctx.fillText(text, x, y); ctx.restore();
+}
+
+/* Focus pull: as a block is uncovered it pops toward the viewer (slightly larger and soft), then eases back to
+   its size and snaps sharp, like a lens hunting for focus. t is seconds since the reveal began. */
+const POP = { dur: 1.1, peak: .32, scale: .06, blur: 2.6 };
+function popAmount(t) {
+  if (reduce || t <= 0 || t >= POP.dur) return 0;
+  const p = t / POP.dur;
+  return p < POP.peak ? easeOutCubic(p / POP.peak) : 1 - easeInOutCubic((p - POP.peak) / (1 - POP.peak));
+}
+function drawBlock(lines, L, alpha, t) {
+  const pop = popAmount(t);
+  ctx.save();
+  if (pop > 0) {
+    const cx = L.x + L.w / 2, cy = (L.top + L.bot) / 2, sc = 1 + POP.scale * pop;
+    ctx.translate(cx, cy); ctx.scale(sc, sc); ctx.translate(-cx, -cy);
+    if ('filter' in ctx) ctx.filter = 'blur(' + (POP.blur * pop).toFixed(2) + 'px)';
+  }
+  for (let i = 0; i < lines.length; i++) drawText(lines[i], L.x, L.y1 + i * L.lh, L.size, 'left', alpha);
+  ctx.restore();
+}
+
+function drawScene(T) {
+  ctx.fillStyle = '#111'; ctx.fillRect(0, 0, W, H);
+  const fr = frameAt(T);
+
+  // dot grid: always complete. The logo dots are copies that lift off the grid, so it never shows gaps.
+  ctx.drawImage(gridCanvas, 0, 0, W, H);
+
+  // guide lines run the full width / height
+  ctx.strokeStyle = '#2b2b2b'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const x of [fr.l, fr.r]) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+  for (const y of [fr.t, fr.b]) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+  ctx.stroke();
+
+  // Text sits still, except for a lens-like focus pull. It is only ever shown inside the frame, so the lines
+  // decide when and how it appears.
+  ctx.save();
+  ctx.beginPath(); ctx.rect(fr.l, fr.t, fr.r - fr.l, fr.b - fr.t); ctx.clip();
+  if (T < 6.0) drawBlock(S1, L1, 1, T - 2.1);
+  if (T >= 6.0 && T < TL.textOut[1]) drawBlock(S2, L2, 1 - easeInOutCubic(prog(T, TL.textOut)), T - 6.7);
+  ctx.restore();
+
+  // Scene 3: grid dots brighten, lift off and slide to the logo, one axis at a time (same ease as the frame)
+  if (T >= TL.dotsIn[0]) {
+    const ap = easeOutCubic(prog(T, [TL.dotsIn[0], TL.dotsIn[0] + .4]));
+    const ey = d => slide(prog(T - d.delay, TL.dotY)), ex = d => slide(prog(T - d.delay, TL.dotX));
+    ctx.save();
+    if (T >= TL.clipDots) { ctx.beginPath(); ctx.rect(fr.l, fr.t, fr.r - fr.l, fr.b - fr.t); ctx.clip(); }   // the closing frame crops the logo
+    ctx.fillStyle = '#fff';
+    for (const d of sources) {
+      const py = ey(d), px = ex(d);
+      const x = mixv(d.sx, d.tx, px), y = mixv(d.sy, d.ty, py);     // down or up the grid column, then a short sideways settle
+      const r = mixv(d.sr, logoR, py);
+      const a = ap;
+      if (a <= .01 || r <= .05) continue;
+      ctx.globalAlpha = a; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // crosshairs on the four corners, on top
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (const x of [fr.l, fr.r]) for (const y of [fr.t, fr.b]) {
+    ctx.moveTo(x - arm, y); ctx.lineTo(x + arm, y);
+    ctx.moveTo(x, y - arm); ctx.lineTo(x, y + arm);
+  }
+  ctx.stroke();
+}
+
+/* ---------- p5 ---------- */
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  pixelDensity(Math.min(2, displayDensity()));
+  ctx = drawingContext;
+  noStroke();
+
+  // Load the font, then lay everything out and start the clock
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400&display=swap';
+  document.head.appendChild(link);
+  const boot = () => { layout(); t0 = millis(); ready = true; };
+  Promise.race([
+    document.fonts.load('400 40px "Instrument Sans"'),
+    new Promise(r => setTimeout(r, 3000))          // don't wait forever if the font is blocked
+  ]).then(boot, boot);
+}
+
+function draw() {
+  if (!ready) { background(17); return; }
+  drawScene(((millis() - t0) / 1000) % TL.loop);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  if (ready) layout();
+}
+</script>
+</body>
+</html>
