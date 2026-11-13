@@ -1237,7 +1237,8 @@
     "title": "GrubClub",
     "year": 2021,
     "squareThumbnail": "grubclub-square.webp",
-    "clientName": "GrubClub"
+    "clientName": "GrubClub",
+    "hidden": true
   },
   {
     "caseStudyContent": [
