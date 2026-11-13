@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reprise: stop building demos sketch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+body{display:flex;flex-direction:column}
+main{flex:1;min-height:0;position:relative}
+canvas{display:block}
+/* ---------- Back nav (shared across all sandbox projects) ---------- */
+nav.back{box-sizing:border-box;flex:none;display:flex;align-items:center;gap:8px;height:49px;padding:0 20px;background:#000;border-bottom:1px solid #1c1c1c;font:400 13px/1.35 "Inter","Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;white-space:nowrap;overflow:hidden}
+nav.back a{color:#8d8d8d;text-decoration:none}
+nav.back a:hover,nav.back a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:3px}
+nav.back span{color:#6e6e6e}
+nav.back b{font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){nav.back{padding:0 16px}}
+</style>
+</head>
+<body>
+<main id="stage"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script>
+/* ---- palette (demo UI + prompt box from the supplied code) ---- */
+const NAVY = "#0f0f42", CREAM = "#fcfcf9", PALE = "#e9e5d8", FRAME = "#ece9df";
+const HL = "#0f0f42", GREEN = "#5f9f66", UI_LINE = "#e6e4dc", SKY = "#b9b3a3";
+const LIGHT = "#c1d8f1";            // scene 1 background (sampled from the supplied palette)
+const DEEP = "#0e0e43";             // scene 2 background (from the image)
+const SANS = "Arial", MONO = "Courier New", SERIF = "Georgia";
+const HEAD = "'Inter Tight','Helvetica Neue',Helvetica,Arial,sans-serif";
+
+const L1 = "Create a security overview with mock data.", L2 = "";
+const N1 = L1.length, TOT = L2.length ? N1 + 1 + L2.length : N1;   // single line: no second-line step
+const NAMES_A = ["Northwind", "Globex", "Initech"], NAMES_B = ["AbbVie", "AstraZeneca", "Bristol Myers"];
+const NAV_W = [70, 44, 62, 52, 38], ROW_Y = [274, 332, 390];
+const ROW_U = [[[228,150,0],[408,104,1],[588,70,1]],[[228,112,0],[408,126,1],[588,60,1]],[[228,168,0],[408,88,1],[588,76,1]]];
+const LINK_SVG = "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1";
+const SPARK_SVG = "M23.5422 0L25.0998 14.1444C25.1837 14.9055 26.0747 15.2744 26.6721 14.7954L37.7748 5.89529L39.1892 7.30951L30.2889 18.4124C29.81 19.0098 30.1789 19.9007 30.9401 19.9845L30.9395 19.9849L45.0838 21.5421V23.5422L25.6785 25.6788L23.5419 45.084H21.5418L19.9845 30.9398C19.9007 30.1786 19.0098 29.8097 18.4124 30.2887L7.30951 39.1889L5.89529 37.7745L14.7954 26.6718C15.2744 26.0744 14.9055 25.1834 14.1444 25.0995L0 23.5422V21.5421L19.4055 19.4053L21.5421 0H23.5422ZM24.9703 19.5719C23.3515 19.4237 21.7324 19.4237 20.1136 19.5719C19.8427 19.5975 19.5975 19.8427 19.5719 20.1136C19.4237 21.7324 19.4237 23.3515 19.5719 24.9703C19.5974 25.2412 19.8427 25.4866 20.1136 25.5122C21.7324 25.6601 23.3515 25.6601 24.9703 25.5122C25.2412 25.4866 25.4866 25.2412 25.5122 24.9703C25.6604 23.3515 25.6604 21.7324 25.5122 20.1136C25.4866 19.8427 25.2412 19.5974 24.9703 19.5719Z";
+
+/* ---- stage: 1920x1112, same as the reference image ---- */
+const SW_ = 1920, SH_ = 1112;
+const CX = 1440, CY = 556;           // centre: logo, rays, lens
+const BANDS = [[156, 246], [284, 448], [488, 770], [812, 1180]];   // ray bands (radius): first three measured, the outer one runs under the headline
+const NRAYS = 48;
+const WINS = .86;                    // UI window scale, centred on the rays
+const WIN_DY = 44;                   // the screen (and the prompt above it) sit slightly below the rays' centre
+const WIN = { x: CX - 450 * WINS, y: CY + WIN_DY - 282.5 * WINS, s: WINS };              // sales demo window (613x461 at scale s)
+const WIN_R = 1150;                  // iris radius that fully covers the window
+
+/* ---- timeline (seconds). Light blue opens with the prompt; when the prompt rises the navy scene opens from the centre ---- */
+const T_SPIN = 1.0, SPIN_D = 1.7;    // scene 1: logo spins, rays draw out
+const T_BOX = 2.0, TYPE0 = T_BOX + .9;   // prompt box appears, then types
+const LENS_D = 1.3;
+let RT = [0, 0], TYPE_DUR = 0, T_UP, T_WIN, T_DATA, T_LEAVE, T_WORDS, T_BACK, T_END, LOOP, tHop1, NAVY_R = 0;
+const H0 = 1.7, H1 = 1.9, DW = .7, PAUSE = 1.0, BACK_D = 1.9, OPEN_D = .8, CTA_HOLD = 3.2, END_D = 1.2;   // logo hops: prompt > Assets > graph, pause, then spin to the middle while the CTA arrives; the pale blue then opens from the logo
+const OFF = .9;                      // later loops skip the headline intro
+
+let ti = 0, START = 0.5, PS = 1, ready = false;
+let SPARK_P, LINK_P, grain;
+const EBACK = bez(.34, 1.56, .64, 1), EASE = bez(.25, .1, .25, 1), EMOVE = bez(.45, 0, .2, 1), EOUT = bez(.2, .8, .2, 1), EIO = bez(.65, 0, .35, 1);
+
+function bez(x1, y1, x2, y2) {
+  const f = (a, b, t) => 3*a*t*(1-t)*(1-t) + 3*b*t*t*(1-t) + t*t*t;
+  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let lo = 0, hi = 1;
+    for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (f(x1, x2, m) < x) lo = m; else hi = m; }
+    return f(y1, y2, (lo + hi) / 2); };
+}
+const pr = (t, t0, d) => constrain((t - t0) / d, 0, 1);
+function ls(px) { try { drawingContext.letterSpacing = px + "px"; } catch (e) {} }
+function ca(hex, a) { const c = color(hex); c.setAlpha(255 * a); return c; }
+function tx(s, x, y, size, col, fam, spc, h) {
+  noStroke(); fill(col); textFont(fam || SANS); textSize(size); textStyle(NORMAL);
+  textAlign(h || LEFT, CENTER); ls(spc || 0); text(s, x, y); ls(0);
+}
+function tw(s, size, fam, spc) { textFont(fam || SANS); textSize(size); textStyle(NORMAL); ls(spc || 0); const w = textWidth(s); ls(0); return w; }
+
+/* headline text drawn straight on the 2d context (needs weights 300 / 600) */
+const HS = 106, HSP = -3.0;
+function hw(s, wt) { const c = drawingContext; c.save(); c.font = wt + " " + HS + "px " + HEAD; c.letterSpacing = HSP + "px"; const w = c.measureText(s).width; c.restore(); return w; }
+function ht(s, x, y, wt, col, a) {
+  const c = drawingContext; c.save(); c.globalAlpha *= a; c.fillStyle = col;
+  c.font = wt + " " + HS + "px " + HEAD; c.letterSpacing = HSP + "px"; c.textBaseline = "alphabetic"; c.fillText(s, x, y); c.restore();
+}
+const BASE = [485, 597, 710];       // baselines from the reference
+const HX = 107;
+
+/* the Reprise spark (exact path), centred on (x,y) */
+function spark(x, y, sc, rot, col, a) {
+  if (a <= 0) return;
+  const c = drawingContext; c.save(); c.globalAlpha *= a; c.translate(x, y); c.rotate(rot); c.scale(sc, sc);
+  c.translate(-22.54, -22.54); c.fillStyle = col; c.fill(SPARK_P, "evenodd"); c.restore();
+}
+function circClip(r) { const c = drawingContext; c.beginPath(); c.arc(CX, CY, max(r, 0.01), 0, TWO_PI); c.clip(); }
+
+function setup() {
+  const host = document.getElementById("stage"); createCanvas(host.clientWidth, host.clientHeight).parent(host);
+  frameRate(60);
+  SPARK_P = new Path2D(SPARK_SVG); LINK_P = new Path2D(LINK_SVG);
+  makeGrain();
+  for (let n = 1; n <= TOT; n++) {
+    const d = n === N1 + 1 ? .26 : .046 + .03 * (abs(sin(n * 12.9898) * 43758.5453) % 1);
+    if (n < TOT) RT[n + 1] = RT[n] + d; else TYPE_DUR = RT[n] + d;
+  }
+  T_UP = TYPE0 + TYPE_DUR + .7;     // sent: the prompt rises and the navy opens from the centre
+  T_WORDS = T_UP + .6;              // "and start prompting them." arrives
+  T_WIN = T_UP + .35;               // demo screen pops with the background transition, once the navy is mostly open
+  T_DATA = T_UP + 1.5;              // data fades in all at once, once the navy has opened
+  T_LEAVE = T_DATA + 1.0;           // logo leaves the prompt once the data is in, floats over the screen
+  tHop1 = T_LEAVE + H0 + DW;        // Assets > graph
+  T_BACK = tHop1 + H1 + PAUSE;      // pause on the graph, then the logo spins to the middle; screen, prompt and headline fade; the CTA arrives
+  T_END = T_BACK + BACK_D + CTA_HOLD; // CTA holds, then the pale blue opens from the logo and the loop restarts
+  LOOP = T_END + END_D + .6;
+  document.fonts.load("400 112px 'Inter Tight'").then(() => document.fonts.load("600 112px 'Inter Tight'")).catch(() => {}).finally(() => { ready = true; });
+}
+function windowResized() { const h = document.getElementById("stage"); resizeCanvas(h.clientWidth, h.clientHeight); }
+
+function makeGrain() {
+  grain = document.createElement("canvas"); grain.width = SW_; grain.height = SH_;
+  const g = grain.getContext("2d"); let s = 7;
+  const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 5200; i++) {
+    const a = .08 + r() * .3;
+    g.fillStyle = `rgba(${150 + r() * 60 | 0},${160 + r() * 60 | 0},255,${a})`;
+    g.fillRect(r() * SW_, r() * SH_, r() > .85 ? 2 : 1, r() > .85 ? 2 : 1);
+  }
+}
+
+function draw() {
+  if (!ready) { background(LIGHT); return; }
+  const tt = millis() / 1000 - START;
+  if (tt < 0) ti = 0; else if (tt < LOOP) ti = tt; else ti = OFF + ((tt - LOOP) % (LOOP - OFF));
+  PS = min(width / SW_, height / SH_);
+  background(0);
+  push();
+  translate(width / 2, height / 2); scale(PS); translate(-SW_ / 2, -SH_ / 2);
+  drawingContext.beginPath(); drawingContext.rect(0, 0, SW_, SH_); drawingContext.clip();
+
+  const back = ti >= T_BACK, end = ti >= T_END, done = ti >= T_END + END_D;
+  if (!back) {
+    const R = ti < T_UP ? 0 : 2300 * EIO(pr(ti, T_UP, OPEN_D));
+    NAVY_R = R;
+    drawLight(false, false);
+    if (R > .5) { push(); drawingContext.save(); circClip(R); drawNavy(); drawingContext.restore(); pop(); }
+  } else {
+    NAVY_R = 3000;
+    drawNavy();                                                  // navy scene: headline fades, the CTA arrives
+    if (end) {                                                   // loop back: the pale blue opens outward from the logo, which turns navy
+      push(); drawingContext.save(); circClip(2700 * EIO(pr(ti, T_END, END_D))); drawLight(true, done); drawingContext.restore(); pop();
+    }
+  }
+  if (!done) drawFG();
+  pop();
+}
+
+/* ============== light blue layer: headline, rays ============== */
+function drawLight(base, done) {
+  noStroke(); fill(LIGHT); rect(0, 0, SW_, SH_);
+  drawRays(1, [255, 255, 255], .85 * rayIn());              // the lines are always there
+  const a = base ? 1 : EASE(pr(ti, .1, .8)), up = base ? 0 : 26 * (1 - EOUT(pr(ti, .1, 1)));
+  push(); drawingContext.globalAlpha = a;
+  ht("Stop building", HX, BASE[0] + up, 400, NAVY, 1);
+  ht("demos", HX, BASE[1] + up, 400, NAVY, 1);
+  pop();
+  if (done) spark(CX, CY, 2.6, 0, NAVY, 1);
+}
+
+/* ============== foreground shared by both backgrounds: demo screen, prompt, logo ============== */
+function drawFG() {
+  const fo = 1 - EASE(pr(ti, T_BACK, .7));
+  if (ti >= T_WIN && fo > .01) {                           // demo screen pops into view; the data then fades in all at once
+    const p = pr(ti, T_WIN, .7), d = EASE(pr(ti, T_DATA, .8));
+    push(); drawingContext.globalAlpha = EASE(pr(ti, T_WIN, .3)) * fo;
+    translate(CX, CY); scale(lerp(.86, 1, EBACK(p))); translate(-CX, -CY);
+    const rvs = new Array(7).fill(d); rvs.hl = logoLight();
+    drawWindow(WIN_R, rvs);
+    pop();
+  }
+  drawPrompt();
+  drawLogo1(EASE(pr(ti, .1, .8)));
+}
+
+/* the spark spins at centre and flies into the prompt's corner. Once the data is in it leaves the prompt (which shortens),
+   floats over the demo screen in one smooth path (the content reacts under it), then returns to the centre */
+const shrink = () => EIO(pr(ti, T_LEAVE, 1.0));
+const EPATH = bez(.3, 0, .7, 1);
+function catmull(P, u) {
+  const n = P.length - 1, f = u * n, i = Math.min(Math.floor(f), n - 1), t = f - i;
+  const p0 = P[Math.max(i - 1, 0)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(i + 2, n)];
+  const q = k => .5 * (2 * p1[k] + (-p0[k] + p2[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t * t + (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * t * t * t);
+  return [q(0), q(1)];
+}
+const uiG = (ux, uy) => [WIN.x + ux * WIN.s, WIN.y + uy * WIN.s];
+function logoState(t) {                                  // position / scale of the logo while it floats over the screen (no spin over the screen, two turns on the way back)
+  const corner = [CX - boxW() * BS / 2 + (boxW() - 36) * BS, BOX_BOT - boxH() * BS + 36 * BS];
+  const S = [corner, uiG(300, 125), uiG(520, 300), [CX, CY]];      // Assets tile, the graph, the middle
+  const hops = [[T_LEAVE, H0], [tHop1, H1], [T_BACK, BACK_D]];
+  let pos = S[0];
+  hops.forEach((h, i) => { if (t >= h[0]) { const e = EIO(pr(t, h[0], h[1])); pos = [lerp(S[i][0], S[i + 1][0], e), lerp(S[i][1], S[i + 1][1], e)]; } });
+  const sc = t < T_BACK ? lerp(.8 * BS, .9, EIO(pr(t, T_LEAVE, H0))) : lerp(.9, 2.6, EIO(pr(t, T_BACK, BACK_D)));
+  return { pos: pos, sc: sc, turns: 2 + 2 * EIO(pr(t, T_BACK, BACK_D)) };   // still over the screen; spins on the way back to the middle
+}
+/* cream on the navy, navy on the white screen / prompt / light blue */
+function logoColor(p) {
+  if (ti >= T_END) return lerpColor(color("#fcfcf9"), color(NAVY), EASE(pr(ti, T_END, .3)));   // navy once the pale blue opens from it
+  if (ti < T_UP || dist(p[0], p[1], CX, CY) > NAVY_R) return color(NAVY);
+  const bl = CX - boxW() * BS / 2, bt = boxTop(), br = bl + boxW() * BS, bb = bt + boxH() * BS;
+  const wx = WIN.x, wy = WIN.y, wx1 = WIN.x + 900 * WIN.s, wy1 = WIN.y + 565 * WIN.s;
+  const d = Math.max(Math.min(p[0] - bl, br - p[0], p[1] - bt, bb - p[1]), Math.min(p[0] - wx, wx1 - p[0], p[1] - wy, wy1 - p[1]));
+  const fo = 1 - EASE(pr(ti, T_BACK, .7));                  // the screen and prompt fade out as the logo heads to the middle
+  return lerpColor(color("#fcfcf9"), color(NAVY), constrain(d / 24, 0, 1) * fo);
+}
+function drawLogo1(la) {
+  const spin = 0, popK = 1 + .3 * Math.sin(Math.PI * EASE(pr(ti, T_SPIN, .9)));      // intro: a slight pop towards the viewer
+  let pos, sc, turns;
+  if (ti < T_LEAVE) {
+    // rides along with the typing cursor, then glides to the right end of the box and stays there
+    const w = boxW(), ey = 20 * (1 - EOUT(pr(ti, T_BOX, .9)));
+    const lw = tw(L1.slice(0, min(typedCount(), N1)), 23, SANS, -.23);
+    const g = EIO(pr(ti, TYPE0 + TYPE_DUR + .05, .6)), e = EIO(pr(ti, T_BOX + .3, .9));
+    const lx = lerp(29.5 + lw + 28, w - 36, g);
+    const tgt = [CX - w * BS / 2 + lx * BS, boxTop() + ey + 36 * BS];
+    pos = [lerp(CX, tgt[0], e), lerp(CY, tgt[1], e)]; sc = lerp(2.6 * popK, .8 * BS, e); turns = e + g;
+  } else { const L = logoState(ti); pos = L.pos; sc = L.sc; turns = L.turns; }
+  spark(pos[0], pos[1], sc, spin + TWO_PI * turns, logoColor(pos).toString(), la);
+}
+
+/* only the one section under the logo is lit: KPI tiles, chart, or table (UI coordinates) */
+function logoLight() {
+  const hl = new Array(7).fill(0);
+  if (ti < T_LEAVE + .8) return hl;
+  const R = [[179, 86, 701, 111], [181, 203, 698, 179], [181, 393, 698, 150]];
+  const L = logoState(ti), x = (L.pos[0] - WIN.x) / WIN.s, y = (L.pos[1] - WIN.y) / WIN.s;
+  const v = R.map(r => {
+    const dx = Math.max(r[0] - x, 0, x - (r[0] + r[2])), dy = Math.max(r[1] - y, 0, y - (r[1] + r[3]));
+    return .85 * EASE(constrain(1 - Math.hypot(dx, dy) / 16, 0, 1));
+  });
+  hl[0] = hl[1] = hl[2] = v[0]; hl[3] = v[1]; hl[4] = v[2];
+  return hl;
+}
+
+function drawWindow(iris, rv) {
+  push();
+  const c = drawingContext;
+  c.save();
+  c.beginPath(); c.arc(CX, CY, iris, 0, TWO_PI); c.clip();
+  translate(WIN.x, WIN.y); scale(WIN.s);
+  c.save(); c.shadowColor = "rgba(2,3,30,.32)"; c.shadowBlur = 44 * PS; c.shadowOffsetY = 14 * PS;
+  noStroke(); fill(255); rect(0, 0, 900, 565, 14); c.restore();
+  c.save(); c.beginPath(); c.roundRect(0, 0, 900, 565, 14); c.clip();
+  drawSecUI(rv);
+  c.restore();
+  noFill(); stroke("#a0a4ab"); strokeWeight(1.5); rect(.75, .75, 898.5, 563.5, 13.5);
+  c.restore();
+  pop();
+}
+
+/* ============== navy layer: headline + "and start prompting them.", rays ============== */
+function drawNavy() {
+  noStroke(); fill(DEEP); rect(0, 0, SW_, SH_);
+  drawingContext.drawImage(grain, 0, 0);
+  drawRays(1, [52, 100, 188], .9 * rayIn());
+
+  const out = ti >= T_BACK, ha = out ? 1 - EASE(pr(ti, T_BACK, .6)) : 1;      // the headline fades once the logo heads to the middle
+  if (ha > .01) {
+    push();
+    ht("Stop building", HX, BASE[0], 400, "#fff", ha);
+    ht("demos", HX, BASE[1], 400, "#fff", ha);
+    const x1 = HX + hw("demos ", 400), x2 = x1 + hw("and ", 400), x3 = HX + hw("prompting ", 600);
+    const words = [["and", 400, x1, BASE[1]], ["start", 600, x2, BASE[1]], ["prompting", 600, HX, BASE[2]], ["them.", 600, x3, BASE[2]]];
+    for (let i = 0; i < 4; i++) {
+      const w = words[i], p = pr(ti, T_WORDS + i * .3, .8);
+      if (out) { ht(w[0], w[2], w[3], w[1], "#fff", ha); continue; }
+      ht(w[0], w[2], w[3] + 30 * (1 - EOUT(p)), w[1], "#fff", EASE(p));
+    }
+    pop();
+  }
+  if (ti >= T_BACK + .6) {                                                     // CTA, line by line
+    const lines = [["Tell the right story", 400, BASE[0]], ["in your demos with", 400, BASE[1]], ["Reprise.", 600, BASE[2]]];
+    lines.forEach((l, i) => {
+      const p = pr(ti, T_BACK + .7 + i * .3, .8);
+      ht(l[0], HX, l[2] + 30 * (1 - EOUT(p)), l[1], "#fff", EASE(p));
+    });
+  }
+}
+
+const rayIn = () => EASE(pr(millis() / 1000, .2, 1.0));      // soft fade on the very first load only
+function drawRays(p, rgb, al) {
+  if (p <= 0) return;
+  const k = EOUT(p);
+  push(); translate(CX, CY);
+  drawingContext.lineCap = "butt"; strokeWeight(1.35);
+  const now = millis() / 1000;
+  for (let i = 0; i < NRAYS; i++) {
+    for (let b = 0; b < BANDS.length; b++) {
+      const a = i * TWO_PI / NRAYS + (b % 2 ? -1 : 1) * .022 * now;   // neighbouring bands drift opposite ways
+      const r0 = BANDS[b][0], r1 = BANDS[b][1];
+      const f = constrain(k * 1.8 - b * .22, 0, 1);
+      if (f <= 0) continue;
+      stroke(rgb[0], rgb[1], rgb[2], 255 * al * f);
+      const e = lerp(r0, r1, EOUT(f));
+      line(cos(a) * r0, sin(a) * r0, cos(a) * e, sin(a) * e);
+    }
+  }
+  pop();
+}
+
+/* ---- prompt box (style from the supplied code), centred in the rays ---- */
+const BS = 1.35, BOX_BOT = WIN.y - 26;      // box starts centred on the rays, then rises to sit just above the demo screen
+const boxH = () => 72;                                    // one line of text; the logo rides along with the typing cursor
+const boxTop = () => lerp(CY - 36 * BS, BOX_BOT - boxH() * BS, EIO(pr(ti, T_UP, .9)));
+function typedCount() {
+  const u = ti - TYPE0; if (u < 0) return 0; let n = 0;
+  for (let k = 1; k <= TOT; k++) if (RT[k] <= u) n = k; return n;
+}
+function lastRender() { return ti < TYPE0 ? T_BOX : TYPE0 + RT[max(1, typedCount())]; }
+function overlayAlpha() { return ti < T_BOX ? 0 : EASE(pr(ti, T_BOX, .8)) * (1 - EASE(pr(ti, T_BACK, .7))); }
+function sentAmt() { return 0; }
+function boxW() { return round(100 + max(tw(L1, 23), tw(L2, 23))); }   // left pad 30 + text + gap 16 + logo 36 + right pad 18
+
+function drawPrompt() {
+  const ea = overlayAlpha(); if (ea <= 0.002) return;
+  const ey = 20 * (1 - EOUT(pr(ti, T_BOX, .9)));
+  const cs = sentAmt(), w = boxW();
+
+  push(); drawingContext.globalAlpha = ea;
+  translate(CX - w * BS / 2, boxTop() + ey); scale(BS);
+  drawingContext.shadowColor = "rgba(15,15,66,.14)"; drawingContext.shadowBlur = 30 * PS; drawingContext.shadowOffsetY = 10 * PS;
+  fill("#fffdf8");
+  stroke("#a0a4ab"); strokeWeight(1.5);
+  const H = boxH();
+  rect(.75, .75, w - 1.5, H - 1.5, 9.25, 9.25, 0, 9.25);
+  drawingContext.shadowColor = "transparent";
+  const n = typedCount();
+  const a = L1.slice(0, min(n, N1)), b = n > N1 ? L2.slice(0, n - N1 - 1) : "";
+  const col = lerpColor(color(NAVY), color(CREAM), cs);
+  const x0 = 29.5, c1 = 36, c2 = 0;
+  tx(a, x0, c1, 23, col, SANS, -.23); tx(b, x0, c2, 23, col, SANS, -.23);
+  if (ti < T_UP && ti >= TYPE0 - .3 && ((ti - lastRender()) % 1) < .5) {
+    const lw = tw(a, 23, SANS, -.23);
+    noStroke(); fill(HL); rect(x0 + lw + 2, c1 - 15.6, 2, 30);
+  }
+  pop();
+}
+
+/* ---- Security overview UI. rv[0..4] = tile 1, tile 2, tile 3, chart, table (0 = empty skeleton, 1 = filled) ---- */
+const UIGRAY = "#8a8c99", KPI = [["ASSETS MONITORED", "8,920"], ["OPEN ALERTS", "27"], ["POLICY COVERAGE", "82%"]];
+const VOL = [.12, .13, .12, .15, .15, .17, .2, .26, .34, .45, .58, .72, .86, .98];
+const ROWS = [["HIGH", "Public storage bucket in card-\u2026", "pay-store-01", "Open"], ["HIGH", "Excess IAM privileges on treas\u2026", "treasury-prod", "Open"], ["MED", "Cardholder data outside appro\u2026", "eu-payments-02", "Open"]];
+function ut(str, x, y, size, wt, col, sp, al, a) {
+  const c = drawingContext; c.save(); if (a !== undefined) c.globalAlpha *= a;
+  c.font = wt + " " + size + "px " + HEAD; c.letterSpacing = (sp || 0) + "px"; c.textAlign = al || "left"; c.textBaseline = "middle";
+  c.fillStyle = col; c.fillText(str, x, y); c.restore();
+}
+function dbox(x, y, w, h, a) {
+  if (a <= 0.01) return; const c = drawingContext; c.save(); c.setLineDash([5, 4]);
+  c.strokeStyle = "rgba(47,95,160," + (.75 * a) + ")"; c.lineWidth = 1.3; c.beginPath(); c.roundRect(x, y, w, h, 10); c.stroke(); c.restore();
+}
+const HLC = "#d4e4f7";                                    // fill colour the content takes under the logo
+function drawSecUI(rv) {
+  const c = drawingContext, HL = rv.hl || [0, 0, 0, 0, 0, 0, 0];
+  noStroke(); fill("#f7f3e8"); rect(0, 0, 900, 565);
+  fill(255); rect(0, 0, 157, 565); fill("#e9e4d6"); rect(157, 0, 1, 565);
+  noFill(); stroke("#c9c6bc"); strokeWeight(1.5); rect(27, 25, 28, 28, 7);
+  noStroke(); fill("#8b90a8"); rect(37, 35, 8, 8, 1.5);
+  fill("#f7f3e8"); stroke("#e6e0cf"); strokeWeight(1.2); rect(17, 70, 125, 38, 8); noStroke();
+  ut("Overview", 30, 89.5, 15.5, 400, NAVY, -.1);
+  [["Alerts", 129], ["Assets", 169], ["Policies", 208]].forEach(n => ut(n[0], 30, n[1], 15.5, 400, UIGRAY, -.1));
+  ut("Security overview", 186, 35, 22, 500, NAVY, -.3);
+  ut("Last 30 days", 871, 35, 15, 400, UIGRAY, 0, "right");   // right edge of the cards
+  fill("#e9e4d6"); rect(158, 68, 742, 1);
+
+  // KPI tiles
+  dbox(179, 86, 701, 111, rv[0]);
+  [188, 420, 654].forEach((x, i) => {
+    fill(lerpColor(color(255), color(HLC), HL[i])); stroke("#e6e0cf"); strokeWeight(1.2); rect(x, 95, 217, 95, 8); noStroke();
+    ut(KPI[i][0], x + 20, 118, 13, 400, UIGRAY, 1.2);
+    fill(ca("#ece6d6", 1 - rv[i])); rect(x + 20, 138, 90, 36, 7);
+    ut(KPI[i][1], x + 20, 156 + 8 * (1 - rv[i]), 36, 500, NAVY, -.6, "left", rv[i]);
+  });
+
+  // chart
+  dbox(181, 203, 698, 179, rv[3]);
+  fill(lerpColor(color(255), color(HLC), HL[3])); stroke("#e6e0cf"); strokeWeight(1.2); rect(189, 211, 682, 163, 8); noStroke();
+  ut("ALERT VOLUME", 207, 232, 13, 400, UIGRAY, 1.2);
+  fill("#efe9db"); rect(207, 254, 645, 1); rect(207, 308, 645, 1);
+  fill("#dedbd2"); rect(207, 362, 645, 1);
+  const px = i => 207 + i * 645 / 13, py = i => 362 - VOL[i] * 98;
+  const n = 13, k = 13;
+  if (rv[3] > 0) {
+    c.save(); c.globalAlpha *= rv[3]; c.beginPath(); c.moveTo(px(0), 362); c.lineTo(px(0), py(0));
+    for (let i = 1; i <= k && i <= 13; i++) c.lineTo(px(i), py(i));
+    let ex = px(k), ey = py(k);
+    if (k < 13) { const f = n - k; ex = lerp(px(k), px(k + 1), f); ey = lerp(py(k), py(k + 1), f); c.lineTo(ex, ey); }
+    c.lineTo(ex, 362); c.closePath(); c.fillStyle = "rgba(42,98,173,.09)"; c.fill();
+    c.beginPath(); c.moveTo(px(0), py(0));
+    for (let i = 1; i <= k && i <= 13; i++) c.lineTo(px(i), py(i));
+    if (k < 13) c.lineTo(ex, ey);
+    c.strokeStyle = "#2a62ad"; c.lineWidth = 2.2; c.lineJoin = "round"; c.stroke();
+    for (let i = 0; i <= min(k, 13); i++) {                  // data points appear, then settle
+      const fade = i === 13 ? rv[3] : 0;
+      if (fade <= 0.01) continue;
+      c.beginPath(); c.arc(px(i), py(i), i === 13 ? 5.5 : 3, 0, TWO_PI); c.fillStyle = "#fff"; c.fill();
+      c.strokeStyle = "#2a62ad"; c.lineWidth = 2; c.stroke();
+    }
+    c.restore();
+  }
+
+  // findings table
+  dbox(181, 393, 698, 150, rv[4]);
+  fill(lerpColor(color(255), color(HLC), HL[4])); stroke("#e6e0cf"); strokeWeight(1.2); rect(189, 401, 682, 134, 8); noStroke();
+  [["SEVERITY", 207], ["ALERT", 315], ["ASSET", 590], ["STATUS", 757]].forEach(h => ut(h[0], h[1], 416, 12.5, 400, UIGRAY, 1.1));
+  fill("#efe9db"); rect(207, 433, 645, 1); rect(207, 470, 645, 1); rect(207, 504, 645, 1);
+  [453, 487, 521].forEach((y, r) => {
+    const rr = rv[4 + r], d = ROWS[r];
+    fill(ca("#ece6d6", 1 - rr));
+    rect(207, y - 4.5, 34, 9, 4.5); rect(315, y - 4.5, 190, 9, 4.5); rect(590, y - 4.5, 90, 9, 4.5); rect(757, y - 4.5, 40, 9, 4.5);
+    ut(d[0], 207, y, 12, 600, r < 2 ? NAVY : "#5a5f78", 1, "left", rr);
+    ut(d[1], 315, y, 15.5, 400, NAVY, -.1, "left", rr);
+    ut(d[2], 590, y, 14.5, 400, UIGRAY, -.1, "left", rr);
+    ut(d[3], 757, y, 14.5, 400, UIGRAY, -.1, "left", rr);
+  });
+}
+</script>
+</body>
+</html>

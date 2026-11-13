@@ -376,9 +376,12 @@
         ]
       },
       {
-        "alt": "Build better demos with AI",
-        "src": "build-better-demos-with-ai-13.webp",
-        "type": "image"
+        "src": "reprise-prompt-demos-sketch.html",
+        "title": "Reprise: stop building demos",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "1920 / 1112",
+        "bg": "#0f0f42"
       },
       {
         "alt": "Build better demos with AI",
