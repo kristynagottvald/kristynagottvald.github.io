@@ -485,7 +485,9 @@
   // don't fight over bandwidth while the first one is trying to start. Clicking a dot loads its slide at once.
   const loadFrame = (f) => { if (f.dataset.src) { f.src = f.dataset.src; f.removeAttribute('data-src'); } };
   let restQueued = false;
-  const loadRest = () => { if (restQueued) return; restQueued = true; frames.forEach((f, k) => setTimeout(() => loadFrame(f), k * 500)); };
+  // They start only after the first sketch's opening pop-in has finished (about 3s), then one at a time, so loading
+  // never competes with the animation that is playing; slide 2 is still ready well before its turn at 10s.
+  const loadRest = () => { if (restQueued) return; restQueued = true; frames.forEach((f, k) => { if (k) setTimeout(() => loadFrame(f), 3000 + (k - 1) * 1500); }); };
   window.addEventListener('message', (e) => { if (e.data === 'lob-ready') loadRest(); });
   setTimeout(loadRest, 5000);   // fallback in case the ready message never arrives
   function showSlide(i) {
