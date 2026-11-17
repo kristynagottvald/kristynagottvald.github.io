@@ -68,15 +68,17 @@ async function setup() {
   createCanvas(W, H);
   textFont(P5_FONT);
   textAlign(LEFT, BASELINE);
-  await addInter();
+  // fonts and images load at the same time (they used to run one after the other); in the hero slideshow the
+  // font only gets a short window so a slow font request can't hold the animation back
+  const fontsDone = HERO ? Promise.race([addInter(), new Promise((r) => setTimeout(r, 1200))]) : addInter();
+  const assets = Promise.all([Promise.all(MAIL_FILES.map(loadOne)), loadOne('ui-audience.webp'), loadOne('ui-creative.webp'), loadOne('ui-review.webp'), loadOne('logo.png')]);
+  await Promise.all([fontsDone, assets]);
   if (document.fonts && document.fonts.check('400 32px Inter')) P5_FONT = 'Inter';
-  IMGS = await Promise.all(MAIL_FILES.map(loadOne));
-  UI = await loadOne('ui-audience.webp');
-  UI2 = await loadOne('ui-creative.webp');
-  UI3 = await loadOne('ui-review.webp');
-  LOGO = await loadOne('logo.png');
+  [IMGS, UI, UI2, UI3, LOGO] = await assets;
   startMs = millis();
   ready = true;
+  // tell the home page the hero sketch is running, so it can start loading the other slides
+  try { parent.postMessage('lob-ready', '*'); } catch (e) {}
 }
 
 function ease(x) {

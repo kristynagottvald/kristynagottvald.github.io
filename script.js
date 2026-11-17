@@ -481,8 +481,16 @@
   const frames = [...document.querySelectorAll('.reel-frame')];
   const dots = [...document.querySelectorAll('.reel-dots .dot')];
   let slide = 0, slideTimer = null;
+  // Only the first sketch loads at page load; the others (data-src) wait until it is running, so six iframes
+  // don't fight over bandwidth while the first one is trying to start. Clicking a dot loads its slide at once.
+  const loadFrame = (f) => { if (f.dataset.src) { f.src = f.dataset.src; f.removeAttribute('data-src'); } };
+  let restQueued = false;
+  const loadRest = () => { if (restQueued) return; restQueued = true; frames.forEach((f, k) => setTimeout(() => loadFrame(f), k * 500)); };
+  window.addEventListener('message', (e) => { if (e.data === 'lob-ready') loadRest(); });
+  setTimeout(loadRest, 5000);   // fallback in case the ready message never arrives
   function showSlide(i) {
     slide = (i + frames.length) % frames.length;
+    loadFrame(frames[slide]);
     frames.forEach((f, k) => f.classList.toggle('is-on', k === slide));
     $('#hint-title').textContent = frames[slide].dataset.label || '';
     // Non-interactive slides show only the title: no dash, no "Interactive" text, no pointer.

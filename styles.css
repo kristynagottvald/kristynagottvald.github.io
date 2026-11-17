@@ -111,7 +111,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @keyframes ptr-click { 0%, 50%, 100% { transform: translate(0,0) scale(1); } 58% { transform: translate(1.8px,1.8px) scale(.5); } 68% { transform: translate(-.8px,-.8px) scale(1.2); } 80% { transform: translate(0,0) scale(1); } }
 @keyframes ripple { 0%, 56% { opacity: 0; transform: scale(.3); } 60% { opacity: 1; transform: scale(.6); } 86%, 100% { opacity: 0; transform: scale(3.4); } }
 .reel-intro { display: flex; align-items: center; padding: 0 var(--pad) 0 var(--left); }
-.reel-intro p { max-width: 22em; font: 300 26px/1.2 var(--cond); }
+.reel-intro p { max-width: 22em; font: 300 26px/1.2 var(--cond); text-wrap: pretty; }
 @media (min-width: 640px) { .reel-intro p { font-size: 38px; line-height: 1.1; letter-spacing: -1px; } }
 @media (max-width: 639px) { .reel-intro { padding-top: 20px; padding-bottom: 16px; } .reel-intro p { font-size: 22px; } }   /* phones: breathing room under the hero, and the copy no longer fills the whole text band */
 .reel-intro .grey { color: var(--grey); }
