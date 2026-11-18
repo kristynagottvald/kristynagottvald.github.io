@@ -344,7 +344,7 @@
         "src": "reprise-demo-types-sketch.html",
         "title": "Reprise demo types",
         "type": "sketch",
-        "noHint": true,
+        "noHint": false,
         "aspect": "1400 / 764",
         "bg": "#0f0f42"
       },
