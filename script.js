@@ -416,7 +416,7 @@
       }
     });
     currentView = name;
-    lightUp($('#hb-label'), { home: 'Home', case: 'Selected work', projects: 'Selected work', about: 'About' }[name]);
+    lightUp($('#hb-label'), { home: 'Home', case: 'Selected Work', projects: 'Selected Work', about: 'About' }[name]);
     $('#hb').classList.remove('open');
     requestAnimationFrame(updateWork);
   }
@@ -433,7 +433,7 @@
     if (hash === 'projects') {
       const back = currentView === 'case';
       show('projects');
-      document.title = `Selected work • ${SITE}`;
+      document.title = `Selected Work • ${SITE}`;
       window.scrollTo(0, back ? projectsScroll : 0);
     } else if (hash === 'about') {
       show('about');
