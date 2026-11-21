@@ -22,9 +22,8 @@ document.documentElement.style.background = document.body.style.background = `rg
 const TL = {
   s1In: [0.4, 1.7], s1Fade: [3.6, 4.6],
   s2In1: [4.9, 5.9], s2In2: [6.1, 7.1], 
-  dotsIn: [9.2, 9.6], textDim: [9.2, 9.8], textOut: [9.8, 10.6],
+  logoIn: [10.2, 11.4], textDim: [9.2, 9.8], textOut: [9.8, 10.6],
   terrainOut: [9.4, 10.8],
-  travel: 9.6, travelDur: 1.8, travelSpread: 0.8,
   fadeOut: [15.5, 16.4], terrainIn: [16.2, 17.0],
   loop: 17.0
 };
@@ -353,7 +352,7 @@ const FONT_FAMILY = '"Instrument Sans", "Helvetica Neue", Arial, sans-serif';
 
 const S1 = { text: 'Stop losing revenue.' };
 const S2 = { lines: ['Plan your e-commerce migration', 'before your next peak season.'] };
-let L1 = null, L2 = null, sources = [], targets = [], logoR = 4;
+let L1 = null, L2 = null, targets = [], logoR = 4;
 
 function sizeFx() {
   W = width; H = height;
@@ -389,69 +388,10 @@ function layoutScenes() {
   buildDots();
 }
 
-/* Dots: the tittles of the i's and the full stop in scene 2 are the seeds;
-   they burst into the 93 dots of the CLEARCO dot-matrix. */
+/* Logo: the 93 dots of the CLEARCO dot-matrix fade in once the sub-headline has gone. */
 function buildDots() {
-  const off = document.createElement('canvas');
-  off.width = W; off.height = H;
-  const o = off.getContext('2d');
-  o.fillStyle = '#fff';
-  o.textBaseline = 'alphabetic';
-  setFont(o, L2.size);
-  S2.lines.forEach((t, i) => o.fillText(t, L2.x, L2.y1 + i * L2.lh));
-  const data = o.getImageData(0, 0, W, H).data;
-  const on = (x, y) => x >= 0 && y >= 0 && x < W && y < H && data[(y * W + x) * 4 + 3] > 128;
-
-  // Find the dot of every i and the full stop: isolated, roughly round, tiny blobs in the text mask.
-  // (Scanning the mask is exact, so kerning and letter-spacing can't shift the seeds.)
-  const seeds = [];
-  const bandTop = Math.max(0, Math.floor(L2.y1 - L2.size * 1.1));
-  const bandBot = Math.min(H - 1, Math.ceil(L2.y1 + L2.lh + L2.size * 0.4));
-  const seen = new Uint8Array(W * H);
-  for (let y = bandTop; y <= bandBot; y++) {
-    for (let x = 0; x < W; x++) {
-      if (seen[y * W + x] || !on(x, y)) continue;
-      // flood fill one blob
-      const stack = [x, y];
-      seen[y * W + x] = 1;
-      let n = 0, sx = 0, sy = 0, x0 = x, x1 = x, y0 = y, y1 = y;
-      while (stack.length) {
-        const py = stack.pop(), px = stack.pop();
-        n++; sx += px; sy += py;
-        if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py;
-        for (let dy = -1; dy <= 1; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            const nx = px + dx, ny = py + dy;
-            if (nx < 0 || ny < bandTop || nx >= W || ny > bandBot || seen[ny * W + nx] || !on(nx, ny)) continue;
-            seen[ny * W + nx] = 1;
-            stack.push(nx, ny);
-          }
-        }
-      }
-      const bw = x1 - x0 + 1, bh = y1 - y0 + 1, aspect = bw / bh;
-      if (n < L2.size * L2.size * 0.03 && bh < L2.size * 0.2 && aspect > 0.65 && aspect < 1.5) {
-        seeds.push({ x: sx / n, y: sy / n, r: Math.sqrt(n / Math.PI) });
-      }
-    }
-  }
-  if (!seeds.length) seeds.push({ x: W / 2, y: H / 2, r: Math.max(2, L2.size * 0.05) });
-  seeds.sort((a, b) => a.x - b.x);
-
   targets = logoTargets();
   logoR = Math.max(2, LOGO_DOT_R * targets.scale);
-
-  // Each seed supplies a contiguous slice of the logo, left to right
-  const order = targets.slice().sort((a, b) => a.x - b.x);
-  sources = order.map((t, i) => {
-    const sd = seeds[Math.min(seeds.length - 1, Math.floor(i * seeds.length / order.length))];
-    return {
-      sx: sd.x, sy: sd.y, sr: sd.r, tx: t.x, ty: t.y,
-      baseA: Math.random() < 0.3 ? 1 : 0.45,
-      delay: Math.random() * TL.travelSpread,
-      swx: (Math.random() - 0.5) * 60,
-      swy: (Math.random() - 0.5) * 60
-    };
-  });
 }
 
 // Dot centres traced from the Clearco logo artwork (pixels, relative to the logo's centre).
@@ -521,32 +461,19 @@ function drawFx(T) {
     drawHaloText(S2.lines[1], L2.x + 70 * (1 - p2), L2.y1 + L2.lh, L2.size, 'left', p2 * factor, '#fff');
   }
 
-  // Scene 3: the dots of the i's and the period brighten, then burst out into the logo
-  if (T >= TL.dotsIn[0]) {
-    const fade = 1 - prog(T, TL.fadeOut);
-    const ap = easeOutCubic(prog(T, [TL.dotsIn[0], TL.dotsIn[0] + 0.4]));
-    fctx.fillStyle = '#fff';
-    for (const d of sources) {
-      let x, y, r, a;
-      if (T < TL.travel + d.delay) {
-        x = d.sx; y = d.sy; r = d.sr; a = ap;
-      } else {
-        const p = clamp01((T - TL.travel - d.delay) / TL.travelDur);
-        const e = easeInOutCubic(p);
-        const s = Math.sin(Math.PI * e);
-        x = mixv(d.sx, d.tx, e) + s * d.swx;
-        y = mixv(d.sy, d.ty, e) + s * d.swy;
-        r = mixv(d.sr, logoR, p * p * (3 - 2 * p)); // size eases from the i/full-stop dot to the logo dot across the whole flight
-        a = mixv(1, d.baseA, s); // dimmer in flight, solid at both ends
-      }
-      a *= fade;
-      if (a <= 0.01 || r <= 0.05) continue;
+  // Scene 3: the logo fades in, holds, then fades out
+  if (T >= TL.logoIn[0]) {
+    const a = easeInOutCubic(prog(T, TL.logoIn)) * (1 - prog(T, TL.fadeOut));
+    if (a > 0.01) {
+      fctx.fillStyle = '#fff';
       fctx.globalAlpha = a;
-      fctx.beginPath();
-      fctx.arc(x, y, r, 0, Math.PI * 2);
-      fctx.fill();
+      for (const d of targets) {
+        fctx.beginPath();
+        fctx.arc(d.x, d.y, logoR, 0, Math.PI * 2);
+        fctx.fill();
+      }
+      fctx.globalAlpha = 1;
     }
-    fctx.globalAlpha = 1;
   }
 }
 </script>

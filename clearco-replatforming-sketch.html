@@ -95,6 +95,7 @@ function layout() {
   // Snap every frame rectangle outward onto the dot grid, so the crosshairs rest exactly on grid dots
   const fl = (v, o) => o + Math.floor((v - o) / G + 1e-6) * G, ce = (v, o) => o + Math.ceil((v - o) / G - 1e-6) * G;
   rects = rects.map(r => ({ l: fl(r.l, gx0), r: ce(r.r, gx0), t: fl(r.t, gy0), b: ce(r.b, gy0) }));
+  for (const r of [rects[0], rects[1]]) { r.l -= 2 * G; r.r += 2 * G; }   // scenes 1 and 2: guide lines and crosshairs sit two dot columns further out
   rects[2].t = rects[1].t; rects[2].b = rects[1].b;      // the logo scene keeps the sub-headline's height: width is the only thing that changes
 }
 
