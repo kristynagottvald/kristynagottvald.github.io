@@ -716,7 +716,7 @@
         "src": "clearco-replatforming-sketch.html",
         "title": "Clearco replatforming motif",
         "type": "sketch",
-        "noHint": false
+        "noHint": true
       },
       {
         "id": "1207058184",
