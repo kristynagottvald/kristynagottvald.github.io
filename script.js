@@ -524,7 +524,7 @@
   document.addEventListener('click', (e) => { if (!navEl.contains(e.target)) setMenu(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   window.addEventListener('hashchange', () => setMenu(false));
-  navEl.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', () => {
+  navEl.querySelectorAll('.nav-links a, .nav-status').forEach((a) => a.addEventListener('click', () => {
     setMenu(false);
     if (a.getAttribute('href') === location.hash) scrollToId(location.hash.slice(1));   // already on that hash: no hashchange fires, so scroll by hand
   }));
