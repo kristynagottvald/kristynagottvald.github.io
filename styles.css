@@ -172,7 +172,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .text-left h3 { font: 300 clamp(26px, 2.8vw, 40px)/1.1 var(--cond); letter-spacing: -0.03em; max-width: none; padding-right: 32px; text-wrap: balance; }
 .text-right { display: grid; gap: 16px; align-content: start; max-width: none; color: var(--grey); font-size: 17px; line-height: 24px; }
 .text-right p:first-child { color: var(--ink); }
-.text-right p.credit { color: var(--grey); padding-top: 4px; }
+.text-right p.credit { color: var(--grey); padding-top: 4px; font: inherit; letter-spacing: normal; text-transform: none; }   /* credits read like the body text, in grey */
 .role-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
 .role-label { color: var(--grey); }
 .role-list li { font-size: 19px; line-height: 25px; }
@@ -351,8 +351,9 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .ci-detail { display: grid; gap: 4px; }
 .ci-label, .ci-value { font: 400 12px/1.4 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--grey); }
 .ci-detail .ci-label { color: var(--ink); }
+.ci-value { max-width: 430px; }   /* roles wrap here */
 .ci-overview { grid-column: 2; grid-row: 2; align-self: start; margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--line); display: grid; gap: 12px; align-content: start; padding-right: calc(var(--indent) * 3); }
-.ci-overview p { font-size: 15px; line-height: 20px; color: var(--grey); }
+.ci-overview p { font-size: 17px; line-height: 24px; color: var(--grey); }
 .ci-overview .ci-label { margin-bottom: 12px; }
 @media (max-width: 700px) {
   .case-intro { grid-template-columns: 1fr; padding-bottom: 0; }
@@ -372,3 +373,10 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 
 /* Vimeo frames: scale up a hair so the video's one-pixel edge line is cropped off by the rounded container */
 .embed iframe[src*="vimeo.com"], .pv-vimeo { transform: scale(1.008); transform-origin: center; }
+
+/* Project images: scale up a hair inside a rounded, clipped frame so any one-pixel light line baked into the file's edge is cropped off */
+.block-media { overflow: hidden; border-radius: var(--r-md); }
+.block-media > img, .block-media > video { transform: scale(1.006); transform-origin: center; }
+.block-media .figcap { position: relative; }
+/* Sketch frames: grow the viewport by a pixel on each side (no scaling, so nothing blurs) so the clipped container hides any edge line */
+.embed.sketch iframe { inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); max-width: none; }
