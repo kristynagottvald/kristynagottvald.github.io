@@ -51,6 +51,19 @@ h1 span{color:#3F7DC6}
 @media (prefers-reduced-motion:reduce){.btn{transition:background-color .2s ease,color .2s ease}.btn:active{transform:none}}
 .ill{position:absolute;left:calc((902 - 191)*var(--u));top:calc((464.6 - 339)*var(--u));width:calc(838*var(--u));height:auto;display:block;cursor:pointer;aspect-ratio:308/229}
 .rp{fill:none}
+/* home page slideshow on phones (?hero=1, under 900px wide): the card is portrait, with the text on top and the illustration stacked below;
+   the card is laid out in 700 units across (--u = 1/700 of the width) and --hu is the frame's height in those units */
+.stack .stage{width:100vw;height:100vh;height:100dvh;aspect-ratio:auto}
+.stack .canvas{--u:calc(100cqw / 700);transform:none}
+.stack .card{left:calc(20*var(--u));top:calc(20*var(--u));width:calc(660*var(--u));height:calc((var(--hu) - 40)*var(--u))}
+.stack .a{left:calc(var(--x)*var(--u));top:calc(var(--y)*var(--u))}
+.stack .logo svg{width:calc(140*var(--u));height:calc(43.6*var(--u))}
+.stack h1{font-size:calc(72*var(--u));line-height:calc(71*var(--u))}
+.stack .lede{font-size:calc(20*var(--u));line-height:calc(25*var(--u))}
+.stack .btn{height:calc(46*var(--u));font-size:calc(14.5*var(--u))}
+.stack .btn.go{width:calc(170*var(--u))}
+.stack .btn.try{width:calc(210*var(--u))}
+.stack .ill{left:calc(var(--ix)*var(--u));top:calc(var(--iy)*var(--u));width:calc(var(--iw)*var(--u))}
 svg text{font-family:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:500;font-size:4.8px}
 </style>
 </head>
@@ -351,6 +364,29 @@ function pause(){playing=false;btn()}
 function play(o){o=o||{};cur=o.from||0;speed=o.speed||1;loop=o.loop!==false;resume()}
 function seek(x){pause();cur=x;show()}
 window.__rb={play:play,seek:seek,pause:pause,T:T};
+
+/* phones in the slideshow: switch the card to the stacked layout (and back if the frame is resized) */
+(function(){
+  if(!HERO)return;
+  var items=[['.logo',40,36],['h1.a',40,112],['.lede',40,345],['.btn.go',40,440],['.btn.try',224,440]].map(function(i){var el=document.querySelector(i[0]);return {el:el,x:i[1],y:i[2],ox:el.style.getPropertyValue('--x'),oy:el.style.getPropertyValue('--y')}});
+  var cv=document.querySelector('.canvas');
+  function layout(){
+    var on=innerWidth<900, root=document.documentElement;
+    root.classList.toggle('stack',on);
+    items.forEach(function(i){
+      if(on){i.el.style.setProperty('--x',i.x);i.el.style.setProperty('--y',i.y)}
+      else{i.el.style.setProperty('--x',i.ox);i.el.style.setProperty('--y',i.oy)}
+    });
+    if(!on)return;
+    var hu=innerHeight/innerWidth*700, ch=hu-40;
+    var iw=Math.min(640,Math.max(300,(ch-505)*308/229)), ih=iw*229/308;
+    cv.style.setProperty('--hu',hu.toFixed(2));
+    cv.style.setProperty('--iw',iw.toFixed(1));
+    cv.style.setProperty('--ix',((660-iw)/2).toFixed(1));
+    cv.style.setProperty('--iy',(ch-ih+4).toFixed(1));
+  }
+  layout();addEventListener('resize',layout);
+})();
 
 /* hero scale: 1.2 x 1.3 x 0.85 x 1.05 = 1.3923, but never wider than the page (16px gutter) */
 (function(){var st=document.querySelector('.stage'),cv=document.querySelector('.canvas');
