@@ -28,6 +28,8 @@ nav.back input[type=range]{width:240px;min-width:60px;accent-color:#79BFF4;curso
 main{flex:1;overflow:hidden;min-height:0;display:flex;align-items:center;justify-content:center;background:#3A7ED4}
 /* the stage keeps the reference's 2000 x 1417 proportions; every size below is in reference pixels (var(--u) = one of them) */
 .stage{container-type:inline-size;width:100vw;aspect-ratio:2000/1417;position:relative}
+/* home page slideshow (?hero=1): the stage is fitted to the frame's height, so a wide frame shows the whole card with blue either side */
+.hero .stage{width:min(100vw,calc(100vh * 2000 / 1417));width:min(100vw,calc(100dvh * 2000 / 1417))}
 .clip main{overflow:hidden}
 .canvas{--u:calc(100cqw / 2000);position:absolute;inset:0;transform:scale(var(--k,1));transform-origin:50% 50.2%}
 .card{position:absolute;left:calc(191*var(--u));top:calc(339*var(--u));width:calc(1616*var(--u));height:calc(746*var(--u));border-radius:calc(16*var(--u));background:#fff;overflow:hidden}
@@ -49,6 +51,19 @@ h1 span{color:#3F7DC6}
 @media (prefers-reduced-motion:reduce){.btn{transition:background-color .2s ease,color .2s ease}.btn:active{transform:none}}
 .ill{position:absolute;left:calc((902 - 191)*var(--u));top:calc((464.6 - 339)*var(--u));width:calc(838*var(--u));height:auto;display:block;cursor:pointer;aspect-ratio:308/229}
 .rp{fill:none}
+/* home page slideshow on phones (?hero=1, under 900px wide): the card is portrait, with the text on top and the illustration stacked below;
+   the card is laid out in 700 units across (--u = 1/700 of the width) and --hu is the frame's height in those units */
+.stack .stage{width:100vw;height:100vh;height:100dvh;aspect-ratio:auto}
+.stack .canvas{--u:calc(100cqw / 700);transform:none}
+.stack .card{left:calc(20*var(--u));top:calc(20*var(--u));width:calc(660*var(--u));height:calc((var(--hu) - 40)*var(--u))}
+.stack .a{left:calc(var(--x)*var(--u));top:calc(var(--y)*var(--u))}
+.stack .logo svg{width:calc(140*var(--u));height:calc(43.6*var(--u))}
+.stack h1{font-size:calc(72*var(--u));line-height:calc(71*var(--u))}
+.stack .lede{font-size:calc(20*var(--u));line-height:calc(25*var(--u))}
+.stack .btn{height:calc(46*var(--u));font-size:calc(14.5*var(--u))}
+.stack .btn.go{width:calc(170*var(--u))}
+.stack .btn.try{width:calc(210*var(--u))}
+.stack .ill{left:calc(var(--ix)*var(--u));top:calc(var(--iy)*var(--u));width:calc(var(--iw)*var(--u))}
 svg text{font-family:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:500;font-size:4.8px}
 </style>
 </head>
@@ -273,6 +288,8 @@ var eob=function(x){var c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.p
 var T=8.85, R0=.25, R1=.75;                      /* cycle length, reset starts / ends (s) */
 var qs=location.hash+location.search, CLIP=/clip/.test(qs);
 if(CLIP)document.documentElement.classList.add('clip');
+var HERO=/hero=1/.test(qs);
+if(HERO)document.documentElement.classList.add('hero');
 var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* flying notes: id, final rect [x,y,w,h], where it leaves the search card from, order of landing */
@@ -348,12 +365,39 @@ function play(o){o=o||{};cur=o.from||0;speed=o.speed||1;loop=o.loop!==false;resu
 function seek(x){pause();cur=x;show()}
 window.__rb={play:play,seek:seek,pause:pause,T:T};
 
+/* phones in the slideshow: switch the card to the stacked layout (and back if the frame is resized) */
+(function(){
+  if(!HERO)return;
+  var items=[['.logo',40,36],['h1.a',40,112],['.lede',40,345],['.btn.go',40,440],['.btn.try',224,440]].map(function(i){var el=document.querySelector(i[0]);return {el:el,x:i[1],y:i[2],ox:el.style.getPropertyValue('--x'),oy:el.style.getPropertyValue('--y')}});
+  var cv=document.querySelector('.canvas');
+  function layout(){
+    var on=innerWidth<900, root=document.documentElement;
+    root.classList.toggle('stack',on);
+    items.forEach(function(i){
+      if(on){i.el.style.setProperty('--x',i.x);i.el.style.setProperty('--y',i.y)}
+      else{i.el.style.setProperty('--x',i.ox);i.el.style.setProperty('--y',i.oy)}
+    });
+    if(!on)return;
+    var hu=innerHeight/innerWidth*700, ch=hu-40;
+    var iw=Math.min(640,Math.max(300,(ch-505)*308/229)), ih=iw*229/308;
+    cv.style.setProperty('--hu',hu.toFixed(2));
+    cv.style.setProperty('--iw',iw.toFixed(1));
+    cv.style.setProperty('--ix',((660-iw)/2).toFixed(1));
+    cv.style.setProperty('--iy',(ch-ih+4).toFixed(1));
+  }
+  layout();addEventListener('resize',layout);
+})();
+
 /* hero scale: 1.2 x 1.3 x 0.85 x 1.05 = 1.3923, but never wider than the page (16px gutter) */
 (function(){var st=document.querySelector('.stage'),cv=document.querySelector('.canvas');
-function fit(){var w=st.clientWidth,k=Math.min(1,(innerWidth-32)/(w*1616/2000));cv.style.setProperty('--k',Math.max(k,.5).toFixed(4))}
+function fit(){var w=st.clientWidth,k=Math.min(HERO?1.3:1,(innerWidth-32)/(w*1616/2000));cv.style.setProperty('--k',Math.max(k,.5).toFixed(4))}
 fit();addEventListener('resize',fit)})();
 show();
-if(!reduce){play({from:0,loop:true});
+if(HERO){
+  /* slideshow: plays once from the start each time the slide comes in, then holds the finished frame (the slide is about one cycle long) */
+  addEventListener('message',function(e){if(e.data==='reset')play({from:0,loop:false})});
+  if(!reduce)play({from:0,loop:false});
+}else if(!reduce){play({from:0,loop:true});
 new IntersectionObserver(function(e){e[0].isIntersecting?resume():pause()}).observe(document.body)}
 })();
 
