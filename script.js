@@ -57,6 +57,7 @@
 
   // Card caption: client on the first line, project name on the second.
   const cardLines = (p) => {
+    if (p.cardTitle) return [p.cardTitle, p.cardSub || ''];   // hand-written caption from projects.json
     const client = String(p.clientName || '').trim();
     if (!client) return [p.title, subtitle(p)];
     const name = [p.listTitle, p.pageTitle, p.title].find((t) => t && t.trim() && t.trim().toLowerCase() !== client.toLowerCase());
