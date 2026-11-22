@@ -98,6 +98,33 @@
     return items;
   }
   const pv = { card: null, timer: null, start: null, idx: 0 };
+  // Videos are not loaded with the page: a card's preview videos start loading (hidden) when the card scrolls near the viewport,
+  // and are dropped again when it scrolls away, so a video is ready by the time it is hovered without every video loading up front.
+  const pvPre = new Map();   // card -> Map(item index -> hidden layer)
+  let pvZ = 1, pvObserver = null;
+  function pvPreload(card) {
+    if (pvPre.has(card)) return;
+    const p = projects.find((x) => x.id === card.dataset.pid);
+    const media = card.querySelector('.card-media');
+    if (!p || !media) return;
+    const m = new Map();
+    previewItems(p).forEach((it, i) => {
+      if (it.t !== 'vimeo' || m.size >= 2) return;   // the first two videos per card: enough to be ready, light on bandwidth
+      const el = pvLayer(it);
+      el.dataset.cached = '1';
+      el.firstChild.addEventListener('load', () => { el.dataset.ready = '1'; });
+      media.appendChild(el);
+      m.set(i, el);
+    });
+    pvPre.set(card, m);
+  }
+  function pvUnload(card) {
+    if (pv.card === card) return;
+    const m = pvPre.get(card);
+    if (!m) return;
+    m.forEach((el) => el.remove());
+    pvPre.delete(card);
+  }
   function pvLayer(it) {
     let el;
     if (it.t === 'img') { el = document.createElement('img'); el.alt = ''; el.src = it.src; }
@@ -116,14 +143,16 @@
   // Once a layer has faded in, drop only the layers underneath it (never one that was added after it).
   function pvClearBefore(el) {
     let o = el.previousElementSibling;
-    while (o) { const prev = o.previousElementSibling; if (o.classList.contains('pv-layer')) o.remove(); o = prev; }
+    while (o) { const prev = o.previousElementSibling; if (o.classList.contains('pv-layer')) { if (o.dataset.cached) o.classList.remove('is-on'); else o.remove(); } o = prev; }   // a preloaded video layer is only hidden, so it stays loaded
   }
   function pvStep(card, items) {
     if (pv.card !== card) return;
     const media = card.querySelector('.card-media');
-    const it = items[pv.idx % items.length];
+    const i = pv.idx % items.length, it = items[i];
     pv.idx++;
-    const el = pvLayer(it);
+    const pre = (pvPre.get(card) || new Map()).get(i);   // a video that was preloaded when the card scrolled into view
+    const el = pre || pvLayer(it);
+    if (pre) { delete el.dataset.shown; el.style.zIndex = ++pvZ; }
     const show = () => {
       if (pv.card !== card || el.dataset.shown) return;
       el.dataset.shown = '1';
@@ -133,7 +162,7 @@
       pv.timer = setTimeout(() => pvStep(card, items), it.dwell);
     };
     if (it.t === 'img') { el.onload = show; el.onerror = () => { pv.timer = setTimeout(() => pvStep(card, items), 0); }; }
-    else { media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => pvClearBefore(el), 700); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); }
+    else { if (!pre) media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => pvClearBefore(el), 700); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; if (pre && el.dataset.ready) setTimeout(go, 0); else { f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); } }
   }
   function pvStop() {
     clearTimeout(pv.timer); clearTimeout(pv.start);
@@ -141,11 +170,18 @@
     if (!card) return;
     const layers = card.querySelectorAll('.pv-layer');
     layers.forEach((l) => l.classList.remove('is-on'));
-    setTimeout(() => { if (pv.card !== card) layers.forEach((l) => l.remove()); }, 450);
+    setTimeout(() => { if (pv.card !== card) layers.forEach((l) => { if (!l.dataset.cached) l.remove(); }); }, 450);
   }
   function bindPreviews(root = cardsEl) {
     if (!matchMedia('(hover: hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (pvObserver) pvObserver.disconnect();
+    pvPre.forEach((m) => m.forEach((el) => el.remove()));
+    pvPre.clear();
+    if ('IntersectionObserver' in window) {
+      pvObserver = new IntersectionObserver((entries) => entries.forEach((e) => (e.isIntersecting ? pvPreload(e.target) : pvUnload(e.target))), { rootMargin: '120px 0px' });
+    }
     root.querySelectorAll('.card:not(.is-current)').forEach((card) => {
+      if (pvObserver) pvObserver.observe(card);
       card.addEventListener('mouseenter', () => {
         pvStop();
         const p = projects.find((x) => x.id === card.dataset.pid);
