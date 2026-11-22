@@ -186,8 +186,10 @@ function drawStack() {
   push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); VX = 0;
   drawRays(1, [52, 100, 188], .9);
   pop();
-  const tx0 = vx - VIS_W * vs / 2;                                   // the text lines up with the visual's left edge
+  CENTER_BW = stackBlockW();
+  const tx0 = vx - CENTER_BW * TS / 2;                                // the text block is centred on the frame, each line centred inside it
   push(); translate(tx0, oy + 80 * TS); scale(TS); translate(-HX, -BASE[0]); drawNavyText(); pop();
+  CENTER_BW = 0;
   push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); drawFG(); pop();
   pop();
 }
@@ -304,6 +306,12 @@ function drawNavy() {
   drawRays(1, [52, 100, 188], .9 * rayIn());
   drawNavyText();
 }
+let CENTER_BW = 0;   // phones: the width of the text block, with every line centred inside it (0 = left-aligned lines)
+const lineX = (w) => (CENTER_BW ? HX + (CENTER_BW - w) / 2 : HX);
+function stackBlockW() {
+  return max(hw("Stop building", 400), hw("demos ", 400) + hw("and ", 400) + hw("start", 600), hw("prompting ", 600) + hw("them.", 600),
+    hw("Tell the right story", 400), hw("in your demos with", 400), hw("Reprise.", 600));
+}
 function drawNavyText() {
   const out = ti >= T_BACK, ha = out ? 1 - EASE(pr(ti, T_BACK, .6)) : 1;      // the headline fades once the logo heads to the middle
   if (ha > .01) {
@@ -315,10 +323,12 @@ function drawNavyText() {
       const a = L.x, b = a + hw("and ", 400), c = b + hw("start ", 600), d = c + hw("prompting ", 600);
       words = [["and", 400, a, BASE2[1]], ["start", 600, b, BASE2[1]], ["prompting", 600, c, BASE2[1]], ["them.", 600, d, BASE2[1]]];
     } else {
-      ht("Stop building", HX, BASE[0], 400, "#fff", ha);
-      ht("demos", HX, BASE[1], 400, "#fff", ha);
-      const x1 = HX + hw("demos ", 400), x2 = x1 + hw("and ", 400), x3 = HX + hw("prompting ", 600);
-      words = [["and", 400, x1, BASE[1]], ["start", 600, x2, BASE[1]], ["prompting", 600, HX, BASE[2]], ["them.", 600, x3, BASE[2]]];
+      // phones centre each line within the block (CENTER_BW); otherwise the lines are left-aligned
+      const s1 = lineX(hw("Stop building", 400)), s2 = lineX(hw("demos ", 400) + hw("and ", 400) + hw("start", 600)), s3 = lineX(hw("prompting ", 600) + hw("them.", 600));
+      ht("Stop building", s1, BASE[0], 400, "#fff", ha);
+      ht("demos", s2, BASE[1], 400, "#fff", ha);
+      const x1 = s2 + hw("demos ", 400), x2 = x1 + hw("and ", 400), x3 = s3 + hw("prompting ", 600);
+      words = [["and", 400, x1, BASE[1]], ["start", 600, x2, BASE[1]], ["prompting", 600, s3, BASE[2]], ["them.", 600, x3, BASE[2]]];
     }
     for (let i = 0; i < 4; i++) {
       const w = words[i], p = pr(ti, T_WORDS + i * .3, .8);
@@ -338,7 +348,7 @@ function drawNavyText() {
       const lines = [["Tell the right story", 400, BASE[0]], ["in your demos with", 400, BASE[1]], ["Reprise.", 600, BASE[2]]];
       lines.forEach((l, i) => {
         const p = pr(ti, T_BACK + .7 + i * .3, .8);
-        ht(l[0], HX, l[2] + 30 * (1 - EOUT(p)), l[1], "#fff", EASE(p));
+        ht(l[0], lineX(hw(l[0], l[1])), l[2] + 30 * (1 - EOUT(p)), l[1], "#fff", EASE(p));
       });
     }
   }
