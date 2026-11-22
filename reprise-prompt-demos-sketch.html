@@ -141,6 +141,7 @@ function draw() {
   const tt = millis() / 1000 - START;
   if (HERO) ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);   // hold the last frame so the slideshow crossfades out
   else if (tt < 0) ti = 0; else if (tt < LOOP) ti = tt; else ti = OFF + ((tt - LOOP) % (LOOP - OFF));
+  if (HERO && width < 900) { drawStack(); return; }
   PS = min(width / SW_, height / SH_);
   VX = HERO && heroLayout().two ? VX_TWO : 0;
   background(HERO ? DEEP : 0);   // hero: the navy runs past the scene on wide frames
@@ -162,6 +163,27 @@ function draw() {
     }
   }
   if (!done) drawFG();
+  pop();
+}
+
+/* ============== hero, phones: the text on top, the visual stacked below ============== */
+const VIS_CX = CX, VIS_CY = 538, VIS_W = 774, VIS_H = 608;   // the screen + prompt block, in scene units
+function drawStack() {
+  const u = width / 1000, HU = height / u;                          // 1000 units across the frame
+  ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);
+  const TXT_H = 330, GAP = 60, PAD = 40;
+  const vs = min(1.18, (HU - 2 * PAD - TXT_H - GAP) / VIS_H);        // the visual shrinks to fit short frames
+  const oy = (HU - (TXT_H + GAP + VIS_H * vs)) / 2;                  // the stack is centred vertically
+  const vx = 500, vy = oy + TXT_H + GAP + VIS_H * vs / 2;
+  PS = u * vs;
+  background(DEEP);
+  push(); scale(u);
+  noStroke(); fill(DEEP); rect(0, 0, 1000, HU);
+  push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); VX = 0;
+  drawRays(1, [52, 100, 188], .9);
+  pop();
+  push(); translate(70 - HX, oy + 80 - BASE[0]); drawNavyText(); pop();
+  push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); drawFG(); pop();
   pop();
 }
 
@@ -275,7 +297,9 @@ function drawNavy() {
   drawingContext.drawImage(grain, 0, 0);
   if (HERO) { drawingContext.drawImage(grain, -SW_, 0); drawingContext.drawImage(grain, SW_, 0); }   // keep the grain going where the frame is wider than the scene
   drawRays(1, [52, 100, 188], .9 * rayIn());
-
+  drawNavyText();
+}
+function drawNavyText() {
   const out = ti >= T_BACK, ha = out ? 1 - EASE(pr(ti, T_BACK, .6)) : 1;      // the headline fades once the logo heads to the middle
   if (ha > .01) {
     push();
