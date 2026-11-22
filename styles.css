@@ -190,6 +190,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .embed.sketch { background: #1e1e1e; }
 .block-text { padding: 24px 0 36px; }
+.block-text:has(.text-row:not(.no-line)) { padding-top: 0; }   /* a text block that starts with a divider line sits close under the image above it (8px, the block gap) */
 .text-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; border-top: 1px solid var(--line); padding-top: 20px; }
 .text-row.no-line { border-top: 0; padding-top: 0; }
 .text-left h2 { font: 300 var(--fs-h2)/var(--lh-head) var(--cond); letter-spacing: var(--ls-head); max-width: none; padding-right: 32px; text-wrap: balance; }
