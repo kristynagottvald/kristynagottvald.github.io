@@ -365,7 +365,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 }
 
 /* ---------- Case study intro: title, details and overview under the hero ---------- */
-.case-intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: 16px; padding-top: 28px; padding-bottom: 120px; border-top: 1px solid var(--line); }
+.case-intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: 0; padding-top: 28px; padding-bottom: 120px; border-top: 1px solid var(--line); }
 .ci-title { grid-column: 1; font: 300 var(--fs-title)/var(--lh-head) var(--cond); letter-spacing: var(--ls-head); padding-left: var(--left); max-width: 14em; text-wrap: balance; }
 .ci-details { grid-column: 1; grid-row: 2; display: grid; gap: 28px; align-content: start; padding: 87px 0 0 var(--left); }   /* 87 = overview offset (72) + its line (1) + its padding (14), so Client and Overview labels share a line */
 .ci-detail { display: grid; gap: 4px; }
