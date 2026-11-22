@@ -417,6 +417,15 @@
     img.src = 'placeholder.svg';
   }, true);
 
+  // Mobile: "Selected Work" opens a stacked list of the pages.
+  const navEl = $('#nav'), jump = $('#nav-jump');
+  const setMenu = (open) => { navEl.classList.toggle('open', open); jump.setAttribute('aria-expanded', String(open)); };
+  jump.addEventListener('click', (e) => { e.stopPropagation(); setMenu(!navEl.classList.contains('open')); });
+  document.addEventListener('click', (e) => { if (!navEl.contains(e.target)) setMenu(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+  window.addEventListener('hashchange', () => setMenu(false));
+  navEl.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
   // Hero slideshow: each sketch shows for 4 seconds, then the next fades in.
   const frames = [...document.querySelectorAll('.reel-frame')];
   const dots = [...document.querySelectorAll('.reel-dots .dot')];

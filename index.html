@@ -20,12 +20,12 @@
   <!-- Top bar: logo + nav on the left, availability on the right. Sits above the hero and stays the same on every view. -->
   <header class="nav" id="nav">
     <a class="logo" href="#" aria-label="Kristyna Gottvald, home">Kristyna Gottvald</a>
-    <nav class="nav-links" aria-label="Main">
+    <nav class="nav-links" id="nav-links" aria-label="Main">
       <a href="#projects" data-nav="projects">Selected Work</a>
       <a href="#about" data-nav="about">About</a>
       <a href="#contact" data-nav="contact">Contact</a>
     </nav>
-    <a class="nav-jump" href="#work">Selected Work <svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 1v9.5M1.5 7L5 10.5 8.5 7" fill="none" stroke="currentColor"/></svg></a>
+    <button class="nav-jump" id="nav-jump" type="button" aria-expanded="false" aria-controls="nav-links">Selected Work <svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 1v9.5M1.5 7L5 10.5 8.5 7" fill="none" stroke="currentColor"/></svg></button>
     <p class="nav-status"><i class="dot-live" aria-hidden="true"></i><span class="long">Currently taking on new projects</span><span class="short">Open to new projects</span></p>
   </header>
 
