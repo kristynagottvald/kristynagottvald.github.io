@@ -267,8 +267,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .block-media.half-right, .block-media.half-left { width: 100%; margin-left: 0; }
   .kr-wrap { width: calc(100% + 40px); margin-left: -20px; }
   .service-list li { grid-template-columns: 40px 1fr; }
-  .contact-row { grid-template-columns: 1fr 1fr; }
+  /* phones: the label column is fixed, so every row's values start at the same x, and the values stop at the 30px margin (the long email used to widen its column and push past it) */
+  .contact-row { grid-template-columns: minmax(0, 136px) minmax(0, 1fr); padding-right: var(--left); }
+  .contact-row p, .contact-row a { overflow-wrap: anywhere; }
 }
+/* phones: titles wrap inside the 30px margins on the right too, so their lines stay aligned with the rest of the page */
+@media (max-width: 639px) { .ci-title, .case-top h1, .case-end .next-title, .about h1, .pj-side h1 { padding-right: var(--left); } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* Brand-pillar text beside the half-width image (left column) */
