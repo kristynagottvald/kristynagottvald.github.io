@@ -306,8 +306,8 @@
     const m = $('.next-media');
     if (!m || currentView !== 'case') return;
     if (!matchMedia('(min-width: 900px)').matches) { m.style.width = ''; m.parentElement.style.minHeight = ''; return; }
-    // Grows from 25% of the page to the full two-column span, whose left edge is the second tile's edge below.
-    const span = m.parentElement.clientWidth * 2 / 3 - 4;   // (A - 24) / 3 * 2 + 12 with the 12px gaps
+    // Grows from 25% of the page to the full right column, whose left edge lines up with the Overview column above.
+    const span = (m.parentElement.clientWidth - 40) / 2;   // the right column of a two-column split with a 40px gap, like the project intro
     const from = Math.min(1, (window.innerWidth * 0.25) / span);
     m.parentElement.style.minHeight = span * 9 / 16 + 'px';   // reserve the full-size image so the divider below never jumps
     const t = Math.min(1, Math.max(0, (window.innerHeight - m.getBoundingClientRect().top) / (window.innerHeight * 0.8)));

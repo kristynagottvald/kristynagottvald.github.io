@@ -181,7 +181,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .kr-wrap .role-row { grid-template-columns: 1fr; gap: 14px; background: var(--off-black); border-radius: var(--r-md); padding: 36px 20px; margin-top: 28px; border-top: 0; }
 .case-end { padding: 96px var(--pad) 80px; display: grid; gap: 20px; }
 .case-end .caps { color: var(--grey); }
-.case-end .next-label { letter-spacing: .18em; }
+.case-end .next-label { font: 400 12px/1.4 var(--sans); letter-spacing: .12em; color: var(--ink); }   /* same as the Client / Role labels */
 .all-projects { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px 12px; }
 .tile { display: grid; gap: 4px; align-content: start; }
@@ -260,9 +260,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* Next up: the label + title stay pinned beside the image and slide down as the page scrolls (like the home work list). */
 @media (min-width: 900px) {
-  .case-end a.next { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 12px; align-items: start; }   /* same columns as .tiles */
+  .case-end a.next { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; align-items: start; }   /* same split as the project intro: the image ends at the right column's left edge */
   .next-text { position: sticky; top: calc(var(--nav-h) + 28px); }
-  .case-end .next-media { grid-column: 2 / 4; margin-top: 0; justify-self: end; }
+  .case-end .next-media { grid-column: 2; margin-top: 0; justify-self: end; }
 }
 
 /* ---------- Consistent left indent for text on the far-left edge ---------- */
