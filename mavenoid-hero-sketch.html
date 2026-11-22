@@ -394,7 +394,9 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
     /* four lines of copy only when the text can be set larger and there is room; otherwise the copy keeps three lines */
     var four = ts4(WU)>=1.05 && g.ch >= TOP+T4*ts4(WU)+GAPMIN+g.ihT;
     var TXT=four?T4:T3, ts=four?ts4(WU):ts3(WU);
-    if(g.ch<TOP+TXT*ts+GAPMIN+g.ihT) ts=Math.max(.92,(g.ch-TOP-GAPMIN-g.ihT)/TXT);
+    /* a squarer frame (about 1:1) has little height to spare, so the text may shrink further there to leave room for a larger illustration */
+    var tsMin=innerWidth/innerHeight>.9?.68:.92;
+    if(g.ch<TOP+TXT*ts+GAPMIN+g.ihT) ts=Math.max(tsMin,(g.ch-TOP-GAPMIN-g.ihT)/TXT);
     root.classList.toggle('four',four);
     var by=four?465:440;
     var ih=Math.min(g.ch-(TOP+TXT*ts)-GAPMIN, (WU-40)*.92*229/308), iw=ih*308/229;   /* any room left over goes to the illustration (up to 92% of the card's width) */
