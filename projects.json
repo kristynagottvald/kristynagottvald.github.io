@@ -215,6 +215,7 @@
         "type": "image"
       },
       {
+        "noPreview": true,
         "src": "hob-bars-sketch.html",
         "title": "House of Balloons breathing bars",
         "type": "sketch",
@@ -225,6 +226,7 @@
         ]
       },
       {
+        "noPreview": true,
         "src": "hob-dither-sketch.html",
         "title": "House of Balloons dithered bars",
         "type": "sketch",
