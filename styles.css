@@ -366,3 +366,6 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .pv-layer iframe { border: 0; pointer-events: none; max-width: none; }
 .pv-sketch { aspect-ratio: var(--ar); width: min(100cqw, calc(100cqh * var(--ar))); }
 .pv-vimeo { width: max(100cqw, 177.78cqh); height: max(56.25cqw, 100cqh); }
+
+/* "Selected Work" at the foot of a project: the same two-column layout as the home page */
+.case-end .case-work { margin: 96px 0 0; padding-bottom: 40px; }
