@@ -87,7 +87,7 @@
     bindPreviews();
   }
   // Hover preview on the home grid: the card steps through the project's images, sketches (code) and videos.
-  const PV_DWELL = 1000;   // each preview stays for 1 second before the next one fades in
+  const PV_DWELL = 900;   // each preview stays for 0.9 seconds before the next one fades in
   function previewItems(p) {
     const items = [], seen = new Set([p.thumbnail]);
     const ratio = (a) => { const m = String(a || '').match(/([\d.]+)\s*\/\s*([\d.]+)/); return m ? m[1] / m[2] : 16 / 9; };
