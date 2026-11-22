@@ -401,7 +401,8 @@ const LOGO_SPAN = 963.5;   // distance between the outermost dot centres in the 
 const LOGO_DOT_R = 7.63;   // dot radius in the artwork
 
 function logoTargets() {
-  const span = Math.min(W * (W < 560 ? 0.8 : 0.48), 1100);
+  const hero = new URLSearchParams(location.search).get('hero') === '1';
+  const span = Math.min(W * (W < 560 ? 0.8 : hero ? 0.38 : 0.48), 1100);   // home hero on desktop: a smaller logo
   const k = span / LOGO_SPAN;
   const pts = [];
   for (const [x, y, hx, hy] of LOGO_DOTS) {
