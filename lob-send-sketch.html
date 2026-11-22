@@ -109,6 +109,8 @@ function setBlur(px) {
 }
 
 // desktop home hero: the whole animation and its text play at 113.85% (was 90%, +10%, then +15%)
+// phones in the home hero: "Be part of the stack" is set larger (the whole scene is shrunk to the frame's width, so it would otherwise be tiny)
+const stackText = () => (HERO && innerWidth < 900 ? 1.85 : 1);
 const heroScale = () => (HERO && innerWidth >= 900 ? 1.1385 : 1);
 
 function draw() {
@@ -121,11 +123,11 @@ function draw() {
       noStroke();
       fill('#ffffff');
       textFont(P5_FONT);
-      textSize(TEXT_SIZE * heroScale() * (FULL() ? height / H : 1));
+      textSize(TEXT_SIZE * stackText() * heroScale() * (FULL() ? height / H : 1));
       textAlign(LEFT, BASELINE);
       {
         // same words, same spacing, and the same serif italic "the stack" as the stack scene
-        const ctx = drawingContext, sz = TEXT_SIZE * heroScale() * (FULL() ? height / H : 1);
+        const ctx = drawingContext, sz = TEXT_SIZE * stackText() * heroScale() * (FULL() ? height / H : 1);
         const gp = sz * 0.3, serifOf = 'italic 400 ' + sz * 1.15 + 'px "EB Garamond", Georgia, serif';
         const w0 = textWidth('Be part'), w1 = textWidth('of'), w2 = ofWidth(serifOf, 'the stack');
         let x = width / 2 - (w0 + w1 + w2 + gp * 2) / 2;
@@ -323,9 +325,10 @@ function sceneTwo(t) {
   const slideDist = max(2800, halfVis + pw + 5 * pColStep + 60);
   const baseAlpha = drawingContext.globalAlpha;
   const words = ['Be part', 'of', 'the stack'];
-  textSize(TEXT_SIZE);
-  const gap = TEXT_SIZE * 0.3;
-  const serifOf = 'italic 400 ' + TEXT_SIZE * 1.15 + 'px "EB Garamond", Georgia, serif';   // "the stack" is the serif italic
+  const TS = TEXT_SIZE * stackText();
+  textSize(TS);
+  const gap = TS * 0.3;
+  const serifOf = 'italic 400 ' + TS * 1.15 + 'px "EB Garamond", Georgia, serif';   // "the stack" is the serif italic
   const widths = words.map((w, k) => (k === 2 ? ofWidth(serifOf, w) : textWidth(w)));
   const total = widths[0] + widths[1] + widths[2] + gap * 2;
   let x0 = cx - total / 2;
