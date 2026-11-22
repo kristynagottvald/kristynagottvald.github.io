@@ -643,13 +643,15 @@ function drawCopy(t) {
   ctx.restore();
 }
 
+const VIS_SCALE = 1.2;
+const wideShift = (dw) => dw * 0.88 - VIS_SCALE * 1121;   // x offset of the visual: its panel's right edge (x 1121) lands 12% in from the right
 // wide desktop hero: the copy sits on the left, left-aligned, in the space beside the visual
 function drawCopyWide(t, dw) {
   const ctx = drawingContext;
   ctx.save();
   ctx.textBaseline = 'middle';
-  const left = 150;
-  const avail = dw - 1200 - left - 60;
+  const left = dw * 0.097;
+  const avail = wideShift(dw) + VIS_SCALE * 81 - left - 80;   // room between the copy and the visual's left edge
   const sansF = (px) => '400 ' + px + 'px ' + P5_FONT;
   const serifF = (px) => 'italic 400 ' + px + 'px "EB Garamond", Georgia, serif';
   const wid = (f, txt) => { ctx.font = f; return ctx.measureText(txt).width; };
@@ -715,7 +717,11 @@ function draw() {
   ctx.scale(S, S);
   const dw = CW / S;   // design units across the canvas
   ctx.save();
-  if (WIDE) ctx.translate(dw - 1200, 0);   // the square visual sits on the right
+  if (WIDE) {
+    // the square visual sits on the right, a little larger, with its right edge 12% in from the frame edge
+    ctx.translate(wideShift(dw), 600 * (1 - VIS_SCALE));
+    ctx.scale(VIS_SCALE, VIS_SCALE);
+  }
   drawGallery(t);
   drawCard(t);
   ctx.restore();
