@@ -43,7 +43,7 @@ const SPARK_SVG = "M23.5422 0L25.0998 14.1444C25.1837 14.9055 26.0747 15.2744 26
 /* ---- stage: 1920x1112, same as the reference image ---- */
 const SW_ = 1920, SH_ = 1112;
 const CX = 1440, CY = 556;           // centre: logo, rays, lens
-const BANDS = [[156, 246], [284, 448], [488, 770], [812, 1180]];   // ray bands (radius): first three measured, the outer one runs under the headline
+const BANDS = [[156, 246], [284, 448], [488, 770], [812, 1180], [1222, 1672], [1714, 2244], [2286, 2886]];   // ray bands (radius): the first three measured, the fourth runs under the headline, and three more rings continue outward with the same gaps
 const NRAYS = 48;
 const WINS = .86;                    // UI window scale, centred on the rays
 const WIN_DY = 44;                   // the screen (and the prompt above it) sit slightly below the rays' centre
@@ -387,7 +387,7 @@ function drawRays(p, rgb, al) {
     for (let b = 0; b < BANDS.length; b++) {
       const a = i * TWO_PI / NRAYS + (b % 2 ? -1 : 1) * .022 * now;   // neighbouring bands drift opposite ways
       const r0 = BANDS[b][0], r1 = BANDS[b][1];
-      const f = constrain(k * 1.8 - b * .22, 0, 1);
+      const f = constrain(k * (BANDS.length * .22 + .92) - b * .22, 0, 1);   // same stagger as the original four bands
       if (f <= 0) continue;
       stroke(rgb[0], rgb[1], rgb[2], 255 * al * f);
       const e = lerp(r0, r1, EOUT(f));
