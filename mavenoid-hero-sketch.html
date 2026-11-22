@@ -54,8 +54,8 @@ h1 span{color:#3F7DC6}
 /* home page slideshow on phones (?hero=1, under 900px wide): the card is portrait, with the text on top and the illustration stacked below;
    the card is laid out in 700 units across (--u = 1/700 of the width) and --hu is the frame's height in those units */
 .stack .stage{width:100vw;height:100vh;height:100dvh;aspect-ratio:auto}
-.stack .canvas{--u:calc(100cqw / 700);transform:none}
-.stack .card{left:calc(20*var(--u));top:calc(20*var(--u));width:calc(660*var(--u));height:calc((var(--hu) - 40)*var(--u))}
+.stack .canvas{--u:calc(100cqw / var(--wu, 700));transform:none}
+.stack .card{left:calc(20*var(--u));top:calc(20*var(--u));width:calc((var(--wu, 700) - 40)*var(--u));height:calc((var(--hu) - 40)*var(--u));transform:scale(.75);transform-origin:50% 50%}   /* the whole white card is 25% smaller, centred on the blue */
 .stack .a{left:calc(var(--x)*var(--u));top:calc(var(--y)*var(--u))}
 .stack .logo svg{width:calc(140*var(--u));height:calc(43.6*var(--u))}
 .stack h1{font-size:calc(72*var(--u));line-height:calc(71*var(--u))}
@@ -378,11 +378,17 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
       else{i.el.style.setProperty('--x',i.ox);i.el.style.setProperty('--y',i.oy)}
     });
     if(!on)return;
-    var hu=innerHeight/innerWidth*700, ch=hu-40;
-    var iw=Math.min(640,Math.max(300,(ch-505)*308/229)), ih=iw*229/308;
+    /* the card is laid out in WU units across. A taller frame leaves a gap under the buttons, so WU shrinks (everything gets bigger)
+       until the illustration fills the card's width, with only a small gap under the buttons; WU never goes below 620 so the text still fits */
+    var WU=700, iw, ch, hu;
+    function fitW(w){var h=innerHeight/innerWidth*w, c=h-40; return {hu:h,ch:c,iw:Math.min(w-100,Math.max(300,(c-548)*308/229))}}
+    var f=fitW(WU);
+    while(WU>620&&f.iw<WU-100){WU-=5;f=fitW(WU)}
+    hu=f.hu;ch=f.ch;iw=f.iw;var ih=iw*229/308;
+    cv.style.setProperty('--wu',WU);
     cv.style.setProperty('--hu',hu.toFixed(2));
     cv.style.setProperty('--iw',iw.toFixed(1));
-    cv.style.setProperty('--ix',((660-iw)/2).toFixed(1));
+    cv.style.setProperty('--ix',(((WU-40)-iw)/2).toFixed(1));
     cv.style.setProperty('--iy',(ch-ih+4).toFixed(1));
   }
   layout();addEventListener('resize',layout);
