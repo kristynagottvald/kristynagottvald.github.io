@@ -179,7 +179,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .role-list.body li { font-size: 15px; line-height: 21px; color: var(--grey); padding-bottom: 8px; }
 .kr-wrap { width: 50%; margin-left: 50%; }
 .kr-wrap .role-row { grid-template-columns: 1fr; gap: 14px; background: var(--off-black); border-radius: var(--r-md); padding: 36px 20px; margin-top: 28px; border-top: 0; }
-.case-end { padding: 120px var(--pad) 80px; display: grid; gap: 20px; }
+.case-end { padding: 96px var(--pad) 80px; display: grid; gap: 20px; }
 .case-end .caps { color: var(--grey); }
 .case-end .next-label { letter-spacing: .18em; }
 .all-projects { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
@@ -380,3 +380,6 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .block-media .figcap { position: relative; }
 /* Sketch frames: grow the viewport by a pixel on each side (no scaling, so nothing blurs) so the clipped container hides any edge line */
 .embed.sketch iframe { inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); max-width: none; }
+
+/* Divider above "Next up" */
+.case-end a.next { border-top: 1px solid var(--line); padding-top: 28px; }
