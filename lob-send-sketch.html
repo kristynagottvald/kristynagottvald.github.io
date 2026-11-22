@@ -313,7 +313,7 @@ function sceneTwo(t) {
   const rowStep = lerp(415, 228, zoom) * GS;
   const pw = lerp(335, 311, zoom) * GS;
   const exitAt = 3.4;
-  const flipAt = 4.9;
+  const flipAt = 4.4;   // the flip starts while the automotive mailer is still gliding in, so it never stops and restarts
   // how far the top and bottom rows slide: far enough that even the piece that starts furthest left (j = -5) clears the
   // right edge of the visible frame (wider than the scene on a wide hero), before the next scene starts
   const halfVis = (FULL() ? width / ((height / H) * heroScale()) : W / heroScale()) / 2;
@@ -371,7 +371,10 @@ function sceneTwo(t) {
     }
   }
   setAlpha(baseAlpha);
-  if (t >= flipAt) flipPiece((t - flipAt) / 0.9, cx + groupShift(), cy, 311 * GS);
+  if (t >= flipAt) {
+    const arrive = ease((t - exitAt) / 1.55);   // same glide the row gives the piece, so the flip carries on from where it is
+    flipPiece((t - flipAt) / 1.1, cx + (5 - 5 * arrive) * pColStep + groupShift() * arrive, cy, 311 * GS);
+  }
 }
 
 function flipPiece(f, cx, cy, startW) {
