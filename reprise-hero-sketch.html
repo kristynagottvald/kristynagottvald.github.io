@@ -130,7 +130,7 @@ const PS = 0.85 * 1.1 * 1.15;
 const DESK = () => frameW() >= 900;
 const PK = 0.9;                       // they are 10% smaller there so they fit the space
 const PDX = -298.6, PDY = 210.8;      // prompt: offset of its top-left corner from the default spot (screen units)
-const SDY = 220.5;                    // step box: same horizontal offset, lower
+const SDY = PDY - 92 * PS * (1 - PK);   // step box: same horizontal offset, placed so the gap to the prompt stays the original 14
 let VW = 1884, VH = 658, C = 1, LX = 1197, HD = 96, EX = 0;
 function draw() {
   syncSize();
