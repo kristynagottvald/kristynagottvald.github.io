@@ -642,14 +642,14 @@ function drawCopyWide(t, dw) {
   ctx.save();
   ctx.textBaseline = 'middle';
   const left = dw * 0.097;
-  const avail = wideShift(dw) + VIS_SCALE * 81 - left - 80;   // room between the copy and the visual's left edge
+  const avail = wideShift(dw) + VIS_SCALE * 81 - left - 50;   // room between the copy and the visual's left edge
   const sansF = (px) => '400 ' + px + 'px ' + P5_FONT;
   const serifF = (px) => 'italic 400 ' + px + 'px "EB Garamond", Georgia, serif';
   const wid = (f, txt) => { ctx.font = f; return ctx.measureText(txt).width; };
-  const widest = Math.max(wid(sansF(88), 'Spend less time building'), wid(sansF(88), 'and more time ') + wid(serifF(112), 'sending'), wid(sansF(88), 'Explore the Lob'), wid(serifF(112), 'Template Gallery'));
+  const widest = Math.max(wid(sansF(100), 'Spend less time building'), wid(sansF(100), 'and more time ') + wid(serifF(128), 'sending'), wid(sansF(100), 'Explore the Lob'), wid(serifF(128), 'Template Gallery'));
   const k = Math.min(1, avail / widest);
-  const sans = sansF(88 * k), serif = serifF(112 * k);
-  const gap = 118 * k;
+  const sans = sansF(100 * k), serif = serifF(128 * k);
+  const gap = 134 * k;
   textLine('Spend less time building', left, 600, t, 0.3, 4.6, sans, 'left');
   textLineMixed([{ text: 'and more time ', font: sans }, { text: 'sending', font: serif }], left, 600, t, 4.9, 9.4, true);
   textLine('Explore the Lob', left, 600 - gap / 2, t, 9.7, 13.2, sans, 'left');
