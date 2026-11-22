@@ -17,7 +17,8 @@ const W = 1200;
 const H = 675;
 const DUR = [3, 6, 5.4, 5.3, 4.3, 4.2];
 const UI_W = 509;
-const TEXT_SIZE = 43;
+const TEXT_BASE = 43;
+let TEXT_SIZE = TEXT_BASE;   // the text of the scenes; 15% larger in the desktop home hero (set at the top of draw)
 const GAP = 48;
 const FADE = 0.5;
 const FONT = 'Inter, Helvetica, Arial, sans-serif';
@@ -111,6 +112,8 @@ function setBlur(px) {
 const heroScale = () => (HERO && innerWidth >= 900 ? 1.1385 : 1);
 
 function draw() {
+  TEXT_SIZE = TEXT_BASE * (HERO && innerWidth >= 900 ? 1.15 : 1);
+  FS = TEXT_SIZE;
   if (!ready) {
     // home page slideshow: show "Be part of the stack" in the middle straight away, while the images and font still load
     if (HERO) {
@@ -798,7 +801,7 @@ function sceneUiTwo(t) {
   text('in a few clicks', cx + w / 2 + GAP, cy + 13);
 }
 
-const FS = TEXT_SIZE;
+let FS = TEXT_SIZE;
 const SLOT_H = 164;
 
 function finalLayout(withSlot) {
