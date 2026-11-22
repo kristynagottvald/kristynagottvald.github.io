@@ -345,9 +345,9 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 }
 
 /* ---------- Case study intro: title, details and overview under the hero ---------- */
-.case-intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: 16px; padding-top: 28px; border-top: 1px solid var(--line); }
+.case-intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: 16px; padding-top: 28px; padding-bottom: 120px; border-top: 1px solid var(--line); }
 .ci-title { grid-column: 1; font: 300 clamp(30px, 3.4vw, 48px)/1.1 var(--cond); letter-spacing: -0.03em; padding-left: var(--left); max-width: 14em; text-wrap: balance; }
-.ci-details { grid-column: 1; grid-row: 2; display: grid; gap: 28px; align-content: start; padding: 72px 0 96px var(--left); }
+.ci-details { grid-column: 1; grid-row: 2; display: grid; gap: 28px; align-content: start; padding: 72px 0 0 var(--left); }
 .ci-detail { display: grid; gap: 4px; }
 .ci-label, .ci-value { font: 400 12px/1.4 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--grey); }
 .ci-detail .ci-label { color: var(--ink); }
@@ -355,7 +355,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .ci-overview p { font-size: 15px; line-height: 20px; color: var(--grey); }
 .ci-overview .ci-label { margin-bottom: 12px; }
 @media (max-width: 700px) {
-  .case-intro { grid-template-columns: 1fr; }
+  .case-intro { grid-template-columns: 1fr; padding-bottom: 0; }
   .ci-details { grid-row: auto; padding: 36px 0 28px var(--left); }
   .ci-overview { grid-column: 1; grid-row: auto; margin-top: 0; padding: 24px var(--indent) 56px var(--left); }
 }
