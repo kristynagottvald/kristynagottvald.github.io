@@ -351,6 +351,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .ci-detail { display: grid; gap: 4px; }
 .ci-label, .ci-value { font: 400 12px/1.4 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--grey); }
 .ci-detail .ci-label { color: var(--ink); }
+.ci-value { max-width: 430px; }   /* roles wrap here */
 .ci-overview { grid-column: 2; grid-row: 2; align-self: start; margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--line); display: grid; gap: 12px; align-content: start; padding-right: calc(var(--indent) * 3); }
 .ci-overview p { font-size: 15px; line-height: 20px; color: var(--grey); }
 .ci-overview .ci-label { margin-bottom: 12px; }
