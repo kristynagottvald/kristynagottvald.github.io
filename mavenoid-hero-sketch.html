@@ -57,12 +57,12 @@ h1 span{color:#3F7DC6}
 .stack .canvas{--u:calc(100cqw / var(--wu, 700));transform:none}
 .stack .card{left:calc(20*var(--u));top:calc(20*var(--u));width:calc((var(--wu, 700) - 40)*var(--u));height:calc((var(--hu) - 40)*var(--u));transform:scale(.75);transform-origin:50% 50%}   /* the whole white card is 25% smaller, centred on the blue */
 .stack .a{left:calc(var(--x)*var(--u));top:calc(var(--y)*var(--u))}
-.stack .logo svg{width:calc(140*var(--u));height:calc(43.6*var(--u))}
-.stack h1{font-size:calc(72*var(--u));line-height:calc(71*var(--u))}
-.stack .lede{font-size:calc(20*var(--u));line-height:calc(25*var(--u))}
-.stack .btn{height:calc(46*var(--u));font-size:calc(14.5*var(--u))}
-.stack .btn.go{width:calc(170*var(--u))}
-.stack .btn.try{width:calc(210*var(--u))}
+.stack .logo svg{width:calc(140*var(--ts, 1)*var(--u));height:calc(43.6*var(--ts, 1)*var(--u))}
+.stack h1{font-size:calc(72*var(--ts, 1)*var(--u));line-height:calc(71*var(--ts, 1)*var(--u))}
+.stack .lede{font-size:calc(20*var(--ts, 1)*var(--u));line-height:calc(25*var(--ts, 1)*var(--u))}
+.stack .btn{height:calc(46*var(--ts, 1)*var(--u));font-size:calc(14.5*var(--ts, 1)*var(--u))}
+.stack .btn.go{width:calc(170*var(--ts, 1)*var(--u))}
+.stack .btn.try{width:calc(210*var(--ts, 1)*var(--u))}
 .stack .ill{left:calc(var(--ix)*var(--u));top:calc(var(--iy)*var(--u));width:calc(var(--iw)*var(--u))}
 svg text{font-family:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:500;font-size:4.8px}
 </style>
@@ -378,18 +378,26 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
       else{i.el.style.setProperty('--x',i.ox);i.el.style.setProperty('--y',i.oy)}
     });
     if(!on)return;
-    /* the card is laid out in WU units across. A taller frame leaves a gap under the buttons, so WU shrinks (everything gets bigger)
-       until the illustration fills the card's width, with only a small gap under the buttons; WU never goes below 620 so the text still fits */
-    var WU=700, iw, ch, hu;
-    function fitW(w){var h=innerHeight/innerWidth*w, c=h-40; return {hu:h,ch:c,iw:Math.min(w-100,Math.max(300,(c-548)*308/229))}}
-    var f=fitW(WU);
-    while(WU>620&&f.iw<WU-100){WU-=5;f=fitW(WU)}
-    hu=f.hu;ch=f.ch;iw=f.iw;var ih=iw*229/308;
+    /* The card is laid out in WU units across. The illustration should span most of the card's width (84%), so a taller frame lets WU shrink
+       (everything bigger); if the frame is still too short for that, the text block shrinks (down to 72%) to make room, and only then the illustration. */
+    var TXT=450, TOP=36, GAPMIN=44, ILLW=.84;
+    function geo(w){var h=innerHeight/innerWidth*w, c=h-40, iwT=(w-40)*ILLW, ihT=iwT*229/308; return {hu:h,ch:c,iwT:iwT,ihT:ihT}}
+    var WU=700, g=geo(WU);
+    /* tall frame: shrink WU (everything bigger) for as long as the next step still leaves room for text, the gap and the illustration */
+    while(WU>620){var n=geo(WU-5); if(n.ch < TOP+TXT+GAPMIN+n.ihT) break; WU-=5; g=n}
+    var ts=1, need=TOP+TXT*ts+GAPMIN+g.ihT;
+    if(g.ch<need) ts=Math.max(.72,(g.ch-TOP-GAPMIN-g.ihT)/TXT);
+    var ih=Math.min(g.ch-(TOP+TXT*ts)-GAPMIN, (WU-40)*.92*229/308), iw=ih*308/229;   /* any room left over goes to the illustration (up to 92% of the card's width) */
+    items.forEach(function(i){
+      var y=i.el.matches('.logo')?i.y:TOP+(i.y-TOP)*ts, x=i.el.matches('.btn.try')?40+(170*ts+14):i.x;
+      i.el.style.setProperty('--x',x);i.el.style.setProperty('--y',y);
+    });
     cv.style.setProperty('--wu',WU);
-    cv.style.setProperty('--hu',hu.toFixed(2));
+    cv.style.setProperty('--ts',ts.toFixed(3));
+    cv.style.setProperty('--hu',g.hu.toFixed(2));
     cv.style.setProperty('--iw',iw.toFixed(1));
     cv.style.setProperty('--ix',(((WU-40)-iw)/2).toFixed(1));
-    cv.style.setProperty('--iy',(ch-ih+4).toFixed(1));
+    cv.style.setProperty('--iy',(g.ch-ih+4).toFixed(1));
   }
   layout();addEventListener('resize',layout);
 })();
