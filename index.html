@@ -13,32 +13,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20261111a">
-  <script src="script.js?v=20261117b" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20261122a">
+  <script src="script.js?v=20261122a" defer></script>
 </head>
 <body>
-  <!-- Fixed header: logo pill that opens the menu,  -->
-  <header class="hb" id="hb">
-    <div class="hb-pill">
-      <div class="hb-bar">
-        <a class="logo" href="#" aria-label="Kristyna Gottvald, home">KRISTYNA</a>
-        <span class="hb-label" id="hb-label">Home</span>
-        <button class="hb-toggle" id="hb-toggle" type="button" aria-expanded="false" aria-controls="hb-menu"><span class="sr">Toggle menu</span><svg class="nav-ptr" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 6.4l8.4 3.3-3.6 1.4-1.4 3.6z" fill="currentColor"/></svg></button>
-      </div>
-      <nav class="hb-menu" id="hb-menu" aria-label="Main">
-        <a href="#projects" data-nav="projects"><b>Selected Work</b><span>Explore all projects</span></a>
-        <a href="#about" data-nav="about"><b>About</b><span>Who I am</span></a>
-        <a href="#services" data-nav="services"><b>Services</b><span>What I do</span></a>
-        <a href="#contact" data-nav="contact"><b>Contact</b><span>Reach out</span></a>
-        <div class="hb-channels">
-          <a href="https://www.linkedin.com/in/kgottvald/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="https://dribbble.com/gottbot/" target="_blank" rel="noopener noreferrer">Dribbble</a>
-          <a href="https://openprocessing.org/user/500421/#sketches" target="_blank" rel="noopener noreferrer">OpenProcessing</a>
-          <a href="https://kristynagottvald.github.io/sketches/" target="_blank" rel="noopener noreferrer">Brand Tools</a>
-          <a href="https://kristynagottvald.github.io/sandbox/" target="_blank" rel="noopener noreferrer">Github Sandbox</a>
-        </div>
-      </nav>
-    </div>
+  <!-- Top bar: logo + nav on the left, availability on the right. Sits above the hero and stays the same on every view. -->
+  <header class="nav" id="nav">
+    <a class="logo" href="#" aria-label="Kristyna Gottvald, home">Kristyna Gottvald</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#projects" data-nav="projects">Selected Work</a>
+      <a href="#about" data-nav="about">About</a>
+      <a href="#contact" data-nav="contact">Contact</a>
+    </nav>
+    <p class="nav-status"><i class="dot-live" aria-hidden="true"></i>Currently taking on new projects</p>
   </header>
 
   <main id="main">
@@ -71,20 +58,9 @@
       </section>
 
       <!-- Projects: sticky copy column left, projects right -->
-      <section class="work" id="work" aria-label="Projects">
-        <div class="work-side">
-          <div class="work-side-in">
-            <h2 class="t-condensed">Projects</h2>
-            <h3 class="t-condensed grey" id="work-active">&nbsp;</h3>
-            <div class="work-side-foot">
-              <p class="work-desc grey" id="work-desc"></p>
-              <div class="work-meta">
-                <img id="work-thumb" alt="" width="40" height="40">
-                <div><p class="caps grey" id="work-tag"></p></div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Selected work: heading left, two-column grid of projects right -->
+      <section class="work" id="work" aria-label="Selected Work">
+        <div class="work-side"><h2 class="t-condensed">Selected Work</h2></div>
         <div class="work-list" id="cards"></div>
       </section>
 

@@ -71,7 +71,6 @@
     const serviceItems = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${SERVICE_LINKS[t] ? `<a class="svc-link" href="${SERVICE_LINKS[t]}" target="_blank" rel="noopener noreferrer">${esc(t)}<span class="svc-go" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/></svg></span><span class="sr-only"> (opens in a new tab)</span></a>` : esc(t)}</span></li>`).join('');
     $('#service-list').innerHTML = serviceItems;
     $('#about-service-list').innerHTML = serviceItems;
-    watchWork();
     renderProjectsPage();
   }
   // Projects index: two columns, landscape and portrait tiles staggered so the columns never line up.
@@ -149,36 +148,6 @@
     probe.src = urls[i];
   }
   const renderServices = () => {};
-
-  // The card nearest the middle of the screen is "active": it stays bright and fills the sticky side column.
-  const firstBody = (p) => (((p.caseStudyContent || []).find((b) => b.type === 'text' && (b.body || []).length) || {}).body || []).filter((t) => !/^\s*(role:|key results)/i.test(t)).join('\n\n');
-  function setWork(card) {
-    const p = projects.find((x) => x.id === card.dataset.pid);
-    if (!p) return;
-    cardsEl.querySelectorAll('.card').forEach((c) => c.classList.toggle('is-active', c === card));
-    $('#work-active').textContent = p.title;
-    $('#work-desc').textContent = firstBody(p);
-    $('#work-thumb').src = p.squareThumbnail || p.thumbnail;
-    $('#work-tag').textContent = [p.year, p.category].filter(Boolean).join(' – ');
-  }
-  let workTick = false;
-  function updateWork() {
-    workTick = false;
-    if (currentView !== 'home') return;
-    const mid = window.innerHeight * 0.5;
-    let best = null, bd = Infinity;
-    cardsEl.querySelectorAll('.card').forEach((c) => {
-      const r = c.getBoundingClientRect();
-      const d = Math.abs(r.top + r.height / 2 - mid);
-      if (d < bd) { bd = d; best = c; }
-    });
-    if (best && !best.classList.contains('is-active')) setWork(best);
-  }
-  function watchWork() {
-    const first = cardsEl.querySelector('.card');
-    first && setWork(first);
-    window.addEventListener('scroll', () => { if (!workTick) { workTick = true; requestAnimationFrame(updateWork); } }, { passive: true });
-  }
 
   /* ---------- Case study ---------- */
 
@@ -391,13 +360,7 @@
   // "#services" / "#contact" -> home / footer anchors
   // "#<id>"     -> case study
 
-  // Letters light up one after another (white on the menu, grey on the pill label).
-  function lightUp(el, text) {
-    const t = text || el.dataset.t || el.textContent;
-    el.dataset.t = t;
-    el.setAttribute('aria-label', t);
-    el.innerHTML = [...t].map((ch, i) => `<span class="lu" aria-hidden="true" style="--i:${i}">${esc(ch)}</span>`).join('');
-  }
+  const setNav = (key) => navLinks.forEach((a) => (a.dataset.nav === key ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
 
   function show(name) {
     if (currentView === 'home') homeScroll = window.scrollY;
@@ -405,20 +368,8 @@
     Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
     if (name !== 'case') { stopNextMedia(); stackEl.innerHTML = ''; }
     if (name === 'projects') startProjectsCycle(); else stopProjectsCycle();
-    const navKey = name === 'case' ? 'projects' : name;
-    navLinks.forEach((a) => {
-      const b = a.querySelector('b');
-      if (a.dataset.nav === navKey) {
-        if (!a.hasAttribute('aria-current')) { a.setAttribute('aria-current', 'page'); b && lightUp(b); }
-      } else {
-        a.removeAttribute('aria-current');
-        if (b && b.dataset.t) { b.textContent = b.dataset.t; delete b.dataset.t; }
-      }
-    });
+    setNav(name === 'about' ? 'about' : 'projects');
     currentView = name;
-    lightUp($('#hb-label'), { home: 'Home', case: 'Selected Work', projects: 'Selected Work', about: 'About' }[name]);
-    $('#hb').classList.remove('open');
-    requestAnimationFrame(updateWork);
   }
 
   function scrollToId(id) {
@@ -443,6 +394,7 @@
       if (!currentView || currentView === 'case') show('home');
       document.title = `${SITE} • ${TAGLINE}`;
       scrollToId('contact');
+      setNav('contact');
     } else if (hash === 'work' || hash === 'services') {
       if (currentView !== 'home') show('home');
       document.title = `${SITE} • ${TAGLINE}`;
@@ -464,18 +416,6 @@
     img.dataset.fallback = '1';
     img.src = 'placeholder.svg';
   }, true);
-
-  // The menu shows on hover and hides as soon as the pointer leaves (the click toggle is for touch screens).
-  $('.hb-pill').addEventListener('mouseleave', () => {
-    $('#hb').classList.remove('open');
-    $('#hb-toggle').setAttribute('aria-expanded', 'false');
-    if ($('.hb-pill').contains(document.activeElement)) document.activeElement.blur();
-  });
-
-  $('#hb-toggle').addEventListener('click', () => {
-    const hb = $('#hb');
-    $('#hb-toggle').setAttribute('aria-expanded', String(hb.classList.toggle('open')));
-  });
 
   // Hero slideshow: each sketch shows for 4 seconds, then the next fades in.
   const frames = [...document.querySelectorAll('.reel-frame')];
