@@ -635,13 +635,13 @@ function drawCopy(t) {
 
 const VIS_SCALE = 1.3;
 const galleryDy = () => (WIDE ? -150 : 0);   // wide hero: the gallery panel sits higher (the mail piece lands in its slot, so it moves too)
-const wideShift = (dw) => dw * 0.895 - VIS_SCALE * 1121;   // x offset of the visual (gallery panel and mail pieces): its panel right edge (x 1121) lands 10.5% in from the right
+const wideShift = (dw) => dw * 0.91 - VIS_SCALE * 1121;   // x offset of the visual (gallery panel and mail pieces): its panel right edge (x 1121) lands 9% in from the right
 // wide desktop hero: the copy sits on the left, left-aligned, in the space beside the visual
 function drawCopyWide(t, dw) {
   const ctx = drawingContext;
   ctx.save();
   ctx.textBaseline = 'middle';
-  const left = dw * 0.097;
+  const left = dw * 0.11;
   const avail = wideShift(dw) + VIS_SCALE * 81 - left - 50;   // room between the copy and the visual's left edge
   const sansF = (px) => '400 ' + px + 'px ' + P5_FONT;
   const serifF = (px) => 'italic 400 ' + px + 'px "EB Garamond", Georgia, serif';
