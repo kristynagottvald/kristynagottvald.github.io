@@ -159,11 +159,11 @@
       el.dataset.shown = '1';
       media.appendChild(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('is-on')));
-      setTimeout(() => pvClearBefore(el), 700);
+      setTimeout(() => pvClearBefore(el), 400);
       pv.timer = setTimeout(() => pvStep(card, items), it.dwell);
     };
     if (it.t === 'img') { el.onload = show; el.onerror = () => { pv.timer = setTimeout(() => pvStep(card, items), 0); }; }
-    else { if (!pre) media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => pvClearBefore(el), 700); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; if (pre && el.dataset.ready) setTimeout(go, 0); else { f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); } }
+    else { if (!pre) media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => pvClearBefore(el), 400); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; if (pre && el.dataset.ready) setTimeout(go, 0); else { f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); } }
   }
   function pvStop() {
     clearTimeout(pv.timer); clearTimeout(pv.start);
@@ -171,7 +171,7 @@
     if (!card) return;
     const layers = card.querySelectorAll('.pv-layer');
     layers.forEach((l) => l.classList.remove('is-on'));
-    setTimeout(() => { if (pv.card !== card) layers.forEach((l) => { if (!l.dataset.cached) l.remove(); }); }, 450);
+    setTimeout(() => { if (pv.card !== card) layers.forEach((l) => { if (!l.dataset.cached) l.remove(); }); }, 350);
   }
   function bindPreviews(root = cardsEl) {
     if (!matchMedia('(hover: hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
