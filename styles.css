@@ -53,6 +53,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .nav-jump { display: none; }
 .nav-status { transition: color .2s; }
 .nav-status:hover { color: #fff; }
+/* desktop: the right margin beside OPEN TO NEW PROJECTS matches the left margin beside the name (30px) */
+@media (min-width: 761px) { .nav { padding-right: calc(var(--pad) + var(--left)); } }
+
 @media (max-width: 760px) {
   :root { --nav-h: 86px; }
   .nav { padding-top: 22px; }
