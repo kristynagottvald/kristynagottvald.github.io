@@ -55,16 +55,26 @@
   const SERVICES = ['Brand Identity', 'Creative Coding', 'Creative Direction', 'Art Direction', 'Campaigns', 'Motion Design', 'Brand Tools'];
   const SERVICE_LINKS = { 'Brand Tools': 'https://kristynagottvald.github.io/sketches/' };   // a small arrow opens the sketches page
 
-  const cardHTML = (p) => `
+  // Card caption: client on the first line, project name on the second.
+  const cardLines = (p) => {
+    const client = String(p.clientName || '').trim();
+    if (!client) return [p.title, subtitle(p)];
+    const name = [p.listTitle, p.pageTitle, p.title].find((t) => t && t.trim() && t.trim().toLowerCase() !== client.toLowerCase());
+    return [client, name || subtitle(p)];
+  };
+  const cardHTML = (p) => {
+    const [l1, l2] = cardLines(p);
+    return `
       <article class="card" data-pid="${esc(p.id)}">
         <a href="#${esc(p.slug)}" aria-label="${esc(p.title)}">
           <div class="card-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
           <div class="card-meta">
-            <h3 class="card-title">${esc(p.title)}</h3>
-            ${subtitle(p) ? `<p class="card-sub">${esc(subtitle(p))}</p>` : ''}${ARROW}
+            <h3 class="card-title">${esc(l1)}</h3>
+            ${l2 ? `<p class="card-sub">${esc(l2)}</p>` : ''}${ARROW}
           </div>
         </a>
       </article>`;
+  };
 
   function renderGrid() {
     cardsEl.innerHTML = projects.map(cardHTML).join('');
