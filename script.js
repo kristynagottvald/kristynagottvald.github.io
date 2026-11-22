@@ -465,7 +465,7 @@
 
   function scrollToId(id) {
     const el = document.getElementById(id);
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' });
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - $('#nav').offsetHeight, behavior: 'smooth' });   // land just under the sticky nav
   }
 
   function route() {
