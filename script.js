@@ -289,22 +289,41 @@
     a.addEventListener('mouseleave', () => { hovering = false; });
   }
 
+  // Case study intro: hero image first, then the title, details (client, industry, role) and overview.
+  const ROLE_RE = /^\s*role:\s*/i;
+  function caseIntro(p, content) {
+    const ti = content.findIndex((b) => b.type === 'text');
+    const tb = ti >= 0 ? content[ti] : null;
+    const summary = (p.summary || '').trim();
+    const intro = tb && ti <= 3 && (tb.heading || !summary) ? tb : null;
+    const clean = (arr) => [].concat(arr || []).filter((t) => !LABELED.test(t) && !CREDIT.test(t) && !CREDIT_ANY.test(t));
+    const overview = intro ? clean(intro.body) : summary ? [summary] : [];
+    const client = (p.clientName || '').trim();
+    const heading = intro && intro.heading && intro.heading.trim().toLowerCase() !== client.toLowerCase() ? intro.heading : '';
+    const title = heading || pageTitle(p);
+    const roleText = content.flatMap((b) => (b.type === 'text' ? [].concat(b.body || []) : [])).find((t) => ROLE_RE.test(t));
+    const roles = roleText ? roleText.replace(ROLE_RE, '').split(',').map((x) => x.trim()).filter(Boolean).map(titleCase) : [];
+    const detail = (label, value) => (value ? `<div class="ci-detail"><span class="ci-label">${label}</span><span class="ci-value">${esc(value)}</span></div>` : '');
+    const html = `<section class="case-intro" aria-label="Project overview">
+      <h1 class="ci-title">${esc(title)}</h1>
+      <div class="ci-details">${detail('Client', client)}${detail('Industry', p.industry)}${detail('Role', roles.join(', '))}</div>
+      ${overview.length ? `<div class="ci-overview"><span class="ci-label">Overview</span>${overview.map((t) => `<p>${esc(t)}</p>`).join('')}</div>` : ''}
+    </section>`;
+    // Everything the intro already shows is removed from the rest of the page.
+    const rest = content.filter((b) => b !== intro).map((b) => (b.type === 'text' ? { ...b, body: [].concat(b.body || []).filter((t) => !ROLE_RE.test(t)) } : b));
+    return { html, rest };
+  }
+
   function caseHTML(p) {
-    const content = p.caseStudyContent || [];
+    const { html: introHTML, rest: content } = caseIntro(p, p.caseStudyContent || []);
     const blocks = content.map(blockHTML);
     const heroAt = content.findIndex((b) => b.type === 'image' || b.type === 'vimeo');
     const hero = heroAt >= 0 ? blocks.splice(heroAt, 1)[0] : '';
     const i = projects.indexOf(p);
     const next = projects[(i + 1) % projects.length];
-    const meta = [p.year, p.category, p.client].filter(Boolean).map(esc).map((m) => `<span>${m}</span>`).join('');
     return `
       <article class="case" aria-label="${esc(pageTitle(p))}">
-        <header class="case-top">
-          <div class="case-meta">${meta}</div>
-          <h1>${esc(pageTitle(p))}</h1>
-          ${p.summary && p.summary.trim() ? `<p class="case-lede">${esc(p.summary)}</p>` : ''}
-        </header>
-        <div class="case-body">${hero}${blocks.join('')}</div>
+        <div class="case-body">${hero}${introHTML}${blocks.join('')}</div>
         <footer class="case-end">
           <a class="next" href="#${esc(next.slug)}">
             <div class="next-text">
@@ -428,7 +447,10 @@
   document.addEventListener('click', (e) => { if (!navEl.contains(e.target)) setMenu(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   window.addEventListener('hashchange', () => setMenu(false));
-  navEl.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+  navEl.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', () => {
+    setMenu(false);
+    if (a.getAttribute('href') === location.hash) scrollToId(location.hash.slice(1));   // already on that hash: no hashchange fires, so scroll by hand
+  }));
 
   // Hero slideshow: each sketch shows for 4 seconds, then the next fades in.
   const frames = [...document.querySelectorAll('.reel-frame')];
