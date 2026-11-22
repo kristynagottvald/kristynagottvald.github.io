@@ -121,15 +121,15 @@ function draw() {
       textSize(TEXT_SIZE * heroScale() * (FULL() ? height / H : 1));
       textAlign(LEFT, BASELINE);
       {
-        // same words, same spacing, and the same serif italic "of" as the stack scene
+        // same words, same spacing, and the same serif italic "the stack" as the stack scene
         const ctx = drawingContext, sz = TEXT_SIZE * heroScale() * (FULL() ? height / H : 1);
         const gp = sz * 0.3, serifOf = 'italic 400 ' + sz * 1.15 + 'px "EB Garamond", Georgia, serif';
-        const w0 = textWidth('Be part'), w1 = ofWidth(serifOf), w2 = textWidth('the stack');
+        const w0 = textWidth('Be part'), w1 = textWidth('of'), w2 = ofWidth(serifOf, 'the stack');
         let x = width / 2 - (w0 + w1 + w2 + gp * 2) / 2;
         const y = height / 2 + 13 * (FULL() ? height / H : 1);
         text('Be part', x, y);
-        ctx.save(); ctx.font = serifOf; ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.fillText('of', x + w0 + gp, y); ctx.restore();
-        text('the stack', x + w0 + gp + w1 + gp, y);
+        text('of', x + w0 + gp, y);
+        ctx.save(); ctx.font = serifOf; ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.fillText('the stack', x + w0 + gp + w1 + gp, y); ctx.restore();
       }
       textAlign(LEFT, BASELINE);
     }
@@ -289,10 +289,10 @@ function easeIO(x) {
   return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
 }
 
-function ofWidth(font) {
+function ofWidth(font, str) {
   drawingContext.save();
   drawingContext.font = font;
-  const w = drawingContext.measureText('of').width;
+  const w = drawingContext.measureText(str || 'of').width;
   drawingContext.restore();
   return w;
 }
@@ -313,7 +313,7 @@ function sceneTwo(t) {
   const rowStep = lerp(415, 228, zoom) * GS;
   const pw = lerp(335, 311, zoom) * GS;
   const exitAt = 3.4;
-  const flipAt = 4.9;
+  const flipAt = 4.4;   // the flip starts while the automotive mailer is still gliding in, so it never stops and restarts
   // how far the top and bottom rows slide: far enough that even the piece that starts furthest left (j = -5) clears the
   // right edge of the visible frame (wider than the scene on a wide hero), before the next scene starts
   const halfVis = (FULL() ? width / ((height / H) * heroScale()) : W / heroScale()) / 2;
@@ -322,20 +322,20 @@ function sceneTwo(t) {
   const words = ['Be part', 'of', 'the stack'];
   textSize(TEXT_SIZE);
   const gap = TEXT_SIZE * 0.3;
-  const serifOf = 'italic 400 ' + TEXT_SIZE * 1.15 + 'px "EB Garamond", Georgia, serif';   // "of" is the serif italic
-  const widths = words.map((w, k) => (k === 1 ? ofWidth(serifOf) : textWidth(w)));
+  const serifOf = 'italic 400 ' + TEXT_SIZE * 1.15 + 'px "EB Garamond", Georgia, serif';   // "the stack" is the serif italic
+  const widths = words.map((w, k) => (k === 2 ? ofWidth(serifOf, w) : textWidth(w)));
   const total = widths[0] + widths[1] + widths[2] + gap * 2;
   let x0 = cx - total / 2;
   for (let k = 0; k < 3; k++) {
     const centered = x0;
-    const col = cx + (k - 1) * colStep - widths[k] / 2;
+    const col = cx + (k - 1) * pColStep - widths[k] / 2;   // each word centres on the mail column it lifts into (the hero's pieces are wider-spaced)
     x0 += widths[k] + gap;
     if (lift >= 0.999) continue;
     const dy = (k === 1 ? 1 : -1) * lift * 188;
     setAlpha(1 - ease((lift - 0.6) / 0.4));
     setBlur((1 - enter) * 5);
     fill('#ffffff');
-    if (k === 1) {
+    if (k === 2) {
       drawingContext.save();
       drawingContext.font = serifOf;
       drawingContext.textAlign = 'left';
@@ -371,7 +371,10 @@ function sceneTwo(t) {
     }
   }
   setAlpha(baseAlpha);
-  if (t >= flipAt) flipPiece((t - flipAt) / 0.9, cx + groupShift(), cy, 311 * GS);
+  if (t >= flipAt) {
+    const arrive = ease((t - exitAt) / 1.55);   // same glide the row gives the piece, so the flip carries on from where it is
+    flipPiece((t - flipAt) / 1.1, cx + (5 - 5 * arrive) * pColStep + groupShift() * arrive, cy, 311 * GS);
+  }
 }
 
 function flipPiece(f, cx, cy, startW) {
