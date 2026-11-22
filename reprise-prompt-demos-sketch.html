@@ -59,6 +59,11 @@ const H0 = 1.7, H1 = 1.9, DW = .7, PAUSE = 1.0, BACK_D = 1.9, OPEN_D = .8, CTA_H
 const OFF = .9;                      // later loops skip the headline intro
 
 let ti = 0, START = 0.5, PS = 1, ready = false;
+// ?hero=1 (home page slideshow): plays from just as "and start prompting them." starts writing across the headline
+// (the data populates in the screen) to the "Tell the right story" scene, which holds for 2 seconds, then freezes there
+const HERO = new URLSearchParams(location.search).get('hero') === '1';
+let heroT0 = 0, HERO_FROM = 0, HERO_TO = 0;
+addEventListener('message', (e) => { if (e.data === 'reset') heroT0 = millis(); });
 let SPARK_P, LINK_P, grain;
 const EBACK = bez(.34, 1.56, .64, 1), EASE = bez(.25, .1, .25, 1), EMOVE = bez(.45, 0, .2, 1), EOUT = bez(.2, .8, .2, 1), EIO = bez(.65, 0, .35, 1);
 
@@ -113,7 +118,10 @@ function setup() {
   T_BACK = tHop1 + H1 + PAUSE;      // pause on the graph, then the logo spins to the middle; screen, prompt and headline fade; the CTA arrives
   T_END = T_BACK + BACK_D + CTA_HOLD; // CTA holds, then the pale blue opens from the logo and the loop restarts
   LOOP = T_END + END_D + .6;
-  document.fonts.load("400 112px 'Inter Tight'").then(() => document.fonts.load("600 112px 'Inter Tight'")).catch(() => {}).finally(() => { ready = true; });
+  HERO_FROM = T_UP + .55;           // the navy has just opened, the words start to write
+  HERO_TO = T_BACK + 2.1 + 2.0;     // the last CTA line has landed (T_BACK + 2.1), then 2 seconds
+  if (window.parent !== window) { try { parent.postMessage({ heroDuration: HERO_TO - HERO_FROM }, '*'); } catch (e) {} }
+  document.fonts.load("400 112px 'Inter Tight'").then(() => document.fonts.load("600 112px 'Inter Tight'")).catch(() => {}).finally(() => { ready = true; heroT0 = millis(); });
 }
 function windowResized() { const h = document.getElementById("stage"); resizeCanvas(h.clientWidth, h.clientHeight); }
 
@@ -129,20 +137,21 @@ function makeGrain() {
 }
 
 function draw() {
-  if (!ready) { background(LIGHT); return; }
+  if (!ready) { background(HERO ? DEEP : LIGHT); return; }
   const tt = millis() / 1000 - START;
-  if (tt < 0) ti = 0; else if (tt < LOOP) ti = tt; else ti = OFF + ((tt - LOOP) % (LOOP - OFF));
+  if (HERO) ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);   // hold the last frame so the slideshow crossfades out
+  else if (tt < 0) ti = 0; else if (tt < LOOP) ti = tt; else ti = OFF + ((tt - LOOP) % (LOOP - OFF));
   PS = min(width / SW_, height / SH_);
-  background(0);
+  background(HERO ? DEEP : 0);   // hero: the navy runs past the scene on wide frames
   push();
   translate(width / 2, height / 2); scale(PS); translate(-SW_ / 2, -SH_ / 2);
-  drawingContext.beginPath(); drawingContext.rect(0, 0, SW_, SH_); drawingContext.clip();
+  if (!HERO) { drawingContext.beginPath(); drawingContext.rect(0, 0, SW_, SH_); drawingContext.clip(); }
 
   const back = ti >= T_BACK, end = ti >= T_END, done = ti >= T_END + END_D;
   if (!back) {
     const R = ti < T_UP ? 0 : 2300 * EIO(pr(ti, T_UP, OPEN_D));
     NAVY_R = R;
-    drawLight(false, false);
+    if (!HERO) drawLight(false, false);   // hero: the navy is already fully open, and the light layer's edge would show as a faint seam
     if (R > .5) { push(); drawingContext.save(); circClip(R); drawNavy(); drawingContext.restore(); pop(); }
   } else {
     NAVY_R = 3000;
@@ -261,6 +270,7 @@ function drawWindow(iris, rv) {
 function drawNavy() {
   noStroke(); fill(DEEP); rect(0, 0, SW_, SH_);
   drawingContext.drawImage(grain, 0, 0);
+  if (HERO) { drawingContext.drawImage(grain, -SW_, 0); drawingContext.drawImage(grain, SW_, 0); }   // keep the grain going where the frame is wider than the scene
   drawRays(1, [52, 100, 188], .9 * rayIn());
 
   const out = ti >= T_BACK, ha = out ? 1 - EASE(pr(ti, T_BACK, .6)) : 1;      // the headline fades once the logo heads to the middle
@@ -286,7 +296,7 @@ function drawNavy() {
   }
 }
 
-const rayIn = () => EASE(pr(millis() / 1000, .2, 1.0));      // soft fade on the very first load only
+const rayIn = () => (HERO ? 1 : EASE(pr(millis() / 1000, .2, 1.0)));      // soft fade on the very first load only
 function drawRays(p, rgb, al) {
   if (p <= 0) return;
   const k = EOUT(p);

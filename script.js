@@ -555,7 +555,7 @@
     hint.classList.toggle('is-link', !!href);
     if (href) hint.setAttribute('href', href); else hint.removeAttribute('href');
     // The dither sketch starts over each time the slideshow comes back to it.
-    if (['reprise-hero-sketch.html', 'clearco-guide-sketch.html?hero=1', 'lob-send-sketch.html?hero=1', 'postal-fix-spot-sketch.html?hero=1', 'lob-template-card-sketch.html?hero=1'].includes(frames[slide].getAttribute('src'))) { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
+    if (['reprise-prompt-demos-sketch.html?hero=1', 'clearco-guide-sketch.html?hero=1', 'lob-send-sketch.html?hero=1', 'postal-fix-spot-sketch.html?hero=1', 'lob-template-card-sketch.html?hero=1'].includes(frames[slide].getAttribute('src'))) { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
     dots.forEach((d, k) => {
       d.classList.remove('is-on');
       if (k === slide) { void d.offsetWidth; d.classList.add('is-on'); }
