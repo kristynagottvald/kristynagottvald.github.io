@@ -506,14 +506,9 @@ function drawGallery(t) {
   const ctx = drawingContext;
   ctx.save();
   ctx.translate(0, off);
-  ctx.save();
-  ctx.shadowColor = 'rgba(40, 10, 70, 0.25)';
-  ctx.shadowBlur = 40;
-  ctx.shadowOffsetY = -6;
-  rr(81, 474, 1040, 900, 14);
+  rr(81, 474, 1040, 900, 14);   // no drop shadow on the gallery; only the mail piece has one
   ctx.fillStyle = WHITE;
   ctx.fill();
-  ctx.restore();
   rr(81, 474, 1040, 900, 14);
   ctx.clip();
   ctx.fillStyle = NAVY;
@@ -557,14 +552,9 @@ function drawGallery(t) {
     const g = GALLERY[n];
     const x0 = GCOL[n % 4];
     const y0 = GROW[floor(n / 4)];
-    ctx.save();
-    ctx.shadowColor = 'rgba(30, 20, 60, 0.10)';
-    ctx.shadowBlur = 22;
-    ctx.shadowOffsetY = 10;
     rr(x0, y0, 219, 158, 8);
     ctx.fillStyle = '#f7f6f8';
     ctx.fill();
-    ctx.restore();
     rr(x0, y0, 219, 158, 8);
     ctx.strokeStyle = '#e8e6ec';
     ctx.lineWidth = 1.2;
