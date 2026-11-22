@@ -546,6 +546,12 @@
     slide = (i + frames.length) % frames.length;
     loadFrame(frames[slide]);
     frames.forEach((f, k) => f.classList.toggle('is-on', k === slide));
+    // A video slide has been playing (muted, looping) in the background since it loaded: start it over from the beginning as it comes in.
+    const vf = frames[slide];
+    if (vf.dataset.restart === '1' && /vimeo\.com/.test(vf.src || '')) {
+      const cmd = (m) => { try { vf.contentWindow.postMessage(JSON.stringify(m), '*'); } catch (e) {} };
+      cmd({ method: 'setCurrentTime', value: 0 }); cmd({ method: 'play' });
+    }
     $('#hint-title').textContent = frames[slide].dataset.label || '';
     // Non-interactive slides show only the title: no dash, no "Interactive" text, no pointer.
     const hint = $('#hint-title').closest('.reel-hint');
