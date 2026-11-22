@@ -51,7 +51,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (max-width: 760px) {
   :root { --nav-h: 80px; }
   .nav { padding-top: 22px; }
-  .logo { font-size: 20px; }
+  .logo { font-size: 20px; letter-spacing: -1.5px; }
   .nav { display: grid; grid-template-columns: 1fr auto; row-gap: 8px; align-items: center; align-content: start; }
   .logo { grid-column: 1 / -1; }
   .nav-links { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; padding: 4px calc(var(--pad) + var(--left)) 12px; background: var(--bg); border-bottom: 1px solid var(--line); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .2s linear, transform .25s var(--ease), visibility 0s .25s; }
@@ -100,7 +100,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 701px) { .reel-hint.is-plain { min-height: 36px; box-sizing: border-box; } }   /* same height as the labels that carry the pointer icon */
 @media (max-width: 700px) {
   /* on phones the pill only names the project; the Interactive part is hidden */
-  .reel-hint { max-width: calc(100% - 172px); }
+  .reel-hint { max-width: calc(100% - 172px); right: 7px; bottom: 7px; min-height: 39px; padding: 0 16px; box-sizing: border-box; }
   .reel-video .hint-sep, .reel-video .hint-cta { display: none; }
   .hint-title { text-align: right; line-height: 1.4; }
 }
