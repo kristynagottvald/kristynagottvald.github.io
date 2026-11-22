@@ -441,9 +441,12 @@
         "type": "text"
       },
       {
-        "alt": "Mavenoid is the AI agent for product support",
-        "src": "mavenoid-is-the-ai-agent-for-product-support-b.webp",
-        "type": "image"
+        "src": "mavenoid-hero-sketch.html",
+        "title": "Mavenoid hero",
+        "type": "sketch",
+        "noHint": true,
+        "aspect": "2000 / 1125",
+        "bg": "#3A7ED4"
       },
       {
         "alt": "Mavenoid is the AI agent for product support",
