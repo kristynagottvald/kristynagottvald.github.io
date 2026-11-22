@@ -190,7 +190,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .block-text { padding: 24px 0 36px; }
 .text-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; border-top: 1px solid var(--line); padding-top: 20px; }
 .text-row.no-line { border-top: 0; padding-top: 0; }
-.text-left h3 { font: 300 var(--fs-h3)/var(--lh-head) var(--cond); letter-spacing: var(--ls-head); max-width: none; padding-right: 32px; text-wrap: balance; }
+.text-left h2 { font: 300 var(--fs-h2)/var(--lh-head) var(--cond); letter-spacing: var(--ls-head); max-width: none; padding-right: 32px; text-wrap: balance; }
 .text-right { display: grid; gap: 16px; align-content: start; max-width: none; color: var(--grey); font-size: var(--fs-body); line-height: var(--lh-body); }
 .text-right p:first-child { color: var(--ink); }
 .text-right p.credit { color: var(--grey); padding-top: 4px; font: inherit; letter-spacing: normal; text-transform: none; }   /* credits read like the body text, in grey */
@@ -249,7 +249,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .widget-mail { font-size: var(--fs-body); }
 .copy { color: var(--ink); background: rgba(255,255,255,.08); border-radius: var(--r-sm); padding: 10px 12px; transition: background .2s; }
 .copy:hover { background: rgba(255,255,255,.16); }
-.foot { display: flex; justify-content: space-between; color: var(--mid-grey); text-transform: none; font: 350 var(--fs-label)/1 var(--sans); }
+.foot { display: flex; justify-content: space-between; color: var(--mid-grey); text-transform: uppercase; letter-spacing: var(--ls-label); font: 400 var(--fs-label)/1 var(--sans); }   /* a label: the same 12px all-caps style as the other labels */
 .foot a:hover { color: var(--ink); }
 @media (min-width: 900px) {
   .contact-grid { grid-template-columns: 5fr 9fr; gap: 8px; padding-left: 0; margin-left: 0; }
@@ -365,7 +365,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 }
 
 /* ---------- Case study intro: title, details and overview under the hero ---------- */
-.case-intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: 16px; padding-top: 28px; padding-bottom: 120px; border-top: 1px solid var(--line); }
+.case-intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: 0; padding-top: 28px; padding-bottom: 120px; border-top: 1px solid var(--line); }
 .ci-title { grid-column: 1; font: 300 var(--fs-title)/var(--lh-head) var(--cond); letter-spacing: var(--ls-head); padding-left: var(--left); max-width: 14em; text-wrap: balance; }
 .ci-details { grid-column: 1; grid-row: 2; display: grid; gap: 28px; align-content: start; padding: 87px 0 0 var(--left); }   /* 87 = overview offset (72) + its line (1) + its padding (14), so Client and Overview labels share a line */
 .ci-detail { display: grid; gap: 4px; }

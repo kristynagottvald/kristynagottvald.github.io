@@ -87,13 +87,14 @@
     bindPreviews();
   }
   // Hover preview on the home grid: the card steps through the project's images, sketches (code) and videos.
+  const PV_DWELL = 1000;   // each preview stays for 1 second before the next one fades in
   function previewItems(p) {
     const items = [], seen = new Set([p.thumbnail]);
     const ratio = (a) => { const m = String(a || '').match(/([\d.]+)\s*\/\s*([\d.]+)/); return m ? m[1] / m[2] : 16 / 9; };
     (p.caseStudyContent || []).forEach((b) => {
-      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: 1500 }); }
-      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: 1500 });
-      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: 1500 });
+      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: PV_DWELL }); }
+      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: PV_DWELL });
+      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: PV_DWELL });
     });
     return items;
   }
@@ -292,7 +293,7 @@
     const labeled = paras.filter((t) => LABELED.test(t));
     const rest = paras.filter((t) => !LABELED.test(t)).sort((x, y) => (CREDIT.test(x) || CREDIT_ANY.test(x)) - (CREDIT.test(y) || CREDIT_ANY.test(y)));
     const row = b.heading || rest.length
-      ? `<div class="text-row${b.noLine ? ' no-line' : ''}"><div class="text-left">${b.heading ? `<h3>${esc(b.heading)}</h3>` : ''}</div><div class="text-right">${rest.map((t) => `<p${CREDIT_ANY.test(t) && t.length < 200 ? ' class="credit"' : ''}>${esc(t)}</p>`).join('')}</div></div>`
+      ? `<div class="text-row${b.noLine ? ' no-line' : ''}"><div class="text-left">${b.heading ? `<h2>${esc(b.heading)}</h2>` : ''}</div><div class="text-right">${rest.map((t) => `<p${CREDIT_ANY.test(t) && t.length < 200 ? ' class="credit"' : ''}>${esc(t)}</p>`).join('')}</div></div>`
       : '';
     if (!row && !labeled.length) return '';
     return `<div class="block-text">${row}${labeled.map(roleRow).join('')}</div>`;
