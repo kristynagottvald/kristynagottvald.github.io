@@ -352,7 +352,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .ci-label, .ci-value { font: 400 12px/1.4 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--grey); }
 .ci-detail .ci-label { color: var(--ink); }
 .ci-value { max-width: 430px; }   /* roles wrap here */
-.ci-overview { grid-column: 2; grid-row: 2; align-self: start; margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--line); display: grid; gap: 12px; align-content: start; padding-right: calc(var(--indent) * 3); }
+.ci-overview { grid-column: 2; grid-row: 2; align-self: start; margin-top: 72px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 12px; align-content: start; padding-right: calc(var(--indent) * 3); }
 .ci-overview p { font-size: 17px; line-height: 24px; color: var(--grey); }
 .ci-overview .ci-label { margin-bottom: 12px; }
 @media (max-width: 700px) {
@@ -362,7 +362,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 }
 
 /* Hover preview layers on the home grid */
-.pv-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s linear; pointer-events: none; border: 0; display: grid; place-items: center; overflow: hidden; }
+.pv-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s linear; pointer-events: none; border: 0; display: grid; place-items: center; overflow: hidden; }
 .pv-layer.is-on { opacity: 1; }
 .pv-layer iframe { border: 0; pointer-events: none; max-width: none; }
 .pv-sketch { aspect-ratio: var(--ar); width: max(100cqw, calc(100cqh * var(--ar))); }   /* cover: crop to the card instead of letterboxing */

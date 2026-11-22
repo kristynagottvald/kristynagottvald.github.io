@@ -90,9 +90,9 @@
     const items = [], seen = new Set([p.thumbnail]);
     const ratio = (a) => { const m = String(a || '').match(/([\d.]+)\s*\/\s*([\d.]+)/); return m ? m[1] / m[2] : 16 / 9; };
     (p.caseStudyContent || []).forEach((b) => {
-      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: 600 }); }
-      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: 3000 });
-      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: 3000 });
+      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: 2000 }); }
+      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: 2000 });
+      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: 2000 });
     });
     return items;
   }
@@ -112,6 +112,11 @@
     el.className = 'pv-layer';
     return el;
   }
+  // Once a layer has faded in, drop only the layers underneath it (never one that was added after it).
+  function pvClearBefore(el) {
+    let o = el.previousElementSibling;
+    while (o) { const prev = o.previousElementSibling; if (o.classList.contains('pv-layer')) o.remove(); o = prev; }
+  }
   function pvStep(card, items) {
     if (pv.card !== card) return;
     const media = card.querySelector('.card-media');
@@ -123,11 +128,11 @@
       el.dataset.shown = '1';
       media.appendChild(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('is-on')));
-      setTimeout(() => media.querySelectorAll('.pv-layer').forEach((o) => { if (o !== el) o.remove(); }), 600);
+      setTimeout(() => pvClearBefore(el), 700);
       pv.timer = setTimeout(() => pvStep(card, items), it.dwell);
     };
     if (it.t === 'img') { el.onload = show; el.onerror = () => { pv.timer = setTimeout(() => pvStep(card, items), 0); }; }
-    else { media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => media.querySelectorAll('.pv-layer').forEach((o) => { if (o !== el) o.remove(); }), 600); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); }
+    else { media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => pvClearBefore(el), 700); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); }
   }
   function pvStop() {
     clearTimeout(pv.timer); clearTimeout(pv.start);
