@@ -60,6 +60,9 @@ h1 span{color:#3F7DC6}
 .stack .logo svg{width:calc(140*var(--ts, 1)*var(--u));height:calc(43.6*var(--ts, 1)*var(--u))}
 .stack h1{font-size:calc(72*var(--ts, 1)*var(--u));line-height:calc(71*var(--ts, 1)*var(--u))}
 .stack .lede{font-size:calc(20*var(--ts, 1)*var(--u));line-height:calc(25*var(--ts, 1)*var(--u))}
+/* phones, when there is room for larger text: the copy runs to four lines (otherwise it keeps its three) */
+.stack.four .lede{white-space:normal;width:calc(400*var(--ts, 1)*var(--u))}
+.stack.four .lede br{display:none}
 .stack .btn{height:calc(46*var(--ts, 1)*var(--u));font-size:calc(14.5*var(--ts, 1)*var(--u))}
 .stack .btn.go{width:calc(170*var(--ts, 1)*var(--u))}
 .stack .btn.try{width:calc(210*var(--ts, 1)*var(--u))}
@@ -73,7 +76,7 @@ svg text{font-family:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;font-we
 <div class="card">
 <div class="a logo" style="--x:308;--y:434.2"><svg viewBox="31.07 21.1 187.87 58.52" role="img" aria-label="Mavenoid"><path d="M60.3251 21.0953C52.5655 21.0953 45.1236 24.1778 39.6368 29.6646C34.1499 35.1515 31.0674 42.5933 31.0674 50.353C31.0674 52.3541 31.8623 54.2733 33.2774 55.6884C34.6924 57.1034 36.6116 57.8984 38.6128 57.8984C40.614 57.8984 42.5332 57.1034 43.9482 55.6884C45.3632 54.2733 46.1582 52.3541 46.1582 50.353C46.112 49.477 46.2454 48.6009 46.55 47.7783C46.8547 46.9558 47.3243 46.2042 47.9299 45.5697C48.5356 44.9352 49.2646 44.4312 50.0721 44.0886C50.8795 43.746 51.7485 43.5721 52.6257 43.5775C54.1476 43.656 55.6252 44.1168 56.922 44.9172C54.6777 47.0786 53.3213 50.0001 53.1184 53.1094C53.1184 55.0166 53.8761 56.8457 55.2247 58.1943C56.5733 59.5429 58.4024 60.3006 60.3097 60.3006C62.2169 60.3006 64.046 59.5429 65.3947 58.1943C66.7433 56.8457 67.5009 55.0166 67.5009 53.1094C67.2981 50.0001 65.9417 47.0786 63.6974 44.9172C65.0032 44.1118 66.492 43.6509 68.0245 43.5775C68.9016 43.5721 69.7706 43.746 70.5781 44.0886C71.3856 44.4312 72.1146 44.9352 72.7202 45.5697C73.3259 46.2042 73.7955 46.9558 74.1001 47.7783C74.4048 48.6009 74.5382 49.477 74.492 50.353V56.6973H78.8036V50.353C78.8561 48.9132 78.6148 47.4779 78.0945 46.1345C77.5741 44.7911 76.7856 43.5677 75.777 42.5389C74.7685 41.5102 73.5609 40.6976 72.2281 40.1508C70.8952 39.6039 69.465 39.3343 68.0245 39.3582C65.2489 39.5176 62.577 40.4688 60.3251 42.0992C58.0789 40.4579 55.4037 39.5055 52.6257 39.3582C51.1852 39.3343 49.7549 39.6039 48.4221 40.1508C47.0892 40.6976 45.8817 41.5102 44.8731 42.5389C43.8645 43.5677 43.076 44.7911 42.5557 46.1345C42.0354 47.4779 41.7941 48.9132 41.8465 50.353C41.8465 51.231 41.4977 52.0731 40.8768 52.694C40.256 53.3149 39.4139 53.6637 38.5358 53.6637C37.6577 53.6637 36.8156 53.3149 36.1947 52.694C35.5739 52.0731 35.2251 51.231 35.2251 50.353C35.1848 44.4193 37.2479 38.6633 41.0484 34.1063C44.8489 29.5493 50.141 26.4861 55.9855 25.4604C61.8299 24.4346 67.8488 25.5126 72.974 28.503C78.0991 31.4934 81.9991 36.2028 83.9819 41.7955C85.9646 47.3883 85.9018 53.5026 83.8047 59.0534C81.7075 64.6043 77.7116 69.2327 72.5262 72.1172C67.3407 75.0017 61.3009 75.9559 55.4788 74.8103C49.6566 73.6648 44.4286 70.4936 40.7224 65.8595L37.4117 68.4773C40.4837 72.3703 44.4948 75.4185 49.0682 77.3357C53.6416 79.2529 58.6273 79.9761 63.557 79.4375C68.4867 78.899 73.1986 77.1162 77.2502 74.2567C81.3018 71.3972 84.56 67.5548 86.719 63.0904C88.8779 58.626 89.8666 53.6861 89.5924 48.7346C89.3181 43.7832 87.7897 38.9827 85.1509 34.7841C82.5121 30.5855 78.8493 27.1265 74.5067 24.732C70.1641 22.3375 65.2841 21.0861 60.3251 21.0953ZM63.2816 53.1709C63.2816 53.9551 62.9702 54.7071 62.4157 55.2616C61.8612 55.816 61.1092 56.1275 60.3251 56.1275C59.541 56.1275 58.7889 55.816 58.2345 55.2616C57.68 54.7071 57.3685 53.9551 57.3685 53.1709C57.6318 51.0115 58.685 49.0258 60.3251 47.5966C61.9652 49.0258 63.0183 51.0115 63.2816 53.1709Z"/><path d="M124.045 46.4724V56.6972H120.796V47.7505C120.796 45.3483 119.949 44.2858 118.332 44.2858C116.361 44.2858 115.083 46.0567 115.083 48.736V56.6972H111.849V47.7505C111.849 45.4253 111.064 44.2858 109.37 44.2858C107.338 44.2858 106.136 46.0567 106.136 48.736V56.6972H102.964V41.6834H105.644L105.844 43.6544H105.998C106.415 42.8953 107.042 42.2724 107.804 41.8601C108.566 41.4478 109.43 41.2635 110.294 41.3292C111.171 41.2925 112.038 41.5233 112.781 41.9908C113.523 42.4583 114.106 43.1406 114.452 43.947H114.529C114.959 43.1076 115.626 42.4124 116.447 41.9473C117.268 41.4821 118.207 41.2673 119.148 41.3292C119.821 41.3 120.491 41.415 121.115 41.6665C121.739 41.9181 122.302 42.3004 122.766 42.7876C123.23 43.2749 123.584 43.8559 123.805 44.4914C124.025 45.127 124.107 45.8025 124.045 46.4724Z"/><path d="M137.781 46.688V56.6972H135.256L134.901 54.7262H134.824C134.365 55.4793 133.71 56.0935 132.929 56.503C132.148 56.9126 131.27 57.1021 130.39 57.0514C127.418 57.0514 125.939 55.4345 125.939 52.8937C125.939 50.3529 127.14 48.9516 130.559 48.1663C133.977 47.3809 134.655 46.9806 134.655 46.0567C134.655 45.1327 133.885 44.3012 132.053 44.3012C131.169 44.3555 130.316 44.6455 129.582 45.141C128.848 45.6366 128.26 46.3196 127.88 47.1192H127.772L126.078 44.4398C126.746 43.4694 127.644 42.6799 128.692 42.1424C129.74 41.6049 130.906 41.336 132.083 41.36C135.456 41.4062 137.781 43.3157 137.781 46.688ZM134.547 49.3058C134.27 49.8602 133.423 50.2143 131.467 50.6455C129.512 51.0767 129.004 51.7696 129.004 52.6165C129.004 53.4635 129.712 54.1564 130.913 54.1564C132.807 54.1564 134.64 52.9553 134.64 51.4L134.547 49.3058Z"/><path d="M143.633 56.6972L138.428 41.6834H141.939L145.742 53.6637L149.638 41.6834H153.164L147.944 56.6972H143.633Z"/><path d="M166.7 49.0902V50.2143H156.183C156.176 50.7256 156.272 51.233 156.465 51.7066C156.658 52.1802 156.944 52.6105 157.305 52.9721C157.667 53.3336 158.097 53.6192 158.571 53.8121C159.044 54.0049 159.552 54.101 160.063 54.0948C160.921 54.0453 161.756 53.797 162.502 53.3694C163.247 52.9418 163.883 52.3466 164.359 51.631H164.513L166.053 54.5106C165.326 55.3651 164.415 56.0443 163.388 56.4976C162.362 56.9509 161.246 57.1665 160.125 57.1284C155.69 57.1284 152.933 53.9562 152.933 49.3058C152.933 44.6554 156.013 41.4678 159.909 41.4678C163.805 41.4678 166.7 44.5014 166.7 49.0902ZM156.26 47.5503H163.374C163.326 46.6503 162.933 45.8035 162.276 45.1866C161.619 44.5697 160.749 44.2304 159.847 44.2396C158.937 44.2558 158.066 44.6101 157.403 45.2335C156.74 45.8568 156.332 46.7046 156.26 47.6119V47.5503Z"/><path d="M181.575 46.688V56.6972H178.326V47.6119C178.326 45.4869 177.402 44.3628 175.508 44.3628C173.244 44.3628 171.843 46.1183 171.843 48.9824V56.6818H168.594V41.6834H171.273L171.489 43.6544C172.005 42.9137 176.698 42.3132 173.504 41.9072C174.311 41.5013 175.206 41.3026 176.109 41.3292C176.83 41.2807 177.553 41.3851 178.231 41.6358C178.909 41.8864 179.527 42.2776 180.043 42.7836C180.559 43.2896 180.962 43.8991 181.226 44.572C181.49 45.2448 181.609 45.966 181.575 46.688Z"/><path d="M197.79 49.3058C197.79 53.6791 195.111 57.0052 190.522 57.0052C185.933 57.0052 183.331 53.6329 183.331 49.3058C183.251 48.3078 183.378 47.3041 183.706 46.3578C184.033 45.4116 184.552 44.5433 185.231 43.8076C185.91 43.072 186.734 42.4849 187.652 42.0834C188.569 41.6819 189.559 41.4746 190.56 41.4746C191.562 41.4746 192.552 41.6819 193.469 42.0834C194.386 42.4849 195.21 43.072 195.889 43.8076C196.569 44.5433 197.088 45.4116 197.415 46.3578C197.742 47.3041 197.87 48.3078 197.79 49.3058ZM186.503 49.3058C186.503 52.0468 188.043 54.0178 190.522 54.0178C193.001 54.0178 194.541 51.9852 194.541 49.2288C194.541 46.4724 193.001 44.3012 190.522 44.3012C188.043 44.3012 186.503 46.688 186.503 49.3058Z"/><path d="M203.426 37.6027C203.449 37.8857 203.411 38.1703 203.313 38.4368C203.215 38.7034 203.061 38.9454 202.86 39.1462C202.659 39.3469 202.417 39.5015 202.151 39.5993C201.884 39.6971 201.599 39.7357 201.316 39.7124C201.03 39.7369 200.741 39.6997 200.47 39.6035C200.199 39.5072 199.951 39.354 199.744 39.1542C199.537 38.9544 199.375 38.7125 199.269 38.4449C199.163 38.1773 199.116 37.8902 199.13 37.6027C199.113 37.314 199.159 37.0251 199.264 36.7557C199.369 36.4862 199.53 36.2424 199.738 36.0409C199.945 35.8394 200.194 35.6848 200.466 35.5876C200.738 35.4904 201.028 35.4529 201.316 35.4777C201.599 35.4619 201.882 35.5062 202.146 35.6076C202.41 35.709 202.649 35.8652 202.849 36.066C203.048 36.2668 203.203 36.5076 203.302 36.7725C203.402 37.0374 203.444 37.3203 203.426 37.6027ZM199.623 56.6972V41.6834H202.856V56.6972H199.623Z"/><path d="M216.33 56.6972L215.976 54.7262C215.495 55.4763 214.824 56.0863 214.032 56.4946C213.24 56.9028 212.354 57.0949 211.464 57.0514C207.23 57.0514 204.843 53.7407 204.843 49.352C204.843 44.9633 207.661 41.4524 211.541 41.4524C212.333 41.4253 213.121 41.5822 213.843 41.9108C214.564 42.2394 215.199 42.7309 215.699 43.3465V36.8174H218.933V56.6972H216.33ZM207.938 49.2288C207.938 51.9082 209.201 54.0178 211.818 54.0178C214.436 54.0178 215.76 52.1238 215.76 49.3058C215.76 46.4878 214.344 44.3012 211.818 44.3012C209.293 44.3012 207.938 46.765 207.938 49.2288Z"/></svg></div>
 <h1 class="a" style="--x:307;--y:536.7"><span>Abracadabra</span><br>for customer<br>service</h1>
-<p class="a lede" style="--x:307;--y:792">Offer troubleshooting solutions, replacement part ordering,<br>and more — powered by artificial intelligence trained to<br>understand even the most complex questions.</p>
+<p class="a lede" style="--x:307;--y:792">Offer troubleshooting solutions, replacement part ordering,<br> and more — powered by artificial intelligence trained to<br> understand even the most complex questions.</p>
 <a class="a btn go" style="--x:307;--y:889" href="#" onclick="return false">Get a demo</a>
 <a class="a btn try" style="--x:507;--y:889" href="#" onclick="return false">Try Mavenoid for free</a>
 <svg id="art" class="ill" viewBox="0 0 308 229" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A robot presents a support search card and a graph of sticky notes beside it.">
@@ -368,10 +371,12 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
 /* phones in the slideshow: switch the card to the stacked layout (and back if the frame is resized) */
 (function(){
   if(!HERO)return;
-  var items=[['.logo',40,36],['h1.a',40,112],['.lede',40,345],['.btn.go',40,440],['.btn.try',224,440]].map(function(i){var el=document.querySelector(i[0]);return {el:el,x:i[1],y:i[2],ox:el.style.getPropertyValue('--x'),oy:el.style.getPropertyValue('--y')}});
+  var LX=68;   /* left edge of the text inside the card (stacked layout) */
+  var items=[['.logo',LX,36],['h1.a',LX,112],['.lede',LX,345],['.btn.go',LX,440],['.btn.try',LX+184,440]].map(function(i){var el=document.querySelector(i[0]);return {el:el,x:i[1],y:i[2],ox:el.style.getPropertyValue('--x'),oy:el.style.getPropertyValue('--y')}});
   var cv=document.querySelector('.canvas');
   function layout(){
-    var on=innerWidth<900, root=document.documentElement;
+    /* stack only in a narrow frame that is not landscape: a frame wider than tall (about 1.1:1 or more) can still hold the landscape card */
+    var on=innerWidth<900&&innerWidth/innerHeight<1.1, root=document.documentElement;
     root.classList.toggle('stack',on);
     items.forEach(function(i){
       if(on){i.el.style.setProperty('--x',i.x);i.el.style.setProperty('--y',i.y)}
@@ -380,17 +385,24 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
     if(!on)return;
     /* The card is laid out in WU units across. The illustration should span most of the card's width (84%), so a taller frame lets WU shrink
        (everything bigger); if the frame is still too short for that, the text block shrinks (down to 95% of the base size) to make room, and only then the illustration. */
-    var TXT=450, TOP=36, GAPMIN=44, ILLW=.84;
-    var tsMax=function(w){return Math.min(1.12,(w-130)/505)};   /* text a little larger than the base size, as far as the description line still fits the card */
+    var T3=450, T4=475, TOP=36, GAPMIN=44, ILLW=.84;
+    var ts4=function(w){return Math.min(1.12,(w-LX-80)/430)}, ts3=function(w){return Math.min(1.12,(w-LX-80)/505)};
     function geo(w){var h=innerHeight/innerWidth*w, c=h-40, iwT=(w-40)*ILLW, ihT=iwT*229/308; return {hu:h,ch:c,iwT:iwT,ihT:ihT}}
     var WU=700, g=geo(WU);
     /* tall frame: shrink WU (everything bigger) for as long as the next step still leaves room for text, the gap and the illustration */
-    while(WU>620){var n=geo(WU-5); if(n.ch < TOP+TXT*tsMax(WU-5)+GAPMIN+n.ihT) break; WU-=5; g=n}
-    var ts=tsMax(WU), need=TOP+TXT*ts+GAPMIN+g.ihT;
-    if(g.ch<need) ts=Math.max(.95,(g.ch-TOP-GAPMIN-g.ihT)/TXT);
+    while(WU>620){var n=geo(WU-5); if(n.ch < TOP+T4*ts4(WU-5)+GAPMIN+n.ihT) break; WU-=5; g=n}
+    /* four lines of copy only when the text can be set larger and there is room; otherwise the copy keeps three lines */
+    var four = ts4(WU)>=1.05 && g.ch >= TOP+T4*ts4(WU)+GAPMIN+g.ihT;
+    var TXT=four?T4:T3, ts=four?ts4(WU):ts3(WU);
+    /* a squarer frame (about 1:1) has little height to spare, so the text may shrink further there to leave room for a larger illustration */
+    var tsMin=innerWidth/innerHeight>.9?.68:.92;
+    if(g.ch<TOP+TXT*ts+GAPMIN+g.ihT) ts=Math.max(tsMin,(g.ch-TOP-GAPMIN-g.ihT)/TXT);
+    root.classList.toggle('four',four);
+    var by=four?465:440;
     var ih=Math.min(g.ch-(TOP+TXT*ts)-GAPMIN, (WU-40)*.92*229/308), iw=ih*308/229;   /* any room left over goes to the illustration (up to 92% of the card's width) */
     items.forEach(function(i){
-      var y=i.el.matches('.logo')?i.y:TOP+(i.y-TOP)*ts, x=i.el.matches('.btn.try')?40+(170*ts+14):i.x;
+      var by0=i.el.matches('.btn')?by:i.y;
+      var y=i.el.matches('.logo')?i.y:TOP+(by0-TOP)*ts, x=i.el.matches('.btn.try')?LX+(170*ts+14):i.x;
       i.el.style.setProperty('--x',x);i.el.style.setProperty('--y',y);
     });
     cv.style.setProperty('--wu',WU);
@@ -405,7 +417,7 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
 
 /* hero scale: 1.2 x 1.3 x 0.85 x 1.05 = 1.3923, but never wider than the page (16px gutter) */
 (function(){var st=document.querySelector('.stage'),cv=document.querySelector('.canvas');
-function fit(){var w=st.clientWidth,k=Math.min(HERO?1.3:1,(innerWidth-32)/(w*1616/2000));cv.style.setProperty('--k',Math.max(k,.5).toFixed(4))}
+function fit(){var w=st.clientWidth,k=Math.min(HERO?1.534:1,(innerWidth-32)/(w*1616/2000));cv.style.setProperty('--k',Math.max(k,.5).toFixed(4))}
 fit();addEventListener('resize',fit)})();
 show();
 if(HERO){
