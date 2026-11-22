@@ -144,6 +144,8 @@ function draw() {
   if (HERO && width < 900) { drawStack(); return; }
   PS = min(width / SW_, height / SH_);
   VX = HERO && heroLayout().two ? VX_TWO : 0;
+  // the larger screen must still clear the right edge of the frame
+  FGK = HERO ? max(1, min(FG_SCALE, (SW_ / 2 + width / (2 * PS) - 24 - (CX + VX)) / (VIS_W / 2 + 6))) : 1;
   background(HERO ? DEEP : 0);   // hero: the navy runs past the scene on wide frames
   push();
   translate(width / 2, height / 2); scale(PS); translate(-SW_ / 2, -SH_ / 2);
@@ -180,6 +182,7 @@ function drawStack() {
   background(DEEP);
   push(); scale(u);
   noStroke(); fill(DEEP); rect(0, 0, 1000, HU);
+  FGK = 1;
   push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); VX = 0;
   drawRays(1, [52, 100, 188], .9);
   pop();
@@ -202,7 +205,7 @@ function drawLight(base, done) {
 
 /* ============== foreground shared by both backgrounds: demo screen, prompt, logo ============== */
 function drawFG() {
-  push(); translate(VX, 0);
+  push(); translate(VX, 0); translate(VIS_CX, VIS_CY); scale(FGK); translate(-VIS_CX, -VIS_CY);
   const fo = 1 - EASE(pr(ti, T_BACK, .7));
   if (ti >= T_WIN && fo > .01) {                           // demo screen pops into view; the data then fades in all at once
     const p = pr(ti, T_WIN, .7), d = EASE(pr(ti, T_DATA, .8));
@@ -344,6 +347,8 @@ function drawNavyText() {
    (they stop short of the demo screen). Frames without that much room keep the three-line layout. */
 const BASE2 = [541, 653];
 let layKey = "", lay = { two: false, x: HX };
+let FGK = 1;                          // hero (desktop): the demo screen, prompt and logo are drawn this much larger, about the middle of the visual
+const FG_SCALE = 1.2;
 const VX_TWO = 220;                   // two-line hero: the screen, prompt, logo and rays sit this far further right (scene units)
 let VX = 0;
 function heroLayout() {
