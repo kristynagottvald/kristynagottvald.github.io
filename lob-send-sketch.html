@@ -290,8 +290,10 @@ function sceneTwo(t) {
   const lift = easeIO((t - 2.0) / 0.8);
   const zoom = ease((t - 2.8) / 0.6);
   const colStep = lerp(368, 351, zoom);
-  const rowStep = lerp(415, 228, zoom);
-  const pw = lerp(335, 311, zoom);
+  const GS = FULL() ? 1.3 : 1;   // desktop hero: bigger mail pieces, so the top and bottom rows are cut by the frame
+  const pColStep = colStep * GS;
+  const rowStep = lerp(415, 228, zoom) * GS;
+  const pw = lerp(335, 311, zoom) * GS;
   const exitAt = 3.4;
   const flipAt = 4.9;
   const baseAlpha = drawingContext.globalAlpha;
@@ -326,8 +328,8 @@ function sceneTwo(t) {
       const w = pw;
       const dir = abs(k) % 2 === 0 ? -1 : 1;
       const slide = easeIO((t - exitAt - 0.05 * abs(k)) / 1.35);
-      const base = cx + j * colStep;
-      const x = k === 0 ? cx + (j - 5 * ease((t - exitAt) / 1.55)) * colStep + (j === 5 ? groupShift() * ease((t - exitAt) / 1.55) : 0) - (j === 5 ? 0 : easeIO((t - exitAt - 0.3) / 1.15) * 1340) : base + dir * 2800 * slide;
+      const base = cx + j * pColStep;
+      const x = k === 0 ? cx + (j - 5 * ease((t - exitAt) / 1.55)) * pColStep + (j === 5 ? groupShift() * ease((t - exitAt) / 1.55) : 0) - (j === 5 ? 0 : easeIO((t - exitAt - 0.3) / 1.15) * 1340) : base + dir * 2800 * slide;
       const y = cy + (k + 0.5 - 0.5 * zoom) * rowStep + bob;
       setAlpha(HERO ? baseAlpha * min(1, e * 1.8) : baseAlpha);   // hero: fade up as it grows
       const img = pieceImg(j, k);
@@ -337,7 +339,7 @@ function sceneTwo(t) {
     }
   }
   setAlpha(baseAlpha);
-  if (t >= flipAt) flipPiece((t - flipAt) / 0.9, cx + groupShift(), cy, 311);
+  if (t >= flipAt) flipPiece((t - flipAt) / 0.9, cx + groupShift(), cy, 311 * GS);
 }
 
 function flipPiece(f, cx, cy, startW) {
