@@ -91,9 +91,9 @@
     const items = [], seen = new Set([p.thumbnail]);
     const ratio = (a) => { const m = String(a || '').match(/([\d.]+)\s*\/\s*([\d.]+)/); return m ? m[1] / m[2] : 16 / 9; };
     (p.caseStudyContent || []).forEach((b) => {
-      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: 2000 }); }
-      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: 2000 });
-      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: 2000 });
+      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: 1500 }); }
+      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: 1500 });
+      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: 1500 });
     });
     return items;
   }

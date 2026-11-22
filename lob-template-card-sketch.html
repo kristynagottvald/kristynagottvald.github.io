@@ -30,6 +30,12 @@ const SW = 7;
 const LOGO_SRC = 'lob-send/gallery-logo.png';
 const PHOTO_SRC = 'lob-send/gallery-photo.jpg';
 
+// Desktop hero only: a wide canvas with the copy on the left and the square visual on the right
+const HERO_MODE = new URLSearchParams(location.search).get('hero') === '1';
+let CW = W;       // canvas width in px (W unless the wide hero layout is on)
+let WIDE = false;
+const wideWidth = () => (HERO_MODE && innerWidth >= 900 && innerWidth / innerHeight >= 1.5 ? Math.round(H * innerWidth / innerHeight) : 0);
+
 const CARD = { x: 245, y: 518, w: 712, h: 477 };
 
 const POSES = [
@@ -89,7 +95,10 @@ function tryImage(src) {
 }
 
 async function setup() {
-  createCanvas(W, H);
+  const ww = wideWidth();
+  WIDE = ww > 0;
+  CW = WIDE ? ww : W;
+  createCanvas(CW, H);
   await addInter();
   LOGO = await tryImage(LOGO_SRC);
   PHOTO = await tryImage(PHOTO_SRC);
@@ -575,7 +584,7 @@ function drawGallery(t) {
   ctx.restore();
 }
 
-function textLine(label, cx, y, t, tIn, tOut, font) {
+function textLine(label, cx, y, t, tIn, tOut, font, align) {
   const ctx = drawingContext;
   const e = ease((t - tIn) / 0.45);
   const o = ease((t - tOut) / 0.4);
@@ -584,14 +593,14 @@ function textLine(label, cx, y, t, tIn, tOut, font) {
   setBlur((1 - e) * 6 + o * 6);
   ctx.font = font;
   ctx.fillStyle = WHITE;
-  ctx.textAlign = 'center';
+  ctx.textAlign = align || 'center';
   ctx.fillText(label, cx, y + (1 - e) * 18 - o * 20);
   setBlur(0);
   setAlpha(1);
 }
 
 // a line made of differently styled words, all sitting on one shared baseline
-function textLineMixed(parts, cx, y, t, tIn, tOut) {
+function textLineMixed(parts, cx, y, t, tIn, tOut, leftAlign) {
   const ctx = drawingContext;
   const e = ease((t - tIn) / 0.45);
   const o = ease((t - tOut) / 0.4);
@@ -610,7 +619,7 @@ function textLineMixed(parts, cx, y, t, tIn, tOut) {
   setBlur((1 - e) * 6 + o * 6);
   ctx.fillStyle = WHITE;
   ctx.textAlign = 'left';
-  let x = cx - total / 2;
+  let x = leftAlign ? cx : cx - total / 2;
   parts.forEach((p, i) => {
     ctx.font = p.font;
     ctx.fillText(p.text, x, y + off + (1 - e) * 18 - o * 20);
@@ -631,6 +640,27 @@ function drawCopy(t) {
   textLineMixed([{ text: 'and more time ', font: sans }, { text: 'sending', font: serif }], 600, 250, t, 4.9, 9.4);
   textLine('Explore the Lob', 600, 216, t, 9.7, 13.2, sans);
   textLine('Template Gallery', 600, 300, t, 9.85, 13.2, serif);
+  ctx.restore();
+}
+
+// wide desktop hero: the copy sits on the left, left-aligned, in the space beside the visual
+function drawCopyWide(t, dw) {
+  const ctx = drawingContext;
+  ctx.save();
+  ctx.textBaseline = 'middle';
+  const left = 150;
+  const avail = dw - 1200 - left - 60;
+  const sansF = (px) => '400 ' + px + 'px ' + P5_FONT;
+  const serifF = (px) => 'italic 400 ' + px + 'px "EB Garamond", Georgia, serif';
+  const wid = (f, txt) => { ctx.font = f; return ctx.measureText(txt).width; };
+  const widest = Math.max(wid(sansF(88), 'Spend less time building'), wid(sansF(88), 'and more time ') + wid(serifF(112), 'sending'), wid(sansF(88), 'Explore the Lob'), wid(serifF(112), 'Template Gallery'));
+  const k = Math.min(1, avail / widest);
+  const sans = sansF(88 * k), serif = serifF(112 * k);
+  const gap = 118 * k;
+  textLine('Spend less time building', left, 600, t, 0.3, 4.6, sans, 'left');
+  textLineMixed([{ text: 'and more time ', font: sans }, { text: 'sending', font: serif }], left, 600, t, 4.9, 9.4, true);
+  textLine('Explore the Lob', left, 600 - gap / 2, t, 9.7, 13.2, sans, 'left');
+  textLine('Template Gallery', left, 600 + gap / 2, t, 9.85, 13.2, serif, 'left');
   ctx.restore();
 }
 
@@ -662,9 +692,12 @@ function fitFrame() {
   const key = innerWidth + 'x' + innerHeight;
   if (key === szSeen || innerWidth <= 0 || innerHeight <= 0) return;
   szSeen = key;
-  const s = Math.min(innerHeight * (1 - 2 * MARGIN), innerWidth) / W;
+  const ww = wideWidth();
+  const cw = ww > 0 ? ww : W;
+  if (cw !== CW && typeof resizeCanvas === 'function' && drawingContext) { WIDE = ww > 0; CW = cw; resizeCanvas(CW, H); }
+  const s = Math.min(innerHeight * (1 - 2 * MARGIN) / H, innerWidth / CW);
   const el = drawingContext.canvas;
-  el.style.width = Math.floor(W * s) + 'px';
+  el.style.width = Math.floor(CW * s) + 'px';
   el.style.height = Math.floor(H * s) + 'px';
 }
 function windowResized() { szSeen = ''; fitFrame(); }
@@ -680,10 +713,17 @@ function draw() {
   const ctx = drawingContext;
   ctx.save();
   ctx.scale(S, S);
+  const dw = CW / S;   // design units across the canvas
+  ctx.save();
+  if (WIDE) ctx.translate(dw - 1200, 0);   // the square visual sits on the right
   drawGallery(t);
   drawCard(t);
-  drawCopy(t);
+  ctx.restore();
+  if (WIDE) drawCopyWide(t, dw); else drawCopy(t);
+  ctx.save();
+  if (WIDE) ctx.translate(dw / 2 - 600, 0);   // the closing logo is centered across the whole frame
   drawLogo(t);
+  ctx.restore();
   setAlpha(1);
   setBlur(0);
   ctx.restore();
