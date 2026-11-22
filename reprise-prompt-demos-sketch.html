@@ -142,6 +142,7 @@ function draw() {
   if (HERO) ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);   // hold the last frame so the slideshow crossfades out
   else if (tt < 0) ti = 0; else if (tt < LOOP) ti = tt; else ti = OFF + ((tt - LOOP) % (LOOP - OFF));
   PS = min(width / SW_, height / SH_);
+  VX = HERO && heroLayout().two ? VX_TWO : 0;
   background(HERO ? DEEP : 0);   // hero: the navy runs past the scene on wide frames
   push();
   translate(width / 2, height / 2); scale(PS); translate(-SW_ / 2, -SH_ / 2);
@@ -178,6 +179,7 @@ function drawLight(base, done) {
 
 /* ============== foreground shared by both backgrounds: demo screen, prompt, logo ============== */
 function drawFG() {
+  push(); translate(VX, 0);
   const fo = 1 - EASE(pr(ti, T_BACK, .7));
   if (ti >= T_WIN && fo > .01) {                           // demo screen pops into view; the data then fades in all at once
     const p = pr(ti, T_WIN, .7), d = EASE(pr(ti, T_DATA, .8));
@@ -189,6 +191,7 @@ function drawFG() {
   }
   drawPrompt();
   drawLogo1(EASE(pr(ti, .1, .8)));
+  pop();
 }
 
 /* the spark spins at centre and flies into the prompt's corner. Once the data is in it leaves the prompt (which shortens),
@@ -316,6 +319,8 @@ function drawNavy() {
    (they stop short of the demo screen). Frames without that much room keep the three-line layout. */
 const BASE2 = [541, 653];
 let layKey = "", lay = { two: false, x: HX };
+const VX_TWO = 220;                   // two-line hero: the screen, prompt, logo and rays sit this far further right (scene units)
+let VX = 0;
 function heroLayout() {
   const key = width + "x" + height;
   if (key === layKey) return lay;
@@ -333,7 +338,7 @@ const rayIn = () => (HERO ? 1 : EASE(pr(millis() / 1000, .2, 1.0)));      // sof
 function drawRays(p, rgb, al) {
   if (p <= 0) return;
   const k = EOUT(p);
-  push(); translate(CX, CY);
+  push(); translate(CX + VX, CY);
   drawingContext.lineCap = "butt"; strokeWeight(1.35);
   const now = millis() / 1000;
   for (let i = 0; i < NRAYS; i++) {
