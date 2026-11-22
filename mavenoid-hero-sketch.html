@@ -259,7 +259,6 @@ svg text{font-family:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;font-we
 <text x="185.43" y="127.3" fill="#0C346C" textLength="41.8" lengthAdjust="spacingAndGlyphs">sander is scratching</text>
 </g>
 
-<g id="spark"><path transform="translate(251.6 124.6)" d="M0 -5.8 Q0.9279999999999999 -0.9279999999999999 5.8 0 Q0.9279999999999999 0.9279999999999999 0 5.8 Q-0.9279999999999999 0.9279999999999999 -5.8 0 Q-0.9279999999999999 -0.9279999999999999 0 -5.8 Z" fill="#397ED3"/><path transform="translate(245.4 120)" d="M0 -2.3 Q0.368 -0.368 2.3 0 Q0.368 0.368 0 2.3 Q-0.368 0.368 -2.3 0 Q-0.368 -0.368 0 -2.3 Z" fill="#397ED3"/><path transform="translate(246 128.6)" d="M0 -2.5 Q0.4 -0.4 2.5 0 Q0.4 0.4 0 2.5 Q-0.4 0.4 -2.5 0 Q-0.4 -0.4 0 -2.5 Z" fill="#397ED3"/></g>
 <g id="s1"><rect x="195.083" y="46.0195" width="53.8474" height="14.0471" rx="3.60064" fill="#F9E898"/><text x="200.25" y="54.9" fill="#173259" textLength="43.3" lengthAdjust="spacingAndGlyphs">Remove sand paper</text></g>
 <g id="s2"><rect x="233.711" y="17.9229" width="60.871" height="14.0471" rx="3.60064" fill="#F9E898"/><text x="238.66" y="26.88" fill="#173259" textLength="50.3" lengthAdjust="spacingAndGlyphs">Sander is making noise</text></g>
 <g id="s3"><rect x="159.963" y="68.2588" width="30.4355" height="14.0471" rx="3.60064" fill="#F9E898"/><text x="164.8" y="77.17" fill="#173259" textLength="20.5" lengthAdjust="spacingAndGlyphs">Warranty</text></g>
@@ -326,7 +325,6 @@ function render(tt){
   $('chk1').setAttribute('transform','translate(101 87.74) scale('+Math.max(cs,0)+')');
   /* the query, the notes, the result */
   fly($('pill'),$('rpp'),PILL.r,PILL.from,PILL.start,PILL.dur,0,.8,10);
-  $('spark').setAttribute('opacity',(t<R1?1-rst:clamp((t-(PILL.start+PILL.dur))/.4)));
   for(i=0;i<5;i++){var n=notes[i];fly($(n.id),$('rp'+i),n.r,n.from,n.start,NOTE_DUR,n.rot,.55,22);}
   fly($('chip'),$('rpc'),CHIP.r,CHIP.from,CHIP.start,CHIP.dur,0,.8,14);
   var cc = t<R1?1-rst:eob(clamp((t-(CHIP.start+CHIP.dur))/.35));
