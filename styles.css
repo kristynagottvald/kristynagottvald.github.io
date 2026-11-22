@@ -255,7 +255,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .contact-grid { grid-template-columns: 5fr 9fr; gap: 8px; padding-left: 0; margin-left: 0; }
   .contact-grid .contact-rows { grid-column: 2; }
   .contact-base { grid-template-columns: 5fr 9fr; gap: 8px; padding-left: 0; }
-  .foot { padding-right: var(--indent); }
 }
 
 /* ---------- Responsive ---------- */
@@ -297,7 +296,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .about-services .row-head, .about-services .service-list li { padding-left: 0; padding-right: 0; }
 .contact-row h3 { padding-left: var(--left); }
 .foot span, .widget { margin-left: 0; }
-.foot { padding-left: var(--left); }
+.foot { padding-left: var(--left); padding-right: var(--left); }   /* the same 30px (8 + 22) from the left and right edges */
 .widget { margin-left: 0; padding-left: var(--left); }
 
 @media (max-width: 700px) {
