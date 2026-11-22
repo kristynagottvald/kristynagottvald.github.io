@@ -118,8 +118,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .work-list { display: grid; grid-template-columns: 1fr; }
 .card a { display: flex; flex-direction: column; gap: 10px; padding: 12px; transition: opacity .17s linear; }
 .card-media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--r-md); background: var(--off-black); container-type: size; }
-.card-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
-.card a:hover .card-media img { transform: scale(1.04); }
+.card-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .card-meta { position: relative; padding: 0 20px 4px 0; }
 .card-title { font-size: 15px; }
 .card-sub { color: var(--grey); font-size: 15px; }
