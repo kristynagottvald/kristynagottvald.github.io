@@ -181,7 +181,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .kr-wrap .role-row { grid-template-columns: 1fr; gap: 14px; background: var(--off-black); border-radius: var(--r-md); padding: 36px 20px; margin-top: 28px; border-top: 0; }
 .case-end { padding: 96px var(--pad) 80px; display: grid; gap: 20px; }
 .case-end .caps { color: var(--grey); }
-.case-end .next-label { letter-spacing: .18em; }
+.case-end .next-label { font: 400 12px/1.4 var(--sans); letter-spacing: .12em; color: var(--ink); }   /* same as the Client / Role labels */
 .all-projects { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px 12px; }
 .tile { display: grid; gap: 4px; align-content: start; }
@@ -260,9 +260,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* Next up: the label + title stay pinned beside the image and slide down as the page scrolls (like the home work list). */
 @media (min-width: 900px) {
-  .case-end a.next { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 12px; align-items: start; }   /* same columns as .tiles */
+  .case-end a.next { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; align-items: start; }   /* same split as the project intro: the image ends at the right column's left edge */
   .next-text { position: sticky; top: calc(var(--nav-h) + 28px); }
-  .case-end .next-media { grid-column: 2 / 4; margin-top: 0; justify-self: end; }
+  .case-end .next-media { grid-column: 2; margin-top: 0; justify-self: end; }
 }
 
 /* ---------- Consistent left indent for text on the far-left edge ---------- */
@@ -347,7 +347,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 /* ---------- Case study intro: title, details and overview under the hero ---------- */
 .case-intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: 16px; padding-top: 28px; padding-bottom: 120px; border-top: 1px solid var(--line); }
 .ci-title { grid-column: 1; font: 300 clamp(30px, 3.4vw, 48px)/1.1 var(--cond); letter-spacing: -0.03em; padding-left: var(--left); max-width: 14em; text-wrap: balance; }
-.ci-details { grid-column: 1; grid-row: 2; display: grid; gap: 28px; align-content: start; padding: 72px 0 0 var(--left); }
+.ci-details { grid-column: 1; grid-row: 2; display: grid; gap: 28px; align-content: start; padding: 87px 0 0 var(--left); }   /* 87 = overview offset (72) + its line (1) + its padding (14), so Client and Overview labels share a line */
 .ci-detail { display: grid; gap: 4px; }
 .ci-label, .ci-value { font: 400 12px/1.4 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--grey); }
 .ci-detail .ci-label { color: var(--ink); }
@@ -366,13 +366,15 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .pv-layer.is-on { opacity: 1; }
 .pv-layer iframe { border: 0; pointer-events: none; max-width: none; }
 .pv-sketch { aspect-ratio: var(--ar); width: max(100cqw, calc(100cqh * var(--ar))); }   /* cover: crop to the card instead of letterboxing */
+.pv-layer iframe { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }   /* centered on the card even when taller or wider than it */
 .pv-vimeo { width: max(100cqw, 177.78cqh); height: max(56.25cqw, 100cqh); }
 
 /* "Selected Work" at the foot of a project: the same two-column layout as the home page */
 .case-end .case-work { margin: 96px 0 0; padding-bottom: 40px; }
 
 /* Vimeo frames: scale up a hair so the video's one-pixel edge line is cropped off by the rounded container */
-.embed iframe[src*="vimeo.com"], .pv-vimeo { transform: scale(1.008); transform-origin: center; }
+.embed iframe[src*="vimeo.com"] { transform: scale(1.008); transform-origin: center; }
+.pv-layer .pv-vimeo { transform: translate(-50%, -50%) scale(1.008); }
 
 /* Project images: scale up a hair inside a rounded, clipped frame so any one-pixel light line baked into the file's edge is cropped off */
 .block-media { overflow: hidden; border-radius: var(--r-md); }
@@ -383,3 +385,9 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 
 /* Divider above "Next up" */
 .case-end a.next { border-top: 1px solid var(--line); padding-top: 28px; }
+
+/* The project you are on, shown in the grid at the foot of its page: dark, blurred, labelled "Viewing" */
+.card.is-current a { cursor: default; pointer-events: none; }
+.card.is-current .card-media img { filter: blur(14px) brightness(.45); transform: scale(1.12); }
+.card-viewing { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; color: #fff; background: rgba(0,0,0,.25); font: 400 14px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; }
+.work-list:hover .card.is-current a { opacity: 1; }
