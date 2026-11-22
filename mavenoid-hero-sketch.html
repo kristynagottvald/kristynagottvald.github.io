@@ -29,7 +29,7 @@ main{flex:1;overflow:hidden;min-height:0;display:flex;align-items:center;justify
 /* the stage keeps the reference's 2000 x 1417 proportions; every size below is in reference pixels (var(--u) = one of them) */
 .stage{container-type:inline-size;width:100vw;aspect-ratio:2000/1417;position:relative}
 .clip main{overflow:hidden}
-.canvas{--u:calc(100cqw / 2000);position:absolute;inset:0;transform:scale(var(--k,1.1));transform-origin:50% 50.2%}
+.canvas{--u:calc(100cqw / 2000);position:absolute;inset:0;transform:scale(var(--k,1));transform-origin:50% 50.2%}
 .card{position:absolute;left:calc(191*var(--u));top:calc(339*var(--u));width:calc(1616*var(--u));height:calc(746*var(--u));border-radius:calc(16*var(--u));background:#fff;overflow:hidden}
 .a{position:absolute;left:calc((var(--x) - 191)*var(--u));top:calc((var(--y) - 339)*var(--u))}
 .logo svg{width:calc(160.6*var(--u));height:calc(50*var(--u));display:block;overflow:visible}
@@ -358,7 +358,7 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
 
 /* hero scale: 1.2 x 1.3 x 0.85 x 1.05 = 1.3923, but never wider than the page (16px gutter) */
 (function(){var st=document.querySelector('.stage'),cv=document.querySelector('.canvas');
-function fit(){var w=st.clientWidth,k=Math.min(1.1,(innerWidth-32)/(w*1616/2000));cv.style.setProperty('--k',Math.max(k,.5).toFixed(4))}
+function fit(){var w=st.clientWidth,k=Math.min(1,(innerWidth-32)/(w*1616/2000));cv.style.setProperty('--k',Math.max(k,.5).toFixed(4))}
 fit();addEventListener('resize',fit)})();
 show();
 if(!reduce){play({from:0,loop:true});
