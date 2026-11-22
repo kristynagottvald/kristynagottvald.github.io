@@ -64,18 +64,16 @@ function addInter() {
 // the page's slideshow asks the sketch to start over each time it comes back around
 window.addEventListener('message', (e) => { if (e.data === 'reset') startMs = millis(); });
 
-// Home hero: the canvas is as wide as the frame (the scene stays 1200 x 675 and sits in the middle), so the
-// mail pieces run off the frame's own edges instead of being cut off partway across it.
-let CW = W;
-const canvasW = () => (HERO && innerWidth > 0 && innerHeight > 0 ? Math.max(W, Math.round(H * innerWidth / innerHeight)) : W);
+// Desktop home hero: the canvas is exactly the size of the frame (the scene is scaled to its height and centered),
+// so the mail pieces run off the frame's own edges instead of being cut off partway across it.
+const FULL = () => HERO && innerWidth >= 900 && innerHeight > 0;
 function windowResized() {
-  const w = canvasW();
-  if (w !== CW) { CW = w; resizeCanvas(CW, H); }
+  if (FULL() && (width !== innerWidth || height !== innerHeight)) resizeCanvas(innerWidth, innerHeight);   // the hero frame can settle to its final size after load
 }
 
 async function setup() {
-  CW = canvasW();
-  createCanvas(CW, H);
+  if (FULL()) createCanvas(innerWidth, innerHeight);
+  else createCanvas(W, H);
   textFont(P5_FONT);
   textAlign(LEFT, BASELINE);
   // fonts and images load at the same time (they used to run one after the other); in the hero slideshow the
@@ -120,17 +118,21 @@ function draw() {
       noStroke();
       fill('#ffffff');
       textFont(P5_FONT);
-      textSize(TEXT_SIZE * heroScale());
+      textSize(TEXT_SIZE * heroScale() * (FULL() ? height / H : 1));
       textAlign(CENTER, BASELINE);
-      text('Be part of the stack', CW / 2, H / 2 + 13);
+      text('Be part of the stack', width / 2, height / 2 + 13 * (FULL() ? height / H : 1));
       textAlign(LEFT, BASELINE);
     }
     return;
   }
   textFont(P5_FONT);
-  windowResized();   // the hero frame can settle to its final size after load
+  windowResized();
   push();
-  translate((CW - W) / 2, 0);   // the 1200 wide scene sits in the middle of a wider hero canvas
+  if (FULL()) {   // fit the 1200 x 675 scene to the frame's height, centered; the background rects run past it
+    const k = height / H;
+    translate((width - W * k) / 2, 0);
+    scale(k);
+  }
   const hs = heroScale();
   if (hs !== 1) { translate(W / 2, H / 2); scale(hs); translate(-W / 2, -H / 2); }   // desktop hero: everything 10% smaller
   const raw = (millis() - startMs) / 1000 * (HERO ? 1 : 1);
