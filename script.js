@@ -530,6 +530,15 @@
   }));
 
   // Hero slideshow: each sketch shows for 4 seconds, then the next fades in.
+  // Phones: the Mavenoid slide is left out of the slideshow (its frame and its dot are removed before the slideshow is set up).
+  if (matchMedia('(max-width: 760px)').matches) {
+    const mv = document.querySelector('.reel-frame[data-src*="mavenoid-hero-sketch"]');
+    if (mv) {
+      const i = [...document.querySelectorAll('.reel-frame')].indexOf(mv);
+      const dot = document.querySelectorAll('.reel-dots .dot')[i];
+      mv.remove(); if (dot) dot.remove();
+    }
+  }
   const frames = [...document.querySelectorAll('.reel-frame')];
   const dots = [...document.querySelectorAll('.reel-dots .dot')];
   let slide = 0, slideTimer = null;
