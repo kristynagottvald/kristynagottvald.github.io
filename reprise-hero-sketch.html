@@ -113,8 +113,10 @@ function entrance(delay) {
 }
 
 function pointerAt(t) {
-  for (let i = 0; i < POINTER_PATH.length - 1; i++) {
-    const a = POINTER_PATH[i], b = POINTER_PATH[i + 1];
+  // desktop: the two stops at the prompt follow it to its new spot
+  const path = !DESK() ? POINTER_PATH : POINTER_PATH.map((q) => (q[1] === 730 && q[2] === 255 ? [q[0], 290 + PDX + 440 * PK, 200 + PDY + 55 * PK] : q));
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i], b = path[i + 1];
     if (t >= a[0] && t <= b[0]) {
       const k = b[0] === a[0] ? 1 : eio((t - a[0]) / (b[0] - a[0]));
       return [lerp(a[1], b[1], k), lerp(a[2], b[2], k)];
@@ -124,6 +126,11 @@ function pointerAt(t) {
 }
 
 const PS = 0.85 * 1.1 * 1.15;
+// desktop only: the prompt and the "AI working" box sit in the open blue space left of the dashboard instead of over it
+const DESK = () => frameW() >= 900;
+const PK = 0.9;                       // they are 10% smaller there so they fit the space
+const PDX = -298.6, PDY = 210.8;      // prompt: offset of its top-left corner from the default spot (screen units)
+const SDY = PDY - 92 * PS * (1 - PK);   // step box: same horizontal offset, placed so the gap to the prompt stays the original 14
 let VW = 1884, VH = 658, C = 1, LX = 1197, HD = 96, EX = 0;
 function draw() {
   syncSize();
@@ -167,14 +174,12 @@ function draw() {
   translate(-(421 + 494.7), -(252 + 278.3));
   drawScreen(t, onAmt);
   push();
-  translate(290, 200);
-  scale(PS);
+  if (DESK()) { translate(290 + PDX, 200 + PDY); scale(PS * PK); } else { translate(290, 200); scale(PS); }
   translate(-68, -190);
   drawPrompt(t, sent, sentAmt);
   pop();
   push();
-  translate(290, 200 + 92 * PS + 14);
-  scale(PS);
+  if (DESK()) { translate(290 + PDX, 200 + 92 * PS + 14 + SDY); scale(PS * PK); } else { translate(290, 200 + 92 * PS + 14); scale(PS); }
   translate(-68, -294);
   drawStep(t);
   pop();
