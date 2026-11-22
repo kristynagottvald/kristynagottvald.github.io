@@ -72,7 +72,75 @@
     $('#service-list').innerHTML = serviceItems;
     $('#about-service-list').innerHTML = serviceItems;
     renderProjectsPage();
+    bindPreviews();
   }
+  // Hover preview on the home grid: the card steps through the project's images, sketches (code) and videos.
+  function previewItems(p) {
+    const items = [], seen = new Set([p.thumbnail]);
+    const ratio = (a) => { const m = String(a || '').match(/([\d.]+)\s*\/\s*([\d.]+)/); return m ? m[1] / m[2] : 16 / 9; };
+    (p.caseStudyContent || []).forEach((b) => {
+      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: 1100 }); }
+      else if (b.type === 'sketch' && b.src) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: 3500 });
+      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: 3500 });
+    });
+    return items;
+  }
+  const pv = { card: null, timer: null, start: null, idx: 0 };
+  function pvLayer(it) {
+    let el;
+    if (it.t === 'img') { el = document.createElement('img'); el.alt = ''; el.src = it.src; }
+    else {
+      el = document.createElement('div');
+      el.style.background = it.bg || '#1e1e1e';
+      const f = document.createElement('iframe');
+      f.tabIndex = -1; f.setAttribute('aria-hidden', 'true');
+      if (it.t === 'sketch') { f.style.setProperty('--ar', it.ar); f.className = 'pv-sketch'; f.src = it.src; }
+      else { f.className = 'pv-vimeo'; f.allow = 'autoplay'; f.src = `https://player.vimeo.com/video/${it.id}?background=1&autoplay=1&muted=1&loop=1&autopause=0&dnt=1${it.hash ? '&h=' + it.hash : ''}`; }
+      el.appendChild(f);
+    }
+    el.className = 'pv-layer';
+    return el;
+  }
+  function pvStep(card, items) {
+    if (pv.card !== card) return;
+    const media = card.querySelector('.card-media');
+    const it = items[pv.idx % items.length];
+    pv.idx++;
+    const el = pvLayer(it);
+    const show = () => {
+      if (pv.card !== card || el.dataset.shown) return;
+      el.dataset.shown = '1';
+      media.appendChild(el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('is-on')));
+      setTimeout(() => media.querySelectorAll('.pv-layer').forEach((o) => { if (o !== el) o.remove(); }), 600);
+      pv.timer = setTimeout(() => pvStep(card, items), it.dwell);
+    };
+    if (it.t === 'img') { el.onload = show; el.onerror = () => { pv.timer = setTimeout(() => pvStep(card, items), 0); }; }
+    else { media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => media.querySelectorAll('.pv-layer').forEach((o) => { if (o !== el) o.remove(); }), 600); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); }
+  }
+  function pvStop() {
+    clearTimeout(pv.timer); clearTimeout(pv.start);
+    const card = pv.card; pv.card = null;
+    if (!card) return;
+    const layers = card.querySelectorAll('.pv-layer');
+    layers.forEach((l) => l.classList.remove('is-on'));
+    setTimeout(() => { if (pv.card !== card) layers.forEach((l) => l.remove()); }, 450);
+  }
+  function bindPreviews() {
+    if (!matchMedia('(hover: hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    cardsEl.querySelectorAll('.card').forEach((card) => {
+      card.addEventListener('mouseenter', () => {
+        pvStop();
+        const p = projects.find((x) => x.id === card.dataset.pid);
+        const items = p ? previewItems(p) : [];
+        if (!items.length) return;
+        pv.card = card; pv.idx = 0;
+        pv.start = setTimeout(() => pvStep(card, items), 250);   // a brief pause so passing over a card does nothing
+      });
+      card.addEventListener('mouseleave', pvStop);
+    });
+  }
+
   // Projects index: two columns, landscape and portrait tiles staggered so the columns never line up.
   function renderProjectsPage() {
     const cols = [[], []];
