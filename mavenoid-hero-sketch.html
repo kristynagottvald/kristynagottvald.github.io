@@ -368,7 +368,8 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
 /* phones in the slideshow: switch the card to the stacked layout (and back if the frame is resized) */
 (function(){
   if(!HERO)return;
-  var items=[['.logo',40,36],['h1.a',40,112],['.lede',40,345],['.btn.go',40,440],['.btn.try',224,440]].map(function(i){var el=document.querySelector(i[0]);return {el:el,x:i[1],y:i[2],ox:el.style.getPropertyValue('--x'),oy:el.style.getPropertyValue('--y')}});
+  var LX=68;   /* left edge of the text inside the card (stacked layout) */
+  var items=[['.logo',LX,36],['h1.a',LX,112],['.lede',LX,345],['.btn.go',LX,440],['.btn.try',LX+184,440]].map(function(i){var el=document.querySelector(i[0]);return {el:el,x:i[1],y:i[2],ox:el.style.getPropertyValue('--x'),oy:el.style.getPropertyValue('--y')}});
   var cv=document.querySelector('.canvas');
   function layout(){
     var on=innerWidth<900, root=document.documentElement;
@@ -381,16 +382,16 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
     /* The card is laid out in WU units across. The illustration should span most of the card's width (84%), so a taller frame lets WU shrink
        (everything bigger); if the frame is still too short for that, the text block shrinks (down to 95% of the base size) to make room, and only then the illustration. */
     var TXT=450, TOP=36, GAPMIN=44, ILLW=.84;
-    var tsMax=function(w){return Math.min(1.12,(w-130)/505)};   /* text a little larger than the base size, as far as the description line still fits the card */
+    var tsMax=function(w){return Math.min(1.12,(w-LX-80)/505)};   /* text a little larger than the base size, as far as the description line still fits the card */
     function geo(w){var h=innerHeight/innerWidth*w, c=h-40, iwT=(w-40)*ILLW, ihT=iwT*229/308; return {hu:h,ch:c,iwT:iwT,ihT:ihT}}
     var WU=700, g=geo(WU);
     /* tall frame: shrink WU (everything bigger) for as long as the next step still leaves room for text, the gap and the illustration */
     while(WU>620){var n=geo(WU-5); if(n.ch < TOP+TXT*tsMax(WU-5)+GAPMIN+n.ihT) break; WU-=5; g=n}
     var ts=tsMax(WU), need=TOP+TXT*ts+GAPMIN+g.ihT;
-    if(g.ch<need) ts=Math.max(.95,(g.ch-TOP-GAPMIN-g.ihT)/TXT);
+    if(g.ch<need) ts=Math.max(.92,(g.ch-TOP-GAPMIN-g.ihT)/TXT);
     var ih=Math.min(g.ch-(TOP+TXT*ts)-GAPMIN, (WU-40)*.92*229/308), iw=ih*308/229;   /* any room left over goes to the illustration (up to 92% of the card's width) */
     items.forEach(function(i){
-      var y=i.el.matches('.logo')?i.y:TOP+(i.y-TOP)*ts, x=i.el.matches('.btn.try')?40+(170*ts+14):i.x;
+      var y=i.el.matches('.logo')?i.y:TOP+(i.y-TOP)*ts, x=i.el.matches('.btn.try')?LX+(170*ts+14):i.x;
       i.el.style.setProperty('--x',x);i.el.style.setProperty('--y',y);
     });
     cv.style.setProperty('--wu',WU);
