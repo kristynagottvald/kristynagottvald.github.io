@@ -171,9 +171,9 @@ const VIS_CX = CX, VIS_CY = 538, VIS_W = 774, VIS_H = 608;   // the screen + pro
 function drawStack() {
   const u = width / 1000, HU = height / u;                          // 1000 units across the frame
   ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);
-  const TS = 0.78;                                                  // the text is set smaller on phones
+  const TS = 0.6;                                                  // the text is set smaller on phones
   const TXT_H = 330 * TS, GAP = 56, PAD = 40;
-  const vs = min(1.18, (HU - 2 * PAD - TXT_H - GAP) / VIS_H);        // the visual shrinks to fit short frames
+  const vs = min(0.9, (HU - 2 * PAD - TXT_H - GAP) / VIS_H);        // the visual shrinks to fit short frames
   const oy = (HU - (TXT_H + GAP + VIS_H * vs)) / 2;                  // the stack is centred vertically
   const vx = 500, vy = oy + TXT_H + GAP + VIS_H * vs / 2;
   PS = u * vs;
@@ -183,7 +183,8 @@ function drawStack() {
   push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); VX = 0;
   drawRays(1, [52, 100, 188], .9);
   pop();
-  push(); translate(70, oy + 80 * TS); scale(TS); translate(-HX, -BASE[0]); drawNavyText(); pop();
+  const tx0 = vx - VIS_W * vs / 2;                                   // the text lines up with the visual's left edge
+  push(); translate(tx0, oy + 80 * TS); scale(TS); translate(-HX, -BASE[0]); drawNavyText(); pop();
   push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); drawFG(); pop();
   pop();
 }
