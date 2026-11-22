@@ -141,7 +141,9 @@ function draw() {
   const tt = millis() / 1000 - START;
   if (HERO) ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);   // hold the last frame so the slideshow crossfades out
   else if (tt < 0) ti = 0; else if (tt < LOOP) ti = tt; else ti = OFF + ((tt - LOOP) % (LOOP - OFF));
+  if (HERO && width < 900) { drawStack(); return; }
   PS = min(width / SW_, height / SH_);
+  VX = HERO && heroLayout().two ? VX_TWO : 0;
   background(HERO ? DEEP : 0);   // hero: the navy runs past the scene on wide frames
   push();
   translate(width / 2, height / 2); scale(PS); translate(-SW_ / 2, -SH_ / 2);
@@ -164,6 +166,27 @@ function draw() {
   pop();
 }
 
+/* ============== hero, phones: the text on top, the visual stacked below ============== */
+const VIS_CX = CX, VIS_CY = 538, VIS_W = 774, VIS_H = 608;   // the screen + prompt block, in scene units
+function drawStack() {
+  const u = width / 1000, HU = height / u;                          // 1000 units across the frame
+  ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);
+  const TXT_H = 330, GAP = 60, PAD = 40;
+  const vs = min(1.18, (HU - 2 * PAD - TXT_H - GAP) / VIS_H);        // the visual shrinks to fit short frames
+  const oy = (HU - (TXT_H + GAP + VIS_H * vs)) / 2;                  // the stack is centred vertically
+  const vx = 500, vy = oy + TXT_H + GAP + VIS_H * vs / 2;
+  PS = u * vs;
+  background(DEEP);
+  push(); scale(u);
+  noStroke(); fill(DEEP); rect(0, 0, 1000, HU);
+  push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); VX = 0;
+  drawRays(1, [52, 100, 188], .9);
+  pop();
+  push(); translate(70 - HX, oy + 80 - BASE[0]); drawNavyText(); pop();
+  push(); translate(vx, vy); scale(vs); translate(-VIS_CX, -VIS_CY); drawFG(); pop();
+  pop();
+}
+
 /* ============== light blue layer: headline, rays ============== */
 function drawLight(base, done) {
   noStroke(); fill(LIGHT); rect(0, 0, SW_, SH_);
@@ -178,6 +201,7 @@ function drawLight(base, done) {
 
 /* ============== foreground shared by both backgrounds: demo screen, prompt, logo ============== */
 function drawFG() {
+  push(); translate(VX, 0);
   const fo = 1 - EASE(pr(ti, T_BACK, .7));
   if (ti >= T_WIN && fo > .01) {                           // demo screen pops into view; the data then fades in all at once
     const p = pr(ti, T_WIN, .7), d = EASE(pr(ti, T_DATA, .8));
@@ -189,6 +213,7 @@ function drawFG() {
   }
   drawPrompt();
   drawLogo1(EASE(pr(ti, .1, .8)));
+  pop();
 }
 
 /* the spark spins at centre and flies into the prompt's corner. Once the data is in it leaves the prompt (which shortens),
@@ -272,14 +297,24 @@ function drawNavy() {
   drawingContext.drawImage(grain, 0, 0);
   if (HERO) { drawingContext.drawImage(grain, -SW_, 0); drawingContext.drawImage(grain, SW_, 0); }   // keep the grain going where the frame is wider than the scene
   drawRays(1, [52, 100, 188], .9 * rayIn());
-
+  drawNavyText();
+}
+function drawNavyText() {
   const out = ti >= T_BACK, ha = out ? 1 - EASE(pr(ti, T_BACK, .6)) : 1;      // the headline fades once the logo heads to the middle
   if (ha > .01) {
     push();
-    ht("Stop building", HX, BASE[0], 400, "#fff", ha);
-    ht("demos", HX, BASE[1], 400, "#fff", ha);
-    const x1 = HX + hw("demos ", 400), x2 = x1 + hw("and ", 400), x3 = HX + hw("prompting ", 600);
-    const words = [["and", 400, x1, BASE[1]], ["start", 600, x2, BASE[1]], ["prompting", 600, HX, BASE[2]], ["them.", 600, x3, BASE[2]]];
+    const L = heroLayout();
+    let words;
+    if (L.two) {
+      ht("Stop building demos", L.x, BASE2[0], 400, "#fff", ha);
+      const a = L.x, b = a + hw("and ", 400), c = b + hw("start ", 600), d = c + hw("prompting ", 600);
+      words = [["and", 400, a, BASE2[1]], ["start", 600, b, BASE2[1]], ["prompting", 600, c, BASE2[1]], ["them.", 600, d, BASE2[1]]];
+    } else {
+      ht("Stop building", HX, BASE[0], 400, "#fff", ha);
+      ht("demos", HX, BASE[1], 400, "#fff", ha);
+      const x1 = HX + hw("demos ", 400), x2 = x1 + hw("and ", 400), x3 = HX + hw("prompting ", 600);
+      words = [["and", 400, x1, BASE[1]], ["start", 600, x2, BASE[1]], ["prompting", 600, HX, BASE[2]], ["them.", 600, x3, BASE[2]]];
+    }
     for (let i = 0; i < 4; i++) {
       const w = words[i], p = pr(ti, T_WORDS + i * .3, .8);
       if (out) { ht(w[0], w[2], w[3], w[1], "#fff", ha); continue; }
@@ -288,19 +323,46 @@ function drawNavy() {
     pop();
   }
   if (ti >= T_BACK + .6) {                                                     // CTA, line by line
-    const lines = [["Tell the right story", 400, BASE[0]], ["in your demos with", 400, BASE[1]], ["Reprise.", 600, BASE[2]]];
-    lines.forEach((l, i) => {
-      const p = pr(ti, T_BACK + .7 + i * .3, .8);
-      ht(l[0], HX, l[2] + 30 * (1 - EOUT(p)), l[1], "#fff", EASE(p));
-    });
+    const L = heroLayout();
+    if (L.two) {
+      const p0 = pr(ti, T_BACK + .7, .8), p1 = pr(ti, T_BACK + 1.0, .8), xr = L.x + hw("in your demos with ", 400);
+      ht("Tell the right story", L.x, BASE2[0] + 30 * (1 - EOUT(p0)), 400, "#fff", EASE(p0));
+      ht("in your demos with", L.x, BASE2[1] + 30 * (1 - EOUT(p1)), 400, "#fff", EASE(p1));
+      ht("Reprise.", xr, BASE2[1] + 30 * (1 - EOUT(p1)), 600, "#fff", EASE(p1));
+    } else {
+      const lines = [["Tell the right story", 400, BASE[0]], ["in your demos with", 400, BASE[1]], ["Reprise.", 600, BASE[2]]];
+      lines.forEach((l, i) => {
+        const p = pr(ti, T_BACK + .7 + i * .3, .8);
+        ht(l[0], HX, l[2] + 30 * (1 - EOUT(p)), l[1], "#fff", EASE(p));
+      });
+    }
   }
 }
 
+/* hero, wide desktop frames only: the headline and the closing line run on two lines, starting in the open space left of the scene
+   (they stop short of the demo screen). Frames without that much room keep the three-line layout. */
+const BASE2 = [541, 653];
+let layKey = "", lay = { two: false, x: HX };
+const VX_TWO = 220;                   // two-line hero: the screen, prompt, logo and rays sit this far further right (scene units)
+let VX = 0;
+function heroLayout() {
+  const key = width + "x" + height;
+  if (key === layKey) return lay;
+  layKey = key; lay = { two: false, x: HX };
+  if (!HERO || width < 900) return lay;
+  const w1 = hw("and ", 400) + hw("start ", 600) + hw("prompting ", 600) + hw("them.", 600);
+  const w2 = hw("Tell the right story", 400), w3 = hw("in your demos with ", 400) + hw("Reprise.", 600);
+  const widest = max(w1, w2, w3, hw("Stop building demos", 400));
+  const xs = WIN.x - 40 - widest;                           // right end of the longest line stays clear of the screen
+  const leftBound = SW_ / 2 - width / (2 * PS) + 0.06 * width / PS;   // keep a margin from the frame's left edge
+  if (xs >= leftBound) lay = { two: true, x: xs };
+  return lay;
+}
 const rayIn = () => (HERO ? 1 : EASE(pr(millis() / 1000, .2, 1.0)));      // soft fade on the very first load only
 function drawRays(p, rgb, al) {
   if (p <= 0) return;
   const k = EOUT(p);
-  push(); translate(CX, CY);
+  push(); translate(CX + VX, CY);
   drawingContext.lineCap = "butt"; strokeWeight(1.35);
   const now = millis() / 1000;
   for (let i = 0; i < NRAYS; i++) {
