@@ -41,11 +41,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 :root { --nav-h: 72px; }
 .nav { position: sticky; top: 0; z-index: 40; height: var(--nav-h); display: flex; align-items: baseline; gap: 48px; padding: 24px calc(var(--pad) + var(--indent)) 0 calc(var(--pad) + var(--left)); background: var(--bg); white-space: nowrap; }
 .logo { flex: none; font: 600 24px/1 var(--sans); letter-spacing: -1px; color: #fff; }
-.nav-links { display: flex; gap: 40px; }
+.nav-links { display: flex; gap: 32px; }
 .nav-links a { font: 400 11px/1.3 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--grey); transition: color .2s; }
 .nav-links a:hover, .nav-links a[aria-current] { color: #fff; }
 .nav-status { margin-left: auto; display: block; font: 400 11px/1.3 var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--grey); }
-.dot-live { display: inline-block; vertical-align: -.6px; margin-right: 10px; width: 6px; height: 6px; border-radius: 50%; background: #8fd694; animation: live 2s ease-in-out infinite alternate; }
+.dot-live { display: inline-block; vertical-align: -.4px; margin-right: 10px; width: 6px; height: 6px; border-radius: 50%; background: #8fd694; animation: live 2s ease-in-out infinite alternate; }
 @keyframes live { from { opacity: .6; } to { opacity: 1; } }
 .nav-jump { display: none; }
 @media (max-width: 760px) {
@@ -201,13 +201,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .next-title.dance .ch { animation: lift .5s var(--ease) both; animation-delay: calc(var(--i) * 28ms); }
 
 /* ---------- About ---------- */
-.about { padding: 72px var(--pad) 120px calc(var(--pad) + var(--left)); min-height: 90vh; }
-.about-inner { display: grid; gap: 56px; }
-.about h1 { font-size: clamp(44px, 9vw, 140px); line-height: .96; letter-spacing: -0.04em; max-width: 12ch; }
-.about-sub { font-size: clamp(28px, 4vw, 56px); max-width: 16ch; padding-top: 24px; border-top: 1px solid var(--line); }
-.about-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; }
-.about-cols p { grid-column: 2; font-size: 19px; line-height: 27px; color: var(--grey); max-width: 52ch; }
+.about { display: grid; grid-template-columns: 11fr 17fr; gap: 72px 8px; padding: 72px var(--pad) 120px; min-height: 90vh; align-content: start; }   /* same split as the contact section */
+.about h1 { grid-column: 1 / -1; padding-left: var(--left); font-size: clamp(34px, 4.6vw, 68px); line-height: 1.02; letter-spacing: -0.035em; max-width: 26ch; }   /* starts in the left panel and runs on into the right */
+.about-inner { grid-column: 2; display: grid; gap: 56px; min-width: 0; padding-right: var(--indent); align-content: start; }
+.about-sub { font-size: clamp(26px, 2.8vw, 40px); max-width: none; padding-top: 24px; border-top: 1px solid var(--line); }
+.about-cols { display: grid; grid-template-columns: 1fr; gap: 24px; }
+.about-cols p { font-size: 19px; line-height: 27px; color: var(--grey); max-width: 46em; }
 .about-cols p:first-child { color: var(--ink); }
+@media (min-width: 640px) { .about-sub { white-space: nowrap; } }
+@media (max-width: 899px) { .about { grid-template-columns: 1fr; gap: 32px; padding-top: 40px; } .about-inner { grid-column: 1; padding-left: var(--left); } }
 
 /* ---------- Contact + footer ---------- */
 .contact { padding: 24px var(--pad) 0; border-top: 1px solid var(--line); min-height: calc(100svh - 72px); display: flex; flex-direction: column; }
@@ -237,8 +239,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- Responsive ---------- */
 @media (max-width: 700px) {
-  .text-row, .role-row, .about-cols { grid-template-columns: 1fr; gap: 14px; }
-  .about-cols p { grid-column: 1; }
+  .text-row, .role-row { grid-template-columns: 1fr; gap: 14px; }
   .case-top h1 { max-width: 100%; }
   .block-media.half-right, .block-media.half-left { width: 100%; margin-left: 0; }
   .kr-wrap { width: calc(100% + 40px); margin-left: -20px; }
@@ -284,8 +285,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* more room on the right of the right-hand text column */
 .text-right { padding-right: calc(var(--indent) * 1.5); }   /* project text blocks run closer to the right edge */
-.role-list:not(.body), .about-cols p { padding-right: calc(var(--indent) * 3); }
-@media (max-width: 700px) { .text-right, .role-list:not(.body), .about-cols p { padding-right: var(--indent); } }
+.role-list:not(.body) { padding-right: calc(var(--indent) * 3); }
+@media (max-width: 700px) { .text-right, .role-list:not(.body) { padding-right: var(--indent); } }
 /* Stacked layout: every text line shares the heading's left indent */
 @media (max-width: 700px) {
   .text-right, .role-list:not(.body) { padding-left: var(--left); }
