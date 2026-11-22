@@ -64,8 +64,18 @@ function addInter() {
 // the page's slideshow asks the sketch to start over each time it comes back around
 window.addEventListener('message', (e) => { if (e.data === 'reset') startMs = millis(); });
 
+// Home hero: the canvas is as wide as the frame (the scene stays 1200 x 675 and sits in the middle), so the
+// mail pieces run off the frame's own edges instead of being cut off partway across it.
+let CW = W;
+const canvasW = () => (HERO && innerWidth > 0 && innerHeight > 0 ? Math.max(W, Math.round(H * innerWidth / innerHeight)) : W);
+function windowResized() {
+  const w = canvasW();
+  if (w !== CW) { CW = w; resizeCanvas(CW, H); }
+}
+
 async function setup() {
-  createCanvas(W, H);
+  CW = canvasW();
+  createCanvas(CW, H);
   textFont(P5_FONT);
   textAlign(LEFT, BASELINE);
   // fonts and images load at the same time (they used to run one after the other); in the hero slideshow the
@@ -112,13 +122,15 @@ function draw() {
       textFont(P5_FONT);
       textSize(TEXT_SIZE * heroScale());
       textAlign(CENTER, BASELINE);
-      text('Be part of the stack', W / 2, H / 2 + 13);
+      text('Be part of the stack', CW / 2, H / 2 + 13);
       textAlign(LEFT, BASELINE);
     }
     return;
   }
   textFont(P5_FONT);
+  windowResized();   // the hero frame can settle to its final size after load
   push();
+  translate((CW - W) / 2, 0);   // the 1200 wide scene sits in the middle of a wider hero canvas
   const hs = heroScale();
   if (hs !== 1) { translate(W / 2, H / 2); scale(hs); translate(-W / 2, -H / 2); }   // desktop hero: everything 10% smaller
   const raw = (millis() - startMs) / 1000 * (HERO ? 1 : 1);
