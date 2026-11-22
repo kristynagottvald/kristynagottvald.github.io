@@ -31,7 +31,7 @@
 }
 @media (max-width: 639px) { :root { --fs-title: 40px; --fs-h2: 30px; --fs-h3: 22px; } }
 /* Body copy is one weight lighter (Inter 300) than the labels, links and titles (400). */
-.case-lede, .text-right, .text-right p, .about-cols p, .aside-text, .aside-text p, .pj-side p, .ci-overview p { font-weight: 300; }
+.case-lede, .text-right, .text-right p, .about-cols p, .aside-text, .aside-text p, .pj-side p, .ci-overview p, .card-sub { font-weight: 300; }
 *, *::before, *::after { box-sizing: border-box; }
 html { background: var(--bg); color-scheme: dark; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--fs-body)/1.25 var(--sans); }   /* regular weight (350 resolved to Helvetica Neue Light on a Mac, which is thin on dark); default font smoothing, not antialiased, which thins light-on-dark text further */
