@@ -360,7 +360,11 @@
   // "#services" / "#contact" -> home / footer anchors
   // "#<id>"     -> case study
 
-  const setNav = (key) => navLinks.forEach((a) => (a.dataset.nav === key ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+  const setNav = (key) => navLinks.forEach((a) => {
+    const on = a.dataset.nav === key;
+    if (on) { a.setAttribute('aria-current', 'page'); const l = $('#nav-jump-label'); if (l) l.textContent = a.textContent; }   // the mobile toggle names the current page
+    else a.removeAttribute('aria-current');
+  });
 
   function show(name) {
     if (currentView === 'home') homeScroll = window.scrollY;
@@ -391,7 +395,7 @@
       document.title = `About • ${SITE}`;
       window.scrollTo(0, 0);
     } else if (hash === 'contact') {
-      if (!currentView || currentView === 'case') show('home');
+      if (currentView !== 'home') show('home');   // contact lives on the home page
       document.title = `${SITE} • ${TAGLINE}`;
       scrollToId('contact');
       setNav('contact');
