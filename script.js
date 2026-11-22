@@ -63,12 +63,13 @@
     const name = [p.listTitle, p.pageTitle, p.title].find((t) => t && t.trim() && t.trim().toLowerCase() !== client.toLowerCase());
     return [client, name || subtitle(p)];
   };
-  const cardHTML = (p) => {
+  const EYE = '<svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 7s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="10" cy="7" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+  const cardHTML = (p, current = false) => {
     const [l1, l2] = cardLines(p);
     return `
-      <article class="card" data-pid="${esc(p.id)}">
-        <a href="#${esc(p.slug)}" aria-label="${esc(p.title)}">
-          <div class="card-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
+      <article class="card${current ? ' is-current' : ''}" data-pid="${esc(p.id)}">
+        <a href="#${esc(p.slug)}" aria-label="${esc(p.title)}${current ? ' (currently viewing)' : ''}"${current ? ' aria-current="page"' : ''}>
+          <div class="card-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy">${current ? `<div class="card-viewing">${EYE}<span>Viewing</span></div>` : ''}</div>
           <div class="card-meta">
             <h3 class="card-title">${esc(l1)}</h3>
             ${l2 ? `<p class="card-sub">${esc(l2)}</p>` : ''}${ARROW}
@@ -144,7 +145,7 @@
   }
   function bindPreviews(root = cardsEl) {
     if (!matchMedia('(hover: hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    root.querySelectorAll('.card').forEach((card) => {
+    root.querySelectorAll('.card:not(.is-current)').forEach((card) => {
       card.addEventListener('mouseenter', () => {
         pvStop();
         const p = projects.find((x) => x.id === card.dataset.pid);
@@ -409,7 +410,7 @@
           </a>
           <section class="work case-work" aria-label="Selected Work">
             <div class="work-side"><h2 class="t-condensed">Selected Work</h2></div>
-            <div class="work-list">${projects.filter((q) => q !== p).map(cardHTML).join('')}</div>
+            <div class="work-list">${projects.map((q) => (q === p ? cardHTML(q, true) : cardHTML(q))).join('')}</div>
           </section>
         </footer>
       </article>`;

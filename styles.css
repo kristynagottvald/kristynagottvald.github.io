@@ -383,3 +383,9 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 
 /* Divider above "Next up" */
 .case-end a.next { border-top: 1px solid var(--line); padding-top: 28px; }
+
+/* The project you are on, shown in the grid at the foot of its page: dark, blurred, labelled "Viewing" */
+.card.is-current a { cursor: default; pointer-events: none; }
+.card.is-current .card-media img { filter: blur(14px) brightness(.45); transform: scale(1.12); }
+.card-viewing { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; color: #fff; background: rgba(0,0,0,.25); font: 400 14px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; }
+.work-list:hover .card.is-current a { opacity: 1; }
