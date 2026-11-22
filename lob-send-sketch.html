@@ -107,8 +107,8 @@ function setBlur(px) {
   drawingContext.filter = px > 0.2 ? 'blur(' + (px * pixelDensity()).toFixed(1) + 'px)' : 'none';
 }
 
-// desktop home hero: the whole animation and its text play at 99% (was 90%, then scaled up 10%)
-const heroScale = () => (HERO && innerWidth >= 900 ? 0.99 : 1);
+// desktop home hero: the whole animation and its text play at 113.85% (was 90%, +10%, then +15%)
+const heroScale = () => (HERO && innerWidth >= 900 ? 1.1385 : 1);
 
 function draw() {
   if (!ready) {
