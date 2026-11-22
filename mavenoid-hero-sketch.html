@@ -101,8 +101,8 @@ svg text{font-family:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;font-we
 <path d="M200.637 126.64V127.079H298.635V126.64V126.201H200.637V126.64ZM298.946 126.95C299.117 126.779 299.117 126.501 298.946 126.329L296.152 123.536C295.98 123.364 295.703 123.364 295.531 123.536C295.36 123.707 295.36 123.985 295.531 124.156L298.014 126.64L295.531 129.123C295.36 129.294 295.36 129.572 295.531 129.744C295.703 129.915 295.98 129.915 296.152 129.744L298.946 126.95Z" fill="#CBE8FF"/>
 <path d="M185.046 123.3V126.64H200.9" stroke="#CBE8FF" stroke-width="0.88" stroke-linejoin="miter"/>
 </g>
-<g id="chip"><rect x="168.875" y="139.363" width="81.3712" height="14.6473" rx="3.90069" fill="#CEEAFF" stroke="#397ED3" stroke-width="0.600106"/><text x="174.125" y="148.6" fill="#173259" textLength="60.1" lengthAdjust="spacingAndGlyphs">Sander gouges into surface</text><use id="chk2" href="#chk" transform="translate(242.895 146.5)"/></g>
-<rect id="rpc" x="168.875" y="139.363" width="81.3712" height="14.6473" rx="3.9" stroke="#79BFF4" stroke-width="0.7" opacity="0"/>
+<g id="chip"><rect x="172" y="139.363" width="81.3712" height="14.6473" rx="3.90069" fill="#CEEAFF" stroke="#397ED3" stroke-width="0.600106"/><text x="177.25" y="148.6" fill="#173259" textLength="60.1" lengthAdjust="spacingAndGlyphs">Sander gouges into surface</text><use id="chk2" href="#chk" transform="translate(246.02 146.5)"/></g>
+<rect id="rpc" x="172" y="139.363" width="81.3712" height="14.6473" rx="3.9" stroke="#79BFF4" stroke-width="0.7" opacity="0"/>
 
 <!-- ============ robot ============ -->
 <g class="hd">
@@ -283,7 +283,7 @@ var notes=[
  {id:'s4',r:[236.052,67.0908,71.4063,14.0471],from:[100,130.784],start:4.8,rot:9},
  {id:'s2',r:[233.711,17.9229,60.871,14.0471],from:[100,130.784],start:5.1,rot:-8}
 ];
-var NOTE_DUR=.85, CHIP={r:[168.875,139.363,81.3712,14.6473],from:[60,88],start:6,dur:.75};
+var NOTE_DUR=.85, CHIP={r:[172,139.363,81.3712,14.6473],from:[60,88],start:6,dur:.75};
 var t=0,t_;
 function tf(cx,cy,dx,dy,rot,s){return 'translate('+(cx+dx)+' '+(cy+dy)+') rotate('+rot+') scale('+s+') translate('+(-cx)+' '+(-cy)+')'}
 function prog(start,dur){ if(t<R1) return {a:1,o:1-clamp((t-R0)/(R1-R0))}; var a=clamp((t-start)/dur); return {a:a,o:a>0?1:0}; }
@@ -322,7 +322,7 @@ function render(tt){
   for(i=0;i<5;i++){var n=notes[i];fly($(n.id),$('rp'+i),n.r,n.from,n.start,NOTE_DUR,n.rot,.55,22);}
   fly($('chip'),$('rpc'),CHIP.r,CHIP.from,CHIP.start,CHIP.dur,0,.8,14);
   var cc = t<R1?1-rst:eob(clamp((t-(CHIP.start+CHIP.dur))/.35));
-  $('chk2').setAttribute('transform','translate(242.895 146.5) scale('+Math.max(cc,0)+')');
+  $('chk2').setAttribute('transform','translate(246.02 146.5) scale('+Math.max(cc,0)+')');
   /* robot: the head turns to the card, then to the graph; arms lift as things are sent */
   var h1=eio(clamp((t-1.2)/.5))*(1-eio(clamp((t-2.9)/.5))), h2=eio(clamp((t-3.3)/.5))*(1-eio(clamp((t-7)/.7)));
   var fl=(t>=3.4&&t<7)?-1:1;
