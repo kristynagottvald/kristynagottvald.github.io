@@ -407,7 +407,7 @@ function drawCard(t) {
   const sc = grow * lerp(1, SLOT.w / 714, u);
   if (sc <= 0.001) return;
   const tx = lerp(600, SLOT.x + SLOT.w / 2, u);
-  const ty = lerp(756, SLOT.y + SLOT.h / 2 + panelOff(t), u);
+  const ty = lerp(756 + (WIDE ? -156 : 0), SLOT.y + SLOT.h / 2 + panelOff(t), u);   // wide hero: the mail piece is centered on the same line as the copy (y 600)
   const d = easeIO(span(t, 4.7, 5.3));
   const wire = 1 - d;
   const radius = lerp(6, 16, d);
