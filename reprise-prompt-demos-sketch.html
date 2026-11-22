@@ -276,10 +276,18 @@ function drawNavy() {
   const out = ti >= T_BACK, ha = out ? 1 - EASE(pr(ti, T_BACK, .6)) : 1;      // the headline fades once the logo heads to the middle
   if (ha > .01) {
     push();
-    ht("Stop building", HX, BASE[0], 400, "#fff", ha);
-    ht("demos", HX, BASE[1], 400, "#fff", ha);
-    const x1 = HX + hw("demos ", 400), x2 = x1 + hw("and ", 400), x3 = HX + hw("prompting ", 600);
-    const words = [["and", 400, x1, BASE[1]], ["start", 600, x2, BASE[1]], ["prompting", 600, HX, BASE[2]], ["them.", 600, x3, BASE[2]]];
+    const L = heroLayout();
+    let words;
+    if (L.two) {
+      ht("Stop building demos", L.x, BASE2[0], 400, "#fff", ha);
+      const a = L.x, b = a + hw("and ", 400), c = b + hw("start ", 600), d = c + hw("prompting ", 600);
+      words = [["and", 400, a, BASE2[1]], ["start", 600, b, BASE2[1]], ["prompting", 600, c, BASE2[1]], ["them.", 600, d, BASE2[1]]];
+    } else {
+      ht("Stop building", HX, BASE[0], 400, "#fff", ha);
+      ht("demos", HX, BASE[1], 400, "#fff", ha);
+      const x1 = HX + hw("demos ", 400), x2 = x1 + hw("and ", 400), x3 = HX + hw("prompting ", 600);
+      words = [["and", 400, x1, BASE[1]], ["start", 600, x2, BASE[1]], ["prompting", 600, HX, BASE[2]], ["them.", 600, x3, BASE[2]]];
+    }
     for (let i = 0; i < 4; i++) {
       const w = words[i], p = pr(ti, T_WORDS + i * .3, .8);
       if (out) { ht(w[0], w[2], w[3], w[1], "#fff", ha); continue; }
@@ -288,14 +296,39 @@ function drawNavy() {
     pop();
   }
   if (ti >= T_BACK + .6) {                                                     // CTA, line by line
-    const lines = [["Tell the right story", 400, BASE[0]], ["in your demos with", 400, BASE[1]], ["Reprise.", 600, BASE[2]]];
-    lines.forEach((l, i) => {
-      const p = pr(ti, T_BACK + .7 + i * .3, .8);
-      ht(l[0], HX, l[2] + 30 * (1 - EOUT(p)), l[1], "#fff", EASE(p));
-    });
+    const L = heroLayout();
+    if (L.two) {
+      const p0 = pr(ti, T_BACK + .7, .8), p1 = pr(ti, T_BACK + 1.0, .8), xr = L.x + hw("in your demos with ", 400);
+      ht("Tell the right story", L.x, BASE2[0] + 30 * (1 - EOUT(p0)), 400, "#fff", EASE(p0));
+      ht("in your demos with", L.x, BASE2[1] + 30 * (1 - EOUT(p1)), 400, "#fff", EASE(p1));
+      ht("Reprise.", xr, BASE2[1] + 30 * (1 - EOUT(p1)), 600, "#fff", EASE(p1));
+    } else {
+      const lines = [["Tell the right story", 400, BASE[0]], ["in your demos with", 400, BASE[1]], ["Reprise.", 600, BASE[2]]];
+      lines.forEach((l, i) => {
+        const p = pr(ti, T_BACK + .7 + i * .3, .8);
+        ht(l[0], HX, l[2] + 30 * (1 - EOUT(p)), l[1], "#fff", EASE(p));
+      });
+    }
   }
 }
 
+/* hero, wide desktop frames only: the headline and the closing line run on two lines, starting in the open space left of the scene
+   (they stop short of the demo screen). Frames without that much room keep the three-line layout. */
+const BASE2 = [541, 653];
+let layKey = "", lay = { two: false, x: HX };
+function heroLayout() {
+  const key = width + "x" + height;
+  if (key === layKey) return lay;
+  layKey = key; lay = { two: false, x: HX };
+  if (!HERO || width < 900) return lay;
+  const w1 = hw("and ", 400) + hw("start ", 600) + hw("prompting ", 600) + hw("them.", 600);
+  const w2 = hw("Tell the right story", 400), w3 = hw("in your demos with ", 400) + hw("Reprise.", 600);
+  const widest = max(w1, w2, w3, hw("Stop building demos", 400));
+  const xs = WIN.x - 40 - widest;                           // right end of the longest line stays clear of the screen
+  const leftBound = SW_ / 2 - width / (2 * PS) + 0.06 * width / PS;   // keep a margin from the frame's left edge
+  if (xs >= leftBound) lay = { two: true, x: xs };
+  return lay;
+}
 const rayIn = () => (HERO ? 1 : EASE(pr(millis() / 1000, .2, 1.0)));      // soft fade on the very first load only
 function drawRays(p, rgb, al) {
   if (p <= 0) return;
