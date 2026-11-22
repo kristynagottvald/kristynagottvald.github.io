@@ -407,7 +407,7 @@ function drawCard(t) {
   const sc = grow * lerp(1, SLOT.w / 714, u);
   if (sc <= 0.001) return;
   const tx = lerp(600, SLOT.x + SLOT.w / 2, u);
-  const ty = lerp(756 + (WIDE ? -156 : 0), SLOT.y + SLOT.h / 2 + panelOff(t), u);   // wide hero: the mail piece is centered on the same line as the copy (y 600)
+  const ty = lerp(756 + (WIDE ? -156 : 0), SLOT.y + SLOT.h / 2 + panelOff(t) + galleryDy(), u);   // wide hero: the mail piece is centered on the same line as the copy (y 600)
   const d = easeIO(span(t, 4.7, 5.3));
   const wire = 1 - d;
   const radius = lerp(6, 16, d);
@@ -633,8 +633,9 @@ function drawCopy(t) {
   ctx.restore();
 }
 
-const VIS_SCALE = 1.2;
-const wideShift = (dw) => dw * 0.88 - VIS_SCALE * 1121;   // x offset of the visual: its panel's right edge (x 1121) lands 12% in from the right
+const VIS_SCALE = 1.3;
+const galleryDy = () => (WIDE ? -150 : 0);   // wide hero: the gallery panel sits higher (the mail piece lands in its slot, so it moves too)
+const wideShift = (dw) => dw * 0.92 - VIS_SCALE * 1121;   // x offset of the visual: its panel's right edge (x 1121) lands 8% in from the right
 // wide desktop hero: the copy sits on the left, left-aligned, in the space beside the visual
 function drawCopyWide(t, dw) {
   const ctx = drawingContext;
@@ -712,7 +713,10 @@ function draw() {
     ctx.translate(wideShift(dw), 600 * (1 - VIS_SCALE));
     ctx.scale(VIS_SCALE, VIS_SCALE);
   }
+  ctx.save();
+  ctx.translate(0, galleryDy());
   drawGallery(t);
+  ctx.restore();
   drawCard(t);
   ctx.restore();
   if (WIDE) drawCopyWide(t, dw); else drawCopy(t);
