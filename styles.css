@@ -378,3 +378,5 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .block-media { overflow: hidden; border-radius: var(--r-md); }
 .block-media > img, .block-media > video { transform: scale(1.006); transform-origin: center; }
 .block-media .figcap { position: relative; }
+/* Sketch frames: grow the viewport by a pixel on each side (no scaling, so nothing blurs) so the clipped container hides any edge line */
+.embed.sketch iframe { inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); max-width: none; }
