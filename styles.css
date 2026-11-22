@@ -45,8 +45,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .nav-links a { font: 400 11px/1.3 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--grey); transition: color .2s; }
 .nav-links a:hover, .nav-links a[aria-current] { color: #fff; }
 .nav-status { margin-left: auto; display: block; font: 400 11px/1.3 var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--grey); }
-.dot-live { display: inline-block; vertical-align: 1px; margin-right: 10px; width: 6px; height: 6px; border-radius: 50%; background: #8fd694; animation: live 3s ease-in-out infinite alternate; }
-@keyframes live { from { opacity: .3; } to { opacity: 1; } }
+.dot-live { display: inline-block; vertical-align: -.25px; margin-right: 10px; width: 6px; height: 6px; border-radius: 50%; background: #8fd694; animation: live 2s ease-in-out infinite alternate; }
+@keyframes live { from { opacity: .6; } to { opacity: 1; } }
 .nav-jump { display: none; }
 @media (max-width: 760px) {
   :root { --nav-h: 86px; }
@@ -211,7 +211,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .about-cols p:first-child { color: var(--ink); }
 
 /* ---------- Contact + footer ---------- */
-.contact { padding: 24px var(--pad) 0; border-top: 1px solid var(--line); min-height: 100svh; display: flex; flex-direction: column; }
+.contact { padding: 24px var(--pad) 0; border-top: 1px solid var(--line); min-height: calc(100svh - 72px); display: flex; flex-direction: column; }
 .contact-grid { display: grid; grid-template-columns: 1fr; gap: 48px; padding-top: 24px; }
 .contact-head { padding-left: var(--left); }
 .contact-rows { display: grid; }
@@ -366,3 +366,6 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .pv-layer iframe { border: 0; pointer-events: none; max-width: none; }
 .pv-sketch { aspect-ratio: var(--ar); width: min(100cqw, calc(100cqh * var(--ar))); }
 .pv-vimeo { width: max(100cqw, 177.78cqh); height: max(56.25cqw, 100cqh); }
+
+/* "Selected Work" at the foot of a project: the same two-column layout as the home page */
+.case-end .case-work { margin: 96px 0 0; padding-bottom: 40px; }

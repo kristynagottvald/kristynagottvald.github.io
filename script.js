@@ -55,9 +55,7 @@
   const SERVICES = ['Brand Identity', 'Creative Coding', 'Creative Direction', 'Art Direction', 'Campaigns', 'Motion Design', 'Brand Tools'];
   const SERVICE_LINKS = { 'Brand Tools': 'https://kristynagottvald.github.io/sketches/' };   // a small arrow opens the sketches page
 
-  function renderGrid() {
-    cardsEl.innerHTML = projects
-      .map((p) => `
+  const cardHTML = (p) => `
       <article class="card" data-pid="${esc(p.id)}">
         <a href="#${esc(p.slug)}" aria-label="${esc(p.title)}">
           <div class="card-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy"></div>
@@ -66,8 +64,10 @@
             ${subtitle(p) ? `<p class="card-sub">${esc(subtitle(p))}</p>` : ''}${ARROW}
           </div>
         </a>
-      </article>`)
-      .join('');
+      </article>`;
+
+  function renderGrid() {
+    cardsEl.innerHTML = projects.map(cardHTML).join('');
     const serviceItems = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${SERVICE_LINKS[t] ? `<a class="svc-link" href="${SERVICE_LINKS[t]}" target="_blank" rel="noopener noreferrer">${esc(t)}<span class="svc-go" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/></svg></span><span class="sr-only"> (opens in a new tab)</span></a>` : esc(t)}</span></li>`).join('');
     $('#service-list').innerHTML = serviceItems;
     $('#about-service-list').innerHTML = serviceItems;
@@ -126,9 +126,9 @@
     layers.forEach((l) => l.classList.remove('is-on'));
     setTimeout(() => { if (pv.card !== card) layers.forEach((l) => l.remove()); }, 450);
   }
-  function bindPreviews() {
+  function bindPreviews(root = cardsEl) {
     if (!matchMedia('(hover: hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    cardsEl.querySelectorAll('.card').forEach((card) => {
+    root.querySelectorAll('.card').forEach((card) => {
       card.addEventListener('mouseenter', () => {
         pvStop();
         const p = projects.find((x) => x.id === card.dataset.pid);
@@ -276,15 +276,6 @@
 
   const pageTitle = (p) => p.pageTitle || p.title;
 
-  // Six other projects as image tiles, never the current project or the Next up project.
-  function tilesHTML(p) {
-    const i = projects.indexOf(p);
-    // starts two after the current project: the one right after it is already shown as "Next up"
-    return Array.from({ length: Math.min(6, projects.length - 2) }, (_, k) => projects[(i + 2 + k) % projects.length])
-      .map((q) => `<a class="tile" href="#${esc(q.slug)}"><div class="tile-media"><img src="${esc(q.thumbnail)}" alt="" loading="lazy"></div><span class="tile-title">${esc(q.title)}</span></a>`)
-      .join('');
-  }
-
   // Every image of a project, thumbnail first, for the "Next up" cycle.
   function nextImages(q) {
     const list = [q.thumbnail];
@@ -400,10 +391,10 @@
             </div>
             <div class="next-media" data-urls="${esc(JSON.stringify(nextImages(next)))}"><img class="is-active" src="${esc(nextImages(next)[0])}" alt=""><span class="reel-hint next-hint">View project <svg class="hint-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" stroke-linecap="square"/></svg></span></div>
           </a>
-          <div class="all-projects">
-            <h2 class="t-condensed">All projects</h2>
-            <div class="tiles">${tilesHTML(p)}</div>
-          </div>
+          <section class="work case-work" aria-label="Selected Work">
+            <div class="work-side"><h2 class="t-condensed">Selected Work</h2></div>
+            <div class="work-list">${projects.filter((q) => q !== p).map(cardHTML).join('')}</div>
+          </section>
         </footer>
       </article>`;
   }
@@ -438,6 +429,7 @@
     document.title = `${pageTitle(p)} • ${SITE}`;
     startNextMedia();
     bindDance();
+    bindPreviews(stackEl);
     return true;
   }
 
@@ -465,7 +457,7 @@
 
   function scrollToId(id) {
     const el = document.getElementById(id);
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' });
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - $('#nav').offsetHeight, behavior: 'smooth' });   // land just under the sticky nav
   }
 
   function route() {
