@@ -366,13 +366,15 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 .pv-layer.is-on { opacity: 1; }
 .pv-layer iframe { border: 0; pointer-events: none; max-width: none; }
 .pv-sketch { aspect-ratio: var(--ar); width: max(100cqw, calc(100cqh * var(--ar))); }   /* cover: crop to the card instead of letterboxing */
+.pv-layer iframe { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }   /* centered on the card even when taller or wider than it */
 .pv-vimeo { width: max(100cqw, 177.78cqh); height: max(56.25cqw, 100cqh); }
 
 /* "Selected Work" at the foot of a project: the same two-column layout as the home page */
 .case-end .case-work { margin: 96px 0 0; padding-bottom: 40px; }
 
 /* Vimeo frames: scale up a hair so the video's one-pixel edge line is cropped off by the rounded container */
-.embed iframe[src*="vimeo.com"], .pv-vimeo { transform: scale(1.008); transform-origin: center; }
+.embed iframe[src*="vimeo.com"] { transform: scale(1.008); transform-origin: center; }
+.pv-layer .pv-vimeo { transform: translate(-50%, -50%) scale(1.008); }
 
 /* Project images: scale up a hair inside a rounded, clipped frame so any one-pixel light line baked into the file's edge is cropped off */
 .block-media { overflow: hidden; border-radius: var(--r-md); }
