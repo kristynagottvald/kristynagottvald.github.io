@@ -256,7 +256,7 @@
     const labeled = paras.filter((t) => LABELED.test(t));
     const rest = paras.filter((t) => !LABELED.test(t)).sort((x, y) => (CREDIT.test(x) || CREDIT_ANY.test(x)) - (CREDIT.test(y) || CREDIT_ANY.test(y)));
     const row = b.heading || rest.length
-      ? `<div class="text-row${b.noLine ? ' no-line' : ''}"><div class="text-left">${b.heading ? `<h3>${esc(b.heading)}</h3>` : ''}</div><div class="text-right">${rest.map((t) => `<p${CREDIT_ANY.test(t) && t.length < 200 ? ' class="credit"' : ''}>${esc(t)}</p>`).join('')}</div></div>`
+      ? `<div class="text-row${b.noLine ? ' no-line' : ''}"><div class="text-left">${b.heading ? `<h2>${esc(b.heading)}</h2>` : ''}</div><div class="text-right">${rest.map((t) => `<p${CREDIT_ANY.test(t) && t.length < 200 ? ' class="credit"' : ''}>${esc(t)}</p>`).join('')}</div></div>`
       : '';
     if (!row && !labeled.length) return '';
     return `<div class="block-text">${row}${labeled.map(roleRow).join('')}</div>`;
