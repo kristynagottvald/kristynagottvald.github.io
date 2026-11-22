@@ -72,7 +72,75 @@
     $('#service-list').innerHTML = serviceItems;
     $('#about-service-list').innerHTML = serviceItems;
     renderProjectsPage();
+    bindPreviews();
   }
+  // Hover preview on the home grid: the card steps through the project's images, sketches (code) and videos.
+  function previewItems(p) {
+    const items = [], seen = new Set([p.thumbnail]);
+    const ratio = (a) => { const m = String(a || '').match(/([\d.]+)\s*\/\s*([\d.]+)/); return m ? m[1] / m[2] : 16 / 9; };
+    (p.caseStudyContent || []).forEach((b) => {
+      if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: 1100 }); }
+      else if (b.type === 'sketch' && b.src) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: 3500 });
+      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: 3500 });
+    });
+    return items;
+  }
+  const pv = { card: null, timer: null, start: null, idx: 0 };
+  function pvLayer(it) {
+    let el;
+    if (it.t === 'img') { el = document.createElement('img'); el.alt = ''; el.src = it.src; }
+    else {
+      el = document.createElement('div');
+      el.style.background = it.bg || '#1e1e1e';
+      const f = document.createElement('iframe');
+      f.tabIndex = -1; f.setAttribute('aria-hidden', 'true');
+      if (it.t === 'sketch') { f.style.setProperty('--ar', it.ar); f.className = 'pv-sketch'; f.src = it.src; }
+      else { f.className = 'pv-vimeo'; f.allow = 'autoplay'; f.src = `https://player.vimeo.com/video/${it.id}?background=1&autoplay=1&muted=1&loop=1&autopause=0&dnt=1${it.hash ? '&h=' + it.hash : ''}`; }
+      el.appendChild(f);
+    }
+    el.className = 'pv-layer';
+    return el;
+  }
+  function pvStep(card, items) {
+    if (pv.card !== card) return;
+    const media = card.querySelector('.card-media');
+    const it = items[pv.idx % items.length];
+    pv.idx++;
+    const el = pvLayer(it);
+    const show = () => {
+      if (pv.card !== card || el.dataset.shown) return;
+      el.dataset.shown = '1';
+      media.appendChild(el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('is-on')));
+      setTimeout(() => media.querySelectorAll('.pv-layer').forEach((o) => { if (o !== el) o.remove(); }), 600);
+      pv.timer = setTimeout(() => pvStep(card, items), it.dwell);
+    };
+    if (it.t === 'img') { el.onload = show; el.onerror = () => { pv.timer = setTimeout(() => pvStep(card, items), 0); }; }
+    else { media.appendChild(el); el.dataset.shown = '1'; const f = el.firstChild; let done = false; const go = () => { if (done) return; done = true; if (pv.card !== card) return; requestAnimationFrame(() => el.classList.add('is-on')); setTimeout(() => media.querySelectorAll('.pv-layer').forEach((o) => { if (o !== el) o.remove(); }), 600); pv.timer = setTimeout(() => pvStep(card, items), it.dwell); }; f.addEventListener('load', () => setTimeout(go, 400)); setTimeout(go, 2500); }
+  }
+  function pvStop() {
+    clearTimeout(pv.timer); clearTimeout(pv.start);
+    const card = pv.card; pv.card = null;
+    if (!card) return;
+    const layers = card.querySelectorAll('.pv-layer');
+    layers.forEach((l) => l.classList.remove('is-on'));
+    setTimeout(() => { if (pv.card !== card) layers.forEach((l) => l.remove()); }, 450);
+  }
+  function bindPreviews() {
+    if (!matchMedia('(hover: hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    cardsEl.querySelectorAll('.card').forEach((card) => {
+      card.addEventListener('mouseenter', () => {
+        pvStop();
+        const p = projects.find((x) => x.id === card.dataset.pid);
+        const items = p ? previewItems(p) : [];
+        if (!items.length) return;
+        pv.card = card; pv.idx = 0;
+        pv.start = setTimeout(() => pvStep(card, items), 250);   // a brief pause so passing over a card does nothing
+      });
+      card.addEventListener('mouseleave', pvStop);
+    });
+  }
+
   // Projects index: two columns, landscape and portrait tiles staggered so the columns never line up.
   function renderProjectsPage() {
     const cols = [[], []];
@@ -289,22 +357,41 @@
     a.addEventListener('mouseleave', () => { hovering = false; });
   }
 
+  // Case study intro: hero image first, then the title, details (client, industry, role) and overview.
+  const ROLE_RE = /^\s*role:\s*/i;
+  function caseIntro(p, content) {
+    const ti = content.findIndex((b) => b.type === 'text');
+    const tb = ti >= 0 ? content[ti] : null;
+    const summary = (p.summary || '').trim();
+    const intro = tb && ti <= 3 && (tb.heading || !summary) ? tb : null;
+    const clean = (arr) => [].concat(arr || []).filter((t) => !LABELED.test(t) && !CREDIT.test(t) && !CREDIT_ANY.test(t));
+    const overview = intro ? clean(intro.body) : summary ? [summary] : [];
+    const client = (p.clientName || '').trim();
+    const heading = intro && intro.heading && intro.heading.trim().toLowerCase() !== client.toLowerCase() ? intro.heading : '';
+    const title = heading || pageTitle(p);
+    const roleText = content.flatMap((b) => (b.type === 'text' ? [].concat(b.body || []) : [])).find((t) => ROLE_RE.test(t));
+    const roles = roleText ? roleText.replace(ROLE_RE, '').split(',').map((x) => x.trim()).filter(Boolean).map(titleCase) : [];
+    const detail = (label, value) => (value ? `<div class="ci-detail"><span class="ci-label">${label}</span><span class="ci-value">${esc(value)}</span></div>` : '');
+    const html = `<section class="case-intro" aria-label="Project overview">
+      <h1 class="ci-title">${esc(title)}</h1>
+      <div class="ci-details">${detail('Client', client)}${detail('Industry', p.industry)}${detail('Role', roles.join(', '))}</div>
+      ${overview.length ? `<div class="ci-overview"><span class="ci-label">Overview</span>${overview.map((t) => `<p>${esc(t)}</p>`).join('')}</div>` : ''}
+    </section>`;
+    // Everything the intro already shows is removed from the rest of the page.
+    const rest = content.filter((b) => b !== intro).map((b) => (b.type === 'text' ? { ...b, body: [].concat(b.body || []).filter((t) => !ROLE_RE.test(t)) } : b));
+    return { html, rest };
+  }
+
   function caseHTML(p) {
-    const content = p.caseStudyContent || [];
+    const { html: introHTML, rest: content } = caseIntro(p, p.caseStudyContent || []);
     const blocks = content.map(blockHTML);
     const heroAt = content.findIndex((b) => b.type === 'image' || b.type === 'vimeo');
     const hero = heroAt >= 0 ? blocks.splice(heroAt, 1)[0] : '';
     const i = projects.indexOf(p);
     const next = projects[(i + 1) % projects.length];
-    const meta = [p.year, p.category, p.client].filter(Boolean).map(esc).map((m) => `<span>${m}</span>`).join('');
     return `
       <article class="case" aria-label="${esc(pageTitle(p))}">
-        <header class="case-top">
-          <div class="case-meta">${meta}</div>
-          <h1>${esc(pageTitle(p))}</h1>
-          ${p.summary && p.summary.trim() ? `<p class="case-lede">${esc(p.summary)}</p>` : ''}
-        </header>
-        <div class="case-body">${hero}${blocks.join('')}</div>
+        <div class="case-body">${hero}${introHTML}${blocks.join('')}</div>
         <footer class="case-end">
           <a class="next" href="#${esc(next.slug)}">
             <div class="next-text">
@@ -360,7 +447,11 @@
   // "#services" / "#contact" -> home / footer anchors
   // "#<id>"     -> case study
 
-  const setNav = (key) => navLinks.forEach((a) => (a.dataset.nav === key ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+  const setNav = (key) => navLinks.forEach((a) => {
+    const on = a.dataset.nav === key;
+    if (on) { a.setAttribute('aria-current', 'page'); const l = $('#nav-jump-label'); if (l) l.textContent = a.textContent; }   // the mobile toggle names the current page
+    else a.removeAttribute('aria-current');
+  });
 
   function show(name) {
     if (currentView === 'home') homeScroll = window.scrollY;
@@ -391,7 +482,7 @@
       document.title = `About • ${SITE}`;
       window.scrollTo(0, 0);
     } else if (hash === 'contact') {
-      if (!currentView || currentView === 'case') show('home');
+      if (currentView !== 'home') show('home');   // contact lives on the home page
       document.title = `${SITE} • ${TAGLINE}`;
       scrollToId('contact');
       setNav('contact');
@@ -424,7 +515,10 @@
   document.addEventListener('click', (e) => { if (!navEl.contains(e.target)) setMenu(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   window.addEventListener('hashchange', () => setMenu(false));
-  navEl.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+  navEl.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', () => {
+    setMenu(false);
+    if (a.getAttribute('href') === location.hash) scrollToId(location.hash.slice(1));   // already on that hash: no hashchange fires, so scroll by hand
+  }));
 
   // Hero slideshow: each sketch shows for 4 seconds, then the next fades in.
   const frames = [...document.querySelectorAll('.reel-frame')];
