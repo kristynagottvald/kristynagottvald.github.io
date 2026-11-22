@@ -407,7 +407,7 @@ function drawCard(t) {
   const sc = grow * lerp(1, SLOT.w / 714, u);
   if (sc <= 0.001) return;
   const tx = lerp(600, SLOT.x + SLOT.w / 2, u);
-  const ty = lerp(756 + (WIDE ? -156 : 0), SLOT.y + SLOT.h / 2 + panelOff(t), u);   // wide hero: the mail piece is centered on the same line as the copy (y 600)
+  const ty = lerp(756 + (WIDE ? -156 : 0), SLOT.y + SLOT.h / 2 + panelOff(t) + galleryDy(), u);   // wide hero: the mail piece is centered on the same line as the copy (y 600)
   const d = easeIO(span(t, 4.7, 5.3));
   const wire = 1 - d;
   const radius = lerp(6, 16, d);
@@ -506,14 +506,9 @@ function drawGallery(t) {
   const ctx = drawingContext;
   ctx.save();
   ctx.translate(0, off);
-  ctx.save();
-  ctx.shadowColor = 'rgba(40, 10, 70, 0.25)';
-  ctx.shadowBlur = 40;
-  ctx.shadowOffsetY = -6;
-  rr(81, 474, 1040, 900, 14);
+  rr(81, 474, 1040, 900, 14);   // no drop shadow on the gallery; only the mail piece has one
   ctx.fillStyle = WHITE;
   ctx.fill();
-  ctx.restore();
   rr(81, 474, 1040, 900, 14);
   ctx.clip();
   ctx.fillStyle = NAVY;
@@ -557,14 +552,9 @@ function drawGallery(t) {
     const g = GALLERY[n];
     const x0 = GCOL[n % 4];
     const y0 = GROW[floor(n / 4)];
-    ctx.save();
-    ctx.shadowColor = 'rgba(30, 20, 60, 0.10)';
-    ctx.shadowBlur = 22;
-    ctx.shadowOffsetY = 10;
     rr(x0, y0, 219, 158, 8);
     ctx.fillStyle = '#f7f6f8';
     ctx.fill();
-    ctx.restore();
     rr(x0, y0, 219, 158, 8);
     ctx.strokeStyle = '#e8e6ec';
     ctx.lineWidth = 1.2;
@@ -643,22 +633,23 @@ function drawCopy(t) {
   ctx.restore();
 }
 
-const VIS_SCALE = 1.2;
-const wideShift = (dw) => dw * 0.88 - VIS_SCALE * 1121;   // x offset of the visual: its panel's right edge (x 1121) lands 12% in from the right
+const VIS_SCALE = 1.3;
+const galleryDy = () => (WIDE ? -150 : 0);   // wide hero: the gallery panel sits higher (the mail piece lands in its slot, so it moves too)
+const wideShift = (dw) => dw * 0.92 - VIS_SCALE * 1121;   // x offset of the visual: its panel's right edge (x 1121) lands 8% in from the right
 // wide desktop hero: the copy sits on the left, left-aligned, in the space beside the visual
 function drawCopyWide(t, dw) {
   const ctx = drawingContext;
   ctx.save();
   ctx.textBaseline = 'middle';
   const left = dw * 0.097;
-  const avail = wideShift(dw) + VIS_SCALE * 81 - left - 80;   // room between the copy and the visual's left edge
+  const avail = wideShift(dw) + VIS_SCALE * 81 - left - 50;   // room between the copy and the visual's left edge
   const sansF = (px) => '400 ' + px + 'px ' + P5_FONT;
   const serifF = (px) => 'italic 400 ' + px + 'px "EB Garamond", Georgia, serif';
   const wid = (f, txt) => { ctx.font = f; return ctx.measureText(txt).width; };
-  const widest = Math.max(wid(sansF(88), 'Spend less time building'), wid(sansF(88), 'and more time ') + wid(serifF(112), 'sending'), wid(sansF(88), 'Explore the Lob'), wid(serifF(112), 'Template Gallery'));
+  const widest = Math.max(wid(sansF(100), 'Spend less time building'), wid(sansF(100), 'and more time ') + wid(serifF(128), 'sending'), wid(sansF(100), 'Explore the Lob'), wid(serifF(128), 'Template Gallery'));
   const k = Math.min(1, avail / widest);
-  const sans = sansF(88 * k), serif = serifF(112 * k);
-  const gap = 118 * k;
+  const sans = sansF(100 * k), serif = serifF(128 * k);
+  const gap = 134 * k;
   textLine('Spend less time building', left, 600, t, 0.3, 4.6, sans, 'left');
   textLineMixed([{ text: 'and more time ', font: sans }, { text: 'sending', font: serif }], left, 600, t, 4.9, 9.4, true);
   textLine('Explore the Lob', left, 600 - gap / 2, t, 9.7, 13.2, sans, 'left');
@@ -722,7 +713,10 @@ function draw() {
     ctx.translate(wideShift(dw), 600 * (1 - VIS_SCALE));
     ctx.scale(VIS_SCALE, VIS_SCALE);
   }
+  ctx.save();
+  ctx.translate(0, galleryDy());
   drawGallery(t);
+  ctx.restore();
   drawCard(t);
   ctx.restore();
   if (WIDE) drawCopyWide(t, dw); else drawCopy(t);
