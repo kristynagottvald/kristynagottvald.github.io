@@ -368,3 +368,6 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 
 /* "Selected Work" at the foot of a project: the same two-column layout as the home page */
 .case-end .case-work { margin: 96px 0 0; padding-bottom: 40px; }
+
+/* Vimeo frames: scale up a hair so the video's one-pixel edge line is cropped off by the rounded container */
+.embed iframe[src*="vimeo.com"], .pv-vimeo { transform: scale(1.008); transform-origin: center; }
