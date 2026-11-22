@@ -375,7 +375,8 @@ window.__rb={play:play,seek:seek,pause:pause,T:T};
   var items=[['.logo',LX,36],['h1.a',LX,112],['.lede',LX,345],['.btn.go',LX,440],['.btn.try',LX+184,440]].map(function(i){var el=document.querySelector(i[0]);return {el:el,x:i[1],y:i[2],ox:el.style.getPropertyValue('--x'),oy:el.style.getPropertyValue('--y')}});
   var cv=document.querySelector('.canvas');
   function layout(){
-    var on=innerWidth<900, root=document.documentElement;
+    /* stack only in a narrow frame that is not landscape: a frame wider than tall (about 1.1:1 or more) can still hold the landscape card */
+    var on=innerWidth<900&&innerWidth/innerHeight<1.1, root=document.documentElement;
     root.classList.toggle('stack',on);
     items.forEach(function(i){
       if(on){i.el.style.setProperty('--x',i.x);i.el.style.setProperty('--y',i.y)}
