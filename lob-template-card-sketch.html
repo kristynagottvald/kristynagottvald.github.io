@@ -635,7 +635,7 @@ function drawCopy(t) {
 
 const VIS_SCALE = 1.3;
 const galleryDy = () => (WIDE ? -150 : 0);   // wide hero: the gallery panel sits higher (the mail piece lands in its slot, so it moves too)
-const wideShift = (dw) => dw * 0.92 - VIS_SCALE * 1121;   // x offset of the visual: its panel's right edge (x 1121) lands 8% in from the right
+const wideShift = (dw) => dw * 0.895 - VIS_SCALE * 1121;   // x offset of the visual (gallery panel and mail pieces): its panel right edge (x 1121) lands 10.5% in from the right
 // wide desktop hero: the copy sits on the left, left-aligned, in the space beside the visual
 function drawCopyWide(t, dw) {
   const ctx = drawingContext;
