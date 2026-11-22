@@ -1,7 +1,7 @@
 /* Slub — black, condensed-light headings, mono micro-labels. Tokens first. */
 :root {
-  --bg: #302f2d;   /* soft black */
-  --off-black: #3a3937;   /* a step lighter than the page, for cards and media placeholders */
+  --bg: #1f1e1c;   /* soft black */
+  --off-black: #2b2a28;   /* a step lighter than the page, for cards and media placeholders */
   --darkest: #1c1c1c;
   --ink: #fff;
   --grey: #989898;
