@@ -314,6 +314,10 @@ function sceneTwo(t) {
   const pw = lerp(335, 311, zoom) * GS;
   const exitAt = 3.4;
   const flipAt = 4.9;
+  // how far the top and bottom rows slide: far enough that even the piece that starts furthest left (j = -5) clears the
+  // right edge of the visible frame (wider than the scene on a wide hero), before the next scene starts
+  const halfVis = (FULL() ? width / ((height / H) * heroScale()) : W / heroScale()) / 2;
+  const slideDist = max(2800, halfVis + pw + 5 * pColStep + 60);
   const baseAlpha = drawingContext.globalAlpha;
   const words = ['Be part', 'of', 'the stack'];
   textSize(TEXT_SIZE);
@@ -357,7 +361,7 @@ function sceneTwo(t) {
       const dir = abs(k) % 2 === 0 ? -1 : 1;
       const slide = easeIO((t - exitAt - 0.05 * abs(k)) / 1.35);
       const base = cx + j * pColStep;
-      const x = k === 0 ? cx + (j - 5 * ease((t - exitAt) / 1.55)) * pColStep + (j === 5 ? groupShift() * ease((t - exitAt) / 1.55) : 0) - (j === 5 ? 0 : easeIO((t - exitAt - 0.3) / 1.15) * 1340) : base + dir * 2800 * slide;
+      const x = k === 0 ? cx + (j - 5 * ease((t - exitAt) / 1.55)) * pColStep + (j === 5 ? groupShift() * ease((t - exitAt) / 1.55) : 0) - (j === 5 ? 0 : easeIO((t - exitAt - 0.3) / 1.15) * 1340) : base + dir * slideDist * slide;
       const y = cy + (k + 0.5 - 0.5 * zoom) * rowStep + bob;
       setAlpha(HERO ? baseAlpha * min(1, e * 1.8) : baseAlpha);   // hero: fade up as it grows
       const img = pieceImg(j, k);
