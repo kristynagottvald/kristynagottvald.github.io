@@ -99,6 +99,9 @@ function setBlur(px) {
   drawingContext.filter = px > 0.2 ? 'blur(' + (px * pixelDensity()).toFixed(1) + 'px)' : 'none';
 }
 
+// desktop home hero: the whole animation and its text play 10% smaller
+const heroScale = () => (HERO && innerWidth >= 900 ? 0.9 : 1);
+
 function draw() {
   if (!ready) {
     // home page slideshow: show "Be part of the stack" in the middle straight away, while the images and font still load
@@ -107,7 +110,7 @@ function draw() {
       noStroke();
       fill('#ffffff');
       textFont(P5_FONT);
-      textSize(TEXT_SIZE);
+      textSize(TEXT_SIZE * heroScale());
       textAlign(CENTER, BASELINE);
       text('Be part of the stack', W / 2, H / 2 + 13);
       textAlign(LEFT, BASELINE);
@@ -115,6 +118,9 @@ function draw() {
     return;
   }
   textFont(P5_FONT);
+  push();
+  const hs = heroScale();
+  if (hs !== 1) { translate(W / 2, H / 2); scale(hs); translate(-W / 2, -H / 2); }   // desktop hero: everything 10% smaller
   const raw = (millis() - startMs) / 1000 * (HERO ? 1 : 1);
   const t = HERO ? HERO_FROM + Math.min(raw, HERO_TO - HERO_FROM - 0.01) : raw % TOTAL;   // hero: hold the last frame so the slideshow crossfades out without the loop restarting
   let start = 0;
@@ -133,6 +139,7 @@ function draw() {
   }
   setAlpha(1);
   setBlur(0);
+  pop();
 }
 
 function drawScene(i, lt, a) {
@@ -150,7 +157,7 @@ function drawScene(i, lt, a) {
 function sceneOne(t) {
   fill(PURPLE);
   noStroke();
-  rect(0, 0, W, H);
+  rect(-W, -H, 3 * W, 3 * H);   // oversized so it still fills the frame when the hero scales the scene down
   const words = ['Go', 'from', 'idea', 'to', 'mailbox', 'faster'];
   drawWords(words, W / 2, H / 2 + 13, TEXT_SIZE, '#ffffff', t, 0.3, 0.3, 2.7, 2.35);
 }
@@ -261,7 +268,7 @@ function easeIO(x) {
 function sceneTwo(t) {
   fill(NAVY);
   noStroke();
-  rect(0, 0, W, H);
+  rect(-W, -H, 3 * W, 3 * H);   // oversized so it still fills the frame when the hero scales the scene down
   const cx = W / 2;
   const cy = H / 2;
   const enter = HERO ? 1 : ease((t - 0.05) / 0.7);   // hero: the text is already centred from the loading frame, only the mail pops in
@@ -337,7 +344,7 @@ function flipPiece(f, cx, cy, startW) {
 function sceneThree(t) {
   fill(NAVY);
   noStroke();
-  rect(0, 0, W, H);
+  rect(-W, -H, 3 * W, 3 * H);   // oversized so it still fills the frame when the hero scales the scene down
   const cx = W / 2 + groupShift();
   const cy = H / 2;
   const e = ease((t - 0.2) / 1.1);
@@ -676,7 +683,7 @@ function drawPostcardIcon(x, y, u, sc, alpha, prog) {
 function sceneUiTwo(t) {
   fill(NAVY);
   noStroke();
-  rect(0, 0, W, H);
+  rect(-W, -H, 3 * W, 3 * H);   // oversized so it still fills the frame when the hero scales the scene down
   const cx = W / 2 + groupShift();
   const cy = H / 2;
   const w = UI_W;
@@ -785,7 +792,7 @@ function drawCropMarks(cx, cy, w, h, u, alpha) {
 function sceneUiThree(t) {
   fill(NAVY);
   noStroke();
-  rect(0, 0, W, H);
+  rect(-W, -H, 3 * W, 3 * H);   // oversized so it still fills the frame when the hero scales the scene down
   const cx = W / 2 + groupShift();
   const cy = H / 2;
   const w = UI_W;
@@ -859,7 +866,7 @@ function sceneUiThree(t) {
 function sceneFour(t) {
   fill(NAVY);
   noStroke();
-  rect(0, 0, W, H);
+  rect(-W, -H, 3 * W, 3 * H);   // oversized so it still fills the frame when the hero scales the scene down
   const A = finalLayout(true);
   const B = finalLayout(false);
   const last = IMGS.length - 1;
