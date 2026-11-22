@@ -173,6 +173,7 @@ const VIS_CX = CX, VIS_CY = 538, VIS_W = 774, VIS_H = 608;   // the screen + pro
 function drawStack() {
   const u = width / 1000, HU = height / u;                          // 1000 units across the frame
   ti = min(HERO_FROM + (millis() - heroT0) / 1000, HERO_TO);
+  NAVY_R = 3000;                                                    // the navy is fully open here; without this the logo's colour logic treats it as still on the pale blue (navy on navy)
   const TS = 0.6;                                                  // the text is set smaller on phones
   const TXT_H = 330 * TS, GAP = 56, PAD = 40;
   const vs = min(0.9, (HU - 2 * PAD - TXT_H - GAP) / VIS_H);        // the visual shrinks to fit short frames
@@ -250,7 +251,7 @@ function logoColor(p) {
   const bl = CX - boxW() * BS / 2, bt = boxTop(), br = bl + boxW() * BS, bb = bt + boxH() * BS;
   const wx = WIN.x, wy = WIN.y, wx1 = WIN.x + 900 * WIN.s, wy1 = WIN.y + 565 * WIN.s;
   const d = Math.max(Math.min(p[0] - bl, br - p[0], p[1] - bt, bb - p[1]), Math.min(p[0] - wx, wx1 - p[0], p[1] - wy, wy1 - p[1]));
-  const fo = 1 - EASE(pr(ti, T_BACK, .7));                  // the screen and prompt fade out as the logo heads to the middle
+  const fo = 1 - EASE(pr(ti, T_BACK, .3));                  // the logo turns light quickly (the screen and prompt themselves take .7s to fade), so it never sits navy on the navy
   return lerpColor(color("#fcfcf9"), color(NAVY), constrain(d / 24, 0, 1) * fo);
 }
 function drawLogo1(la) {
