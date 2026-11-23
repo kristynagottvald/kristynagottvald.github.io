@@ -87,14 +87,15 @@
     bindPreviews();
   }
   // Hover preview on the home grid: the card steps through the project's images, sketches (code) and videos.
-  const PV_DWELL = 900;   // each preview stays for 0.9 seconds before the next one fades in
+  const PV_DWELL = 900;        // one beat: each image preview stays 0.9 seconds, and the rest on the cover is 3 beats
+  const PV_DWELL_LIVE = 2000;  // animated code (sketches) and videos stay 2 seconds
   function previewItems(p) {
     const items = [], seen = new Set([p.thumbnail]);
     const ratio = (a) => { const m = String(a || '').match(/([\d.]+)\s*\/\s*([\d.]+)/); return m ? m[1] / m[2] : 16 / 9; };
     (p.caseStudyContent || []).forEach((b) => {
       if (b.type === 'image' && b.src && !seen.has(b.src) && !/placeholder/.test(b.src)) { seen.add(b.src); items.push({ t: 'img', src: b.src, dwell: PV_DWELL }); }
-      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: PV_DWELL });
-      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: PV_DWELL });
+      else if (b.type === 'sketch' && b.src && !b.noPreview) items.push({ t: 'sketch', src: b.src, ar: ratio(b.aspect), bg: b.bg, dwell: PV_DWELL_LIVE });
+      else if (b.type === 'vimeo' && b.id) items.push({ t: 'vimeo', id: String(b.id).replace(/\D/g, ''), hash: b.hash, dwell: PV_DWELL_LIVE });
     });
     return items;
   }
@@ -149,7 +150,13 @@
   function pvStep(card, items) {
     if (pv.card !== card) return;
     const media = card.querySelector('.card-media');
-    const i = pv.idx % items.length, it = items[i];
+    if (pv.idx >= items.length) {   // every preview has been shown: rest on the cover image for 3 beats, then start over
+      media.querySelectorAll('.pv-layer').forEach((l) => { l.classList.remove('is-on'); if (!l.dataset.cached) l.remove(); });
+      pv.idx = 0;
+      pv.timer = setTimeout(() => pvStep(card, items), PV_DWELL * 3);
+      return;
+    }
+    const i = pv.idx, it = items[i];
     pv.idx++;
     const pre = (pvPre.get(card) || new Map()).get(i);   // a video that was preloaded when the card scrolled into view
     const el = pre || pvLayer(it);
