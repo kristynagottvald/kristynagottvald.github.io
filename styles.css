@@ -232,7 +232,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .about-cols { display: grid; grid-template-columns: 1fr; gap: 24px; }
 .about-cols p { font-size: var(--fs-body); line-height: var(--lh-body); color: var(--grey); max-width: 35em; }   /* the about copy wraps at about three quarters of its old width */
 .about-cols p:first-child { color: var(--ink); }
-.about-cols.all-ink p { color: var(--ink); }   /* the second block is all main copy, so every paragraph is white */
 @media (min-width: 640px) { .about-sub { white-space: nowrap; } }
 @media (max-width: 899px) { .about { grid-template-columns: 1fr; gap: 32px; padding-top: 40px; } .about-inner { grid-column: 1; padding-left: var(--left); } }
 
