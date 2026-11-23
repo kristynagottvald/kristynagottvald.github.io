@@ -389,7 +389,7 @@ a.next:hover .hint-arrow { transform: translate(2px, -2px); }
 }
 
 /* Hover preview layers on the home grid */
-.pv-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s linear; pointer-events: none; border: 0; display: grid; place-items: center; overflow: hidden; }
+.pv-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: none; pointer-events: none; border: 0; display: grid; place-items: center; overflow: hidden; }   /* previews cut straight to the next one, no fade */
 .pv-layer.is-on { opacity: 1; }
 .pv-layer iframe { border: 0; pointer-events: none; max-width: none; }
 .pv-sketch { aspect-ratio: var(--ar); width: max(100cqw, calc(100cqh * var(--ar))); }   /* cover: crop to the card instead of letterboxing */
