@@ -600,7 +600,11 @@
       const cmd = (m) => { try { vf.contentWindow.postMessage(JSON.stringify(m), '*'); } catch (e) {} };
       cmd({ method: 'setCurrentTime', value: 0 }); cmd({ method: 'play' });
     }
-    $('#hint-title').textContent = frames[slide].dataset.label || '';
+    // A "|" in a label marks where it breaks onto a second line on phones (on desktop it reads as a space).
+    const parts = (frames[slide].dataset.label || '').split('|');
+    const txt = document.createElement('span');
+    parts.forEach((t, k) => { if (k) { const br = document.createElement('br'); br.className = 'br-m'; txt.append(br, ' '); } txt.append(t); });
+    $('#hint-title').replaceChildren(txt);
     // Non-interactive slides show only the title: no dash, no "Interactive" text, no pointer.
     const hint = $('#hint-title').closest('.reel-hint');
     hint.classList.toggle('is-plain', frames[slide].dataset.plain === '1');
