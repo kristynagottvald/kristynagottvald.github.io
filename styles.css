@@ -30,6 +30,7 @@
   --r-md: 8px;
 }
 @media (max-width: 639px) { :root { --fs-title: 40px; --fs-h2: 30px; --fs-h3: 22px; } }
+@media (max-width: 700px) { :root { --left: 12px; } }   /* phones: text sits 20px in, flush with the project card edges */
 /* Body copy is one weight lighter (Inter 300) than the labels, links and titles (400). */
 .case-lede, .text-right, .text-right p, .about-cols p, .aside-text, .aside-text p, .pj-side p, .ci-overview p, .card-sub, .pj-cap .grey { font-weight: 300; }
 *, *::before, *::after { box-sizing: border-box; }
