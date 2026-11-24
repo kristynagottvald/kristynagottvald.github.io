@@ -574,20 +574,15 @@
   }));
 
   // Hero slideshow: each sketch shows for 4 seconds, then the next fades in.
-  // Phones: the Mavenoid slide is left out of the slideshow (its frame and its dot are removed before the slideshow is set up).
+  // Phones: the Mavenoid slide is left out of the slideshow (its frame is removed before the slideshow is set up).
   if (matchMedia('(max-width: 760px)').matches) {
     const mv = document.querySelector('.reel-frame[data-src*="mavenoid-hero-sketch"]');
-    if (mv) {
-      const i = [...document.querySelectorAll('.reel-frame')].indexOf(mv);
-      const dot = document.querySelectorAll('.reel-dots .dot')[i];
-      mv.remove(); if (dot) dot.remove();
-    }
+    if (mv) mv.remove();
   }
   const frames = [...document.querySelectorAll('.reel-frame')];
-  const dots = [...document.querySelectorAll('.reel-dots .dot')];
   let slide = 0, slideTimer = null;
   // Only the first sketch loads at page load; the others (data-src) wait until it is running, so six iframes
-  // don't fight over bandwidth while the first one is trying to start. Clicking a dot loads its slide at once.
+  // don't fight over bandwidth while the first one is trying to start.
   const loadFrame = (f) => { if (f.dataset.src) { f.src = f.dataset.src; f.removeAttribute('data-src'); } };
   let restQueued = false;
   // They start only after the first sketch's opening pop-in has finished (about 3s), then one at a time, so loading
@@ -615,16 +610,10 @@
     if (href) hint.setAttribute('href', href); else hint.removeAttribute('href');
     // The dither sketch starts over each time the slideshow comes back to it.
     if (['reprise-prompt-demos-sketch.html?hero=1', 'mavenoid-hero-sketch.html?hero=1', 'lob-send-sketch.html?hero=1', 'postal-fix-spot-sketch.html?hero=1', 'lob-template-card-sketch.html?hero=1'].includes(frames[slide].getAttribute('src'))) { try { frames[slide].contentWindow.postMessage('reset', '*'); } catch (e) {} }
-    dots.forEach((d, k) => {
-      d.classList.remove('is-on');
-      if (k === slide) { void d.offsetWidth; d.classList.add('is-on'); }
-    });
     clearTimeout(slideTimer);
     const dwell = +frames[slide].dataset.duration || 4000;   // the replatforming sketch gets 15s (its sequence runs 17s, the next slide cuts in early)
-    dots[slide].style.setProperty('--dur', dwell + 'ms');
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) slideTimer = setTimeout(() => showSlide(slide + 1), dwell);
   }
-  dots.forEach((d, k) => d.addEventListener('click', () => showSlide(k)));
   showSlide(0);
 
   $('#copy-mail').addEventListener('click', (e) => {
