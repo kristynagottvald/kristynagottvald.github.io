@@ -96,17 +96,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    Telling the frame itself it is light keeps it transparent, and the dark backing shows through instead of a white flash. */
 .reel-frame[src*="vimeo.com"], .reel-frame[data-src*="vimeo.com"] { color-scheme: light; background: #0e0e0e; }
 .reel-frame.is-on { opacity: 1; visibility: visible; transition: opacity .5s linear; }
-.reel-dots { position: absolute; left: 12px; bottom: 12px; z-index: 2; display: flex; gap: 2px; }
-.reel-dots .dot { padding: 12px 2px; cursor: pointer; }
-.reel-dots .dot i { display: block; position: relative; width: 40px; height: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
-.reel-dots .dot i::after { content: ""; position: absolute; inset: 0; background: #fff; transform: scaleX(0); transform-origin: left; }
-.reel-dots .dot.is-on i::after { animation: reel-fill var(--dur, 4s) linear forwards; }
-@media (max-width: 700px) {
-  .reel-dots { left: 10px; bottom: 10px; gap: 0; }
-  .reel-dots .dot { padding: 12px 1.5px; }
-  .reel-dots .dot i { width: 18px; }   /* smaller slideshow indicators on phones */
-}
-@keyframes reel-fill { to { transform: scaleX(1); } }
 .reel-hint { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 8px; background: rgba(40,40,40,.7); backdrop-filter: blur(8px); font: 400 var(--fs-label)/1 var(--sans); letter-spacing: var(--ls-label); text-transform: uppercase; color: #e8e8e8; pointer-events: none; }
 .hint-title, .hint-cta { display: inline-flex; align-items: center; gap: 7px; }
 .embed.sketch .reel-hint { top: 12px; bottom: auto; }
