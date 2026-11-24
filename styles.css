@@ -96,8 +96,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
    Telling the frame itself it is light keeps it transparent, and the dark backing shows through instead of a white flash. */
 .reel-frame[src*="vimeo.com"], .reel-frame[data-src*="vimeo.com"] { color-scheme: light; background: #0e0e0e; }
 .reel-frame.is-on { opacity: 1; visibility: visible; transition: opacity .5s linear; }
-.reel-hint { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 8px; background: rgba(40,40,40,.7); backdrop-filter: blur(8px); font: 400 var(--fs-label)/1 var(--sans); letter-spacing: var(--ls-label); text-transform: uppercase; color: #e8e8e8; pointer-events: none; }
+.reel-hint { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 8px; background: rgba(40,40,40,.7); backdrop-filter: blur(8px); font: 400 var(--fs-label)/1 var(--sans); letter-spacing: var(--ls-label); text-transform: uppercase; color: #e8e8e8; pointer-events: none; }
 .hint-title, .hint-cta { display: inline-flex; align-items: center; gap: 7px; }
+.br-m { display: none; }   /* label line break that only applies on phones */
 .embed.sketch .reel-hint { top: 12px; bottom: auto; }
 .reel-hint .ptr-svg { width: 22px; height: 22px; }
 .hint-sep { opacity: .7; }
@@ -113,6 +114,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .reel-hint { max-width: calc(100% - 172px); right: 7px; bottom: 7px; min-height: 39px; padding: 0 16px; box-sizing: border-box; }
   .reel-video .hint-sep, .reel-video .hint-cta { display: none; }
   .hint-title { text-align: right; line-height: 1.4; }
+  .br-m { display: inline; }
 }
 .ptr-svg { overflow: visible; position: relative; top: 2px; }
 .ptr-svg .ptr { transform-box: view-box; transform-origin: 7.2px 6.4px; animation: ptr-click 2.6s ease-in-out infinite; }
