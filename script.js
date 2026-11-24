@@ -135,7 +135,7 @@
       el.style.background = it.bg || '#1e1e1e';
       const f = document.createElement('iframe');
       f.tabIndex = -1; f.setAttribute('aria-hidden', 'true');
-      if (it.t === 'sketch') { f.style.setProperty('--ar', it.ar); f.className = 'pv-sketch'; f.src = it.src; }
+      if (it.t === 'sketch') { f.style.setProperty('--ar', it.ar); f.className = 'pv-sketch'; f.src = it.src + (it.src.includes('?') ? '&' : '?') + 'preview=1'; }   // ?preview=1: sketches with sound stay silent here
       else { f.className = 'pv-vimeo'; f.allow = 'autoplay'; f.src = `https://player.vimeo.com/video/${it.id}?background=1&autoplay=1&muted=1&loop=1&autopause=0&dnt=1${it.hash ? '&h=' + it.hash : ''}`; }
       el.appendChild(f);
     }
