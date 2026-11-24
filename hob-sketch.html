@@ -27,13 +27,16 @@ function setup() {
   createCanvas(innerWidth, innerHeight);
   rectMode(CENTER);
 
-  outputVolume(0.05);
+  // Home page hover preview (?preview=1): silent. The case study page keeps the sound.
+  const silent = new URLSearchParams(location.search).get('preview') === '1';
+  outputVolume(silent ? 0 : 0.05);
   lpFilter = new p5.LowPass();
   lpFilter.res(2);
 
   reverb = new p5.Reverb();
   reverb.process(lpFilter, 4.0, 2);
   reverb.drywet(0.45);
+  if (silent) lpFilter.disconnect();   // nothing reaches the speakers; the oscillators still feed the waveform the bars draw
 
   let numRects = targetBarCount();
   for (let i = 0; i < numRects; i++) {
