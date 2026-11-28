@@ -5,16 +5,18 @@
   const TAGLINE = 'Brand Design';
 
   const $ = (sel, root = document) => root.querySelector(sel);
-  const views = { home: $('#view-home'), case: $('#view-case'), projects: $('#view-projects'), about: $('#view-about') };
+  const views = { home: $('#view-home'), case: $('#view-case'), projects: $('#view-projects'), about: $('#view-about'), archive: $('#view-archive') };
   const cardsEl = $('#cards');
   const stackEl = $('#case-stack');
   const footerEl = $('#contact');
   const navLinks = document.querySelectorAll('[data-nav]');
 
   let projects = [];
+  let archive = [];   // projects with "archived": true: only on the Archive page (linked from the footer)
   let currentView = null;
   let homeScroll = 0;
   let projectsScroll = 0;
+  let archiveScroll = 0;
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -25,10 +27,12 @@
 
   async function load() {
     try {
-      const res = await fetch('projects.json?v=20261107a');
+      const res = await fetch('projects.json?v=20261128a');
       if (!res.ok) throw new Error(res.status);
-      projects = (await res.json()).filter((p) => !p.hidden);  // set "hidden": true on a project in projects.json to hide it everywhere
-      projects.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
+      const all = (await res.json()).filter((p) => !p.hidden);  // set "hidden": true on a project in projects.json to hide it everywhere
+      all.forEach((p) => { p.slug = String(p.title).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
+      projects = all.filter((p) => !p.archived);   // set "archived": true to move a project to the Archive page
+      archive = all.filter((p) => p.archived);
     } catch (err) {
       console.error(err);
     }
@@ -40,6 +44,8 @@
     renderServices();
     route();
   }
+
+  const findProject = (id) => projects.find((x) => x.id === id) || archive.find((x) => x.id === id);
 
   const firstHeading = (p) => ((p.caseStudyContent || []).find((b) => b.type === 'text' && b.heading) || {}).heading || '';
   // The line under a card never repeats the title, year or classifier.
@@ -83,6 +89,7 @@
     const serviceItems = SERVICES.map((t, i) => `<li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${SERVICE_LINKS[t] ? `<a class="svc-link" href="${SERVICE_LINKS[t]}" target="_blank" rel="noopener noreferrer">${esc(t)}<span class="svc-go" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/></svg></span><span class="sr-only"> (opens in a new tab)</span></a>` : esc(t)}</span></li>`).join('');
     $('#service-list').innerHTML = serviceItems;
     $('#about-service-list').innerHTML = serviceItems;
+    $('#archive-cards').innerHTML = archive.map((q) => cardHTML(q)).join('');
     renderProjectsPage();
     bindPreviews();
   }
@@ -106,7 +113,7 @@
   let pvZ = 1, pvObserver = null;
   function pvPreload(card) {
     if (pvPre.has(card)) return;
-    const p = projects.find((x) => x.id === card.dataset.pid);
+    const p = findProject(card.dataset.pid);
     const media = card.querySelector('.card-media');
     if (!p || !media) return;
     const m = new Map();
@@ -192,7 +199,7 @@
       if (pvObserver) pvObserver.observe(card);
       card.addEventListener('mouseenter', () => {
         pvStop();
-        const p = projects.find((x) => x.id === card.dataset.pid);
+        const p = findProject(card.dataset.pid);
         const items = p ? previewItems(p) : [];
         if (!items.length) return;
         pv.card = card; pv.idx = 0;
@@ -434,13 +441,16 @@
     return { html, rest };
   }
 
+  // An archived project's "Next up" and project list stay within the archive.
+  const groupOf = (p) => (p.archived ? archive : projects);
   function caseHTML(p) {
     const { html: introHTML, rest: content } = caseIntro(p, p.caseStudyContent || []);
     const blocks = content.map(blockHTML);
     const heroAt = content.findIndex((b) => b.type === 'image' || b.type === 'vimeo');
     const hero = heroAt >= 0 ? blocks.splice(heroAt, 1)[0] : '';
-    const i = projects.indexOf(p);
-    const next = projects[(i + 1) % projects.length];
+    const group = groupOf(p);
+    const i = group.indexOf(p);
+    const next = group[(i + 1) % group.length];
     return `
       <article class="case" aria-label="${esc(pageTitle(p))}">
         <div class="case-body">${hero}${introHTML}${blocks.join('')}</div>
@@ -452,9 +462,9 @@
             </div>
             <div class="next-media" data-urls="${esc(JSON.stringify(nextImages(next)))}"><img class="is-active" src="${esc(nextImages(next)[0])}" alt=""><span class="reel-hint next-hint">View project <svg class="hint-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.3 7.7l5.1-5.1M2.3 2.1h5.5v5.5" fill="none" stroke="currentColor" stroke-linecap="square"/></svg></span></div>
           </a>
-          <section class="work case-work" aria-label="Selected Work">
-            <div class="work-side"><h2 class="t-condensed">Selected Work</h2></div>
-            <div class="work-list">${projects.map((q) => (q === p ? cardHTML(q, true) : cardHTML(q))).join('')}</div>
+          <section class="work case-work" aria-label="${p.archived ? 'Archive' : 'Selected Work'}">
+            <div class="work-side"><h2 class="t-condensed">${p.archived ? 'Archive' : 'Selected Work'}</h2></div>
+            <div class="work-list">${group.map((q) => (q === p ? cardHTML(q, true) : cardHTML(q))).join('')}</div>
           </section>
         </footer>
       </article>`;
@@ -483,7 +493,7 @@
   }
 
   function showCase(id) {
-    const p = projects.find((x) => x.slug === id || x.id === id);
+    const p = projects.concat(archive).find((x) => x.slug === id || x.id === id);
     if (!p) { location.hash = ''; return false; }
     stackEl.innerHTML = caseHTML(p);
     stackEl.querySelectorAll('.embed[data-vimeo]').forEach((box) => (embedObserver ? embedObserver.observe(box) : loadEmbed(box)));
@@ -509,10 +519,12 @@
   function show(name) {
     if (currentView === 'home') homeScroll = window.scrollY;
     if (currentView === 'projects') projectsScroll = window.scrollY;
+    if (currentView === 'archive') archiveScroll = window.scrollY;
     Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
     if (name !== 'case') { stopNextMedia(); stackEl.innerHTML = ''; }
     if (name === 'projects') startProjectsCycle(); else stopProjectsCycle();
-    setNav(name === 'about' ? 'about' : 'projects');
+    setNav(name === 'about' ? 'about' : name === 'archive' ? 'archive' : 'projects');
+    if (name === 'archive') { const l = $('#nav-jump-label'); if (l) l.textContent = 'Archive'; }   // no nav link for the archive: the mobile toggle still names the page
     currentView = name;
   }
 
@@ -530,6 +542,12 @@
       show('projects');
       document.title = `Selected Work • ${SITE}`;
       window.scrollTo(0, back ? projectsScroll : 0);
+    } else if (hash === 'archive') {
+      const back = currentView === 'case';
+      show('archive');
+      bindPreviews($('#archive-cards'));
+      document.title = `Archive • ${SITE}`;
+      window.scrollTo(0, back ? archiveScroll : 0);
     } else if (hash === 'about') {
       show('about');
       document.title = `About • ${SITE}`;

@@ -151,6 +151,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .work-list .card a:hover { opacity: 1; }
 }
 @media (hover: none) { .work-list:hover .card a { opacity: 1; } }
+/* Archive page: the same work list, opening the page instead of following the hero. */
+.archive .work { border-top: 0; margin-top: 8px; padding-top: 56px; }
 
 /* ---------- Services ---------- */
 .services { padding: 0 var(--pad) 120px; }
